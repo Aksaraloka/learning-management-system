@@ -2,7 +2,7 @@
 
 LMS web untuk **satu** sekolah (SMP, SMA/SMK) atau perguruan tinggi di Indonesia. Laravel 13, Livewire 4, Tailwind CSS v4, mobile-first.
 
-> Status: **Fase 0 (fondasi) dan Fase 1 (auth, peran, pengguna, tahun ajaran)** selesai. Aplikasi melayani **satu institusi**
+> Status: **Fase 0 (fondasi), Fase 1 (auth, peran, pengguna, tahun ajaran), dan Fase 2 (kelas & materi)** selesai. Aplikasi melayani **satu institusi**
 > (versi multi-tenant sudah dihapus; lihat [docs/decisions.md](docs/decisions.md)). Rencana lengkap ada di prompt awal proyek.
 
 ## Menjalankan di lokal
@@ -50,8 +50,25 @@ Semua kata sandi: `password`. Hasil `php artisan db:seed` (DemoSeeder).
 | Siswa (email) | `siswa1@aksaraloka.test` … `siswa5@aksaraloka.test` |
 | Siswa (NIS saja) | `2026006` … `2026030` (jenjang `campus`: NIM `2260006` … `2260030`) |
 
-Login menerima email **atau** NIS/NIM/NIP. Kelas, materi, tugas, dan kuis demo ditambahkan di fase berikutnya.
+Login menerima email **atau** NIS/NIM/NIP. Data demo berisi 4 kelas (guru1 mengampu Matematika & IPS; siswa1–5 ikut semua kelas) lengkap dengan topik dan materi (teks, PDF, tautan, video). Tugas dan kuis demo ditambahkan di fase berikutnya.
 
+## Kelas & materi
+
+- **Kelas** (mata pelajaran / mata kuliah) dibuat guru atau admin dan ditautkan ke tahun ajaran. Setiap kelas punya **kode gabung** 6 karakter; siswa bergabung lewat menu Kelas, atau pengajar menambahkan banyak peserta sekaligus di halaman Anggota (tempel NIS/NIM/email).
+- **Topik** (sekolah) atau **pertemuan 1–16** (kampus) berisi materi: teks (editor Tiptap + rumus KaTeX), berkas (PDF dan gambar dapat dipratinjau), tautan, dan video (YouTube/Vimeo dimuat setelah tombol putar ditekan). Topik dan materi dapat diurutkan dengan drag & drop.
+- **Hak akses**: admin dan pengajar kelas mengelola; siswa membaca kelas yang diikutinya; kepala sekolah melihat semua kelas (hanya baca). Berkas disimpan privat dan hanya disajikan kepada anggota kelas.
+
+### Batas unggah berkas
+
+Maksimal 50 MB per berkas (`config/courses.php`), tetapi tidak pernah melebihi batas PHP. Halaman unggah menampilkan batas yang sebenarnya berlaku.
+Bawaan PHP hanya 2 MB, jadi untuk 50 MB ubah `php.ini` (Herd: `%USERPROFILE%\.config\herd\bin\php84\php.ini`) lalu restart server:
+
+```ini
+upload_max_filesize = 64M
+post_max_size = 64M
+```
+
+Berkas disimpan di disk `COURSE_DISK` (default `local`, folder `storage/app/private/courses`). Ganti ke `s3` untuk S3/Cloudflare R2.
 ## Impor pengguna
 
 Admin: **Pengguna → Impor pengguna**. Unduh templat CSV, isi kolom `name, identity_number, email, role, password`

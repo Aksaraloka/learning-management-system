@@ -25,7 +25,7 @@
         <nav class="flex-1 space-y-1 p-3" aria-label="{{ __('ui.nav.main') }}">
             @foreach ($nav as $item)
                 @php($url = Route::has($item['route']) ? route($item['route']) : '#')
-                @php($active = Route::has($item['route']) && request()->routeIs($item['route'].'*'))
+                @php($active = Route::has($item['route']) && request()->routeIs($item['match'] ?? $item['route']))
                 <a href="{{ $url }}" @if ($active) aria-current="page" @endif title="{{ $item['label'] }}"
                    @class([
                        'flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium',
@@ -85,7 +85,7 @@
          style="grid-template-columns: repeat({{ count($nav) }}, minmax(0, 1fr))" aria-label="{{ __('ui.nav.main') }}">
         @foreach ($nav as $item)
             @php($url = Route::has($item['route']) ? route($item['route']) : '#')
-            @php($active = Route::has($item['route']) && request()->routeIs($item['route'].'*'))
+            @php($active = Route::has($item['route']) && request()->routeIs($item['match'] ?? $item['route']))
             <a href="{{ $url }}" @if ($active) aria-current="page" @endif
                @class([
                    'flex min-h-14 flex-col items-center justify-center gap-0.5 text-xs font-medium',

@@ -16,6 +16,10 @@ Laravel 13 (PHP 8.3+), Livewire 4 + Alpine, Tailwind CSS v4 (Vite), Pest, Pint, 
 - Komponen Blade di `resources/views/components` (`<x-button>`, `<x-input>`, `<x-input.select>`, `<x-input.date>`, `<x-editor>`, ...). Galeri: `/ui` (hanya `APP_ENV=local`).
 - Ikon: Lucide SVG disalin ke `resources/icons`, dipakai `<x-icon name="home" />`. Tambah ikon: salin dari `node_modules/lucide-static/icons`.
 - Jangan ubah migration lama setelah fase selesai; buat migration baru. Keputusan tak tercakup PRD dicatat di `docs/decisions.md`.
+- Kelas & materi: model `Course`/`Enrollment`/`Section`/`Material`, policy per model (hak materi & topik mengikuti kelasnya), action di `app/Actions/{Courses,Sections,Materials}`, halaman Livewire di `app/Livewire/{Courses,Materials}`. Berkas materi privat di `config('courses.disk')`, disajikan `MaterialFileController` (policy `view`); jangan pernah tautkan path storage langsung. HTML rich text wajib lewat `Purifier::clean($html, 'content')` sebelum disimpan.
+- JS: instance library berat (Tiptap, Chart.js, pdf.js, Sortable, FilePond, Tom Select, Flatpickr) disimpan di variabel **closure** pada `Alpine.data`, bukan properti komponen; Alpine membungkus properti dengan Proxy sehingga field privat library rusak. `pdfjs.getDocument` butuh objek `{ url }`.
+- Test Livewire: setelah `assertForbidden()`/`assertNotFound()` komponen tidak bisa dipakai lagi; buat komponen baru untuk panggilan berikutnya.
+- Verifikasi UI nyata: bisa memakai Chrome headless lewat DevTools Protocol (skrip contoh ada di riwayat sesi; jalankan server dengan `php artisan serve` dan sembunyikan `public/hot` agar memakai aset hasil build).
 - Setiap fitur wajib punya Pest feature test (termasuk hak akses & isolasi tenant).
 - Di Windows/PowerShell 5.1 jangan tulis file PHP dengan `Set-Content -Encoding utf8` (menambah BOM).
 
@@ -23,7 +27,7 @@ Laravel 13 (PHP 8.3+), Livewire 4 + Alpine, Tailwind CSS v4 (Vite), Pest, Pint, 
 - `composer dev` (server+queue+vite) · `npm run build` · `php artisan test` · `./vendor/bin/pint` · `./vendor/bin/phpstan analyse --memory-limit=1G`
 
 ## Status fase
-Fase 0 (fondasi) dan Fase 1 (auth, peran, pengguna, tahun ajaran) selesai; multi-tenant dihapus. Berikutnya: Fase 2 (kelas & materi). Rencana lengkap di prompt awal proyek.
+Fase 0 (fondasi), Fase 1 (auth, peran, pengguna, tahun ajaran), dan Fase 2 (kelas & materi) selesai; multi-tenant dihapus. Berikutnya: Fase 3 (tugas). Rencana lengkap di prompt awal proyek.
 
 <laravel-boost-guidelines>
 === foundation rules ===

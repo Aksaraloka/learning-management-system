@@ -31,6 +31,16 @@ return [
             'AutoFormat.AutoParagraph' => true,
             'AutoFormat.RemoveEmpty' => true,
         ],
+        // Keluaran Tiptap (materi, instruksi tugas, soal). Pakai Purifier::clean($html, 'content').
+        'content' => [
+            'HTML.Doctype' => 'HTML 4.01 Transitional',
+            'HTML.Allowed' => 'p,br,hr,strong,b,em,i,u,s,code,pre,blockquote,h2,h3,ul,ol,li,a[href|title]',
+            'AutoFormat.AutoParagraph' => false,
+            'AutoFormat.RemoveEmpty' => true,
+            'URI.AllowedSchemes' => ['http' => true, 'https' => true, 'mailto' => true],
+            'HTML.TargetBlank' => true,
+            'HTML.Nofollow' => true,
+        ],
         'test' => [
             'Attr.EnableID' => 'true',
         ],
