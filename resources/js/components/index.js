@@ -337,7 +337,8 @@ export function registerLazyComponents(Alpine) {
             build() {
                 chart?.destroy();
 
-                const palette = [this.token('primary'), this.token('success'), this.token('warning'), this.token('danger')];
+                // Aksen merah mirip warna bahaya, jadi warna ke-4 memakai abu-abu agar seri grafik tetap mudah dibedakan.
+                const palette = [this.token('primary'), this.token('success'), this.token('warning'), this.token('text-muted')];
 
                 ChartCtor.defaults.color = this.token('text-muted');
                 ChartCtor.defaults.borderColor = this.token('border');

@@ -43,6 +43,14 @@ it('keeps cards distinguishable from the dark background', function () {
         ->and(contrast($dark['border'], $dark['bg']))->toBeGreaterThan(1.3);
 });
 
+it('uses a red accent in both themes', function (string $selector) {
+    $primary = ($selector === ':root' ? themeTokens('@theme static') : themeTokens('.dark'))['primary'];
+
+    [$r, $g, $b] = array_map('hexdec', str_split(ltrim($primary, '#'), 2));
+
+    expect($r)->toBeGreaterThan($g * 2)->and($r)->toBeGreaterThan($b * 2);
+})->with([':root', '.dark']);
+
 it('meets WCAG AA text contrast in both themes', function (string $selector) {
     $t = $selector === ':root' ? themeTokens('@theme static') : themeTokens('.dark');
 
