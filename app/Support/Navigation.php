@@ -16,14 +16,6 @@ class Navigation
     public static function for(?User $user): array
     {
         $profile = ['label' => __('ui.nav.profile'), 'icon' => 'user', 'route' => 'profile.edit'];
-
-        if ($user?->isSuperAdmin()) {
-            return [
-                ['label' => __('ui.nav.tenants'), 'icon' => 'building-2', 'route' => 'platform.tenants.index'],
-                $profile,
-            ];
-        }
-
         $home = ['label' => __('ui.nav.home'), 'icon' => 'home', 'route' => 'home'];
         $classes = ['label' => __('ui.nav.classes'), 'icon' => 'book-open', 'route' => 'courses.index'];
 

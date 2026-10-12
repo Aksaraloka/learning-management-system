@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Validator;
 
 /**
  * Memvalidasi satu baris impor pengguna terhadap aturan, isi file sebelumnya,
- * dan data yang sudah ada di tenant aktif. Satu instance per impor/pratinjau.
+ * dan data yang sudah ada. Satu instance per impor/pratinjau.
  */
 class UserRowValidator
 {
@@ -94,13 +94,13 @@ class UserRowValidator
     }
 
     /**
-     * Email unik secara global, jadi pemeriksaan melewati TenantScope.
+     * Email unik di seluruh aplikasi.
      *
      * @return array<string, bool>
      */
     private function emails(): array
     {
-        return $this->emails ??= User::withoutGlobalScopes()->withTrashed()->whereNotNull('email')
+        return $this->emails ??= User::withTrashed()->whereNotNull('email')
             ->pluck('email')->mapWithKeys(fn ($v) => [mb_strtolower($v) => true])->all();
     }
 }

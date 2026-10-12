@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Concerns\BelongsToTenant;
 use Carbon\Carbon;
 use Database\Factories\AcademicTermFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -11,7 +10,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * @property int $tenant_id
  * @property string $name
  * @property Carbon $starts_at
  * @property Carbon $ends_at
@@ -21,7 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class AcademicTerm extends Model
 {
     /** @use HasFactory<AcademicTermFactory> */
-    use BelongsToTenant, HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected function casts(): array
     {

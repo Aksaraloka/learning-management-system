@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Istilah yang menyesuaikan mode tenant: `school` (SMP/SMA/SMK) atau `campus`.
+ * Istilah yang menyesuaikan jenjang institusi (INSTITUTION_LEVEL): `school` (SMP/SMA/SMK) atau `campus`.
  * Pakai helper term('teacher') atau App\Support\Terminology.
  */
 return [

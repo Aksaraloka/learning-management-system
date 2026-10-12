@@ -2,17 +2,17 @@
 
 namespace Database\Seeders;
 
-use App\Actions\Tenants\CreateTenant;
+use App\Actions\Setup\CreateAdmin;
+use App\Actions\Setup\EnsureRoles;
 use App\Enums\Role;
 use App\Models\AcademicTerm;
-use App\Models\Tenant;
 use App\Models\User;
-use App\Support\Tenancy;
+use App\Support\Terminology;
 use Illuminate\Database\Seeder;
 
 /**
- * Data demo: 1 super admin, tenant SMP dan tenant kampus (masing-masing 1 admin,
- * 3 guru/dosen, 30 siswa/mahasiswa, 1 tahun ajaran). Kelas, materi, tugas, dan kuis
+ * Data demo untuk satu institusi (jenjang mengikuti INSTITUTION_LEVEL): 1 admin, 1 kepala,
+ * 3 guru/dosen, 30 siswa/mahasiswa, dan 1 tahun ajaran. Kelas, materi, tugas, dan kuis
  * ditambahkan seeder fase berikutnya. Kata sandi semua akun demo: "password".
  */
 class DemoSeeder extends Seeder
@@ -21,52 +21,37 @@ class DemoSeeder extends Seeder
 
     public function run(): void
     {
-        User::factory()->superAdmin()->create([
-            'name' => 'Super Admin',
-            'email' => 'super@aksaraloka.test',
+        app(EnsureRoles::class)->handle();
+
+        $campus = Terminology::mode() === Terminology::CAMPUS;
+
+        app(CreateAdmin::class)->handle('Admin '.institution_name(), 'admin@aksaraloka.test', self::PASSWORD);
+
+        AcademicTerm::factory()->create(['name' => '2026/2027 Ganjil']);
+
+        User::factory()->role(Role::Principal)->create([
+            'name' => $campus ? 'Ketua Program Studi' : 'Kepala Sekolah',
+            'email' => 'kepala@aksaraloka.test',
+            'identity_number' => '1975010120000100',
             'password' => self::PASSWORD,
         ]);
 
-        $this->seedTenant('SMP Negeri 1 Bandung', 'smpn1bandung', 'school', ['NIS' => '2026', 'staff' => 'NIP']);
-        $this->seedTenant('Universitas Demo Nusantara', 'kampusdemo', 'campus', ['NIS' => '2260', 'staff' => 'NIDN']);
-    }
-
-    /**
-     * @param  array{NIS: string, staff: string}  $meta
-     */
-    private function seedTenant(string $name, string $slug, string $level, array $meta): void
-    {
-        $result = app(CreateTenant::class)->handle(
-            ['name' => $name, 'slug' => $slug, 'level' => $level],
-            ['name' => 'Admin '.$name, 'email' => "admin@{$slug}.test", 'password' => self::PASSWORD],
-        );
-
-        Tenancy::run($result['tenant'], function () use ($slug, $meta) {
-            AcademicTerm::factory()->create(['name' => '2026/2027 Ganjil']);
-
-            foreach (range(1, 3) as $i) {
-                User::factory()
-                    ->role(...($i === 1 ? [Role::Teacher, Role::Homeroom] : [Role::Teacher]))
-                    ->create([
-                        'email' => "guru{$i}@{$slug}.test",
-                        'identity_number' => $meta['staff'] === 'NIP' ? '19800101200501'.$i : '00112233'.$i,
-                        'password' => self::PASSWORD,
-                    ]);
-            }
-
-            User::factory()->role(Role::Principal)->create([
-                'email' => "kepala@{$slug}.test",
-                'identity_number' => '1975010120000100',
-                'password' => self::PASSWORD,
-            ]);
-
-            foreach (range(1, 30) as $i) {
-                User::factory()->role(Role::Student)->create([
-                    'email' => $i <= 5 ? "siswa{$i}@{$slug}.test" : null, // sisanya login dengan NIS/NIM
-                    'identity_number' => $meta['NIS'].str_pad((string) $i, 3, '0', STR_PAD_LEFT),
+        foreach (range(1, 3) as $i) {
+            User::factory()
+                ->role(...($i === 1 ? [Role::Teacher, Role::Homeroom] : [Role::Teacher]))
+                ->create([
+                    'email' => "guru{$i}@aksaraloka.test",
+                    'identity_number' => ($campus ? '00112233' : '19800101200501').$i,
                     'password' => self::PASSWORD,
                 ]);
-            }
-        });
+        }
+
+        foreach (range(1, 30) as $i) {
+            User::factory()->role(Role::Student)->create([
+                'email' => $i <= 5 ? "siswa{$i}@aksaraloka.test" : null, // sisanya login dengan NIS/NIM
+                'identity_number' => ($campus ? '2260' : '2026').str_pad((string) $i, 3, '0', STR_PAD_LEFT),
+                'password' => self::PASSWORD,
+            ]);
+        }
     }
 }

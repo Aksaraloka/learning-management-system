@@ -9,17 +9,17 @@ class UserPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->tenant_id !== null && $user->hasAppRole(Role::Admin, Role::Principal);
+        return $user->hasAppRole(Role::Admin, Role::Principal);
     }
 
     public function view(User $user, User $target): bool
     {
-        return $user->is($target) || ($this->viewAny($user) && $user->tenant_id === $target->tenant_id);
+        return $user->is($target) || $this->viewAny($user);
     }
 
     public function create(User $user): bool
     {
-        return $user->tenant_id !== null && $user->isAdmin();
+        return $user->isAdmin();
     }
 
     public function import(User $user): bool
@@ -29,12 +29,12 @@ class UserPolicy
 
     public function update(User $user, User $target): bool
     {
-        return $user->is($target) || ($this->create($user) && $user->tenant_id === $target->tenant_id);
+        return $user->is($target) || $this->create($user);
     }
 
     public function resetPassword(User $user, User $target): bool
     {
-        return $this->create($user) && $user->tenant_id === $target->tenant_id && ! $user->is($target);
+        return $this->create($user) && ! $user->is($target);
     }
 
     public function delete(User $user, User $target): bool

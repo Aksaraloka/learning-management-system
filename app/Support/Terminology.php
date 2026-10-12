@@ -9,13 +9,11 @@ class Terminology
     public const CAMPUS = 'campus';
 
     /**
-     * Mode tenant aktif. Sebelum ada tenant (landing, panel super admin) memakai mode sekolah.
+     * Jenjang institusi dari config('institution.level'): sekolah (default) atau kampus.
      */
     public static function mode(): string
     {
-        $tenant = app()->bound('tenant') ? app('tenant') : null;
-
-        return ($tenant->level ?? self::SCHOOL) === self::CAMPUS ? self::CAMPUS : self::SCHOOL;
+        return config('institution.level') === self::CAMPUS ? self::CAMPUS : self::SCHOOL;
     }
 
     public static function get(string $key, ?string $mode = null): string

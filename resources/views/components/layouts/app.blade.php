@@ -19,7 +19,7 @@
            :class="collapsed ? 'w-[4.5rem]' : 'w-64'">
         <div class="flex h-16 items-center gap-3 border-b border-border px-5">
             <x-icon name="graduation-cap" class="size-6 shrink-0 text-primary" />
-            <span class="truncate text-lg font-bold" x-show="!collapsed">{{ tenant_name() }}</span>
+            <span class="truncate text-lg font-bold" x-show="!collapsed">{{ institution_name() }}</span>
         </div>
 
         <nav class="flex-1 space-y-1 p-3" aria-label="{{ __('ui.nav.main') }}">
@@ -50,7 +50,7 @@
         <header class="sticky top-0 z-20 flex h-16 items-center justify-between gap-3 border-b border-border bg-surface/90 px-4 backdrop-blur sm:px-6">
             <div class="flex min-w-0 items-center gap-2 lg:hidden">
                 <x-icon name="graduation-cap" class="size-6 shrink-0 text-primary" />
-                <span class="truncate font-bold">{{ tenant_name() }}</span>
+                <span class="truncate font-bold">{{ institution_name() }}</span>
             </div>
             <h1 class="hidden truncate text-lg font-semibold lg:block">{{ $title }}</h1>
 

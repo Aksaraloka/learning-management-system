@@ -38,7 +38,6 @@ class Index extends Component
 
     public function resetPassword(int $id, ResetUserPassword $reset): void
     {
-        // findOrFail dibatasi TenantScope: id milik tenant lain menghasilkan 404.
         $target = User::findOrFail($id);
 
         Gate::authorize('resetPassword', $target);

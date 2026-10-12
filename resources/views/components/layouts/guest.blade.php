@@ -11,7 +11,7 @@
     <div class="flex min-h-dvh flex-col">
         <header class="flex items-center justify-between px-4 py-4 sm:px-6">
             <a href="{{ route('home') }}" class="flex items-center gap-2 font-bold">
-                <x-icon name="graduation-cap" class="size-6 text-primary" /> {{ tenant_name() }}
+                <x-icon name="graduation-cap" class="size-6 text-primary" /> {{ institution_name() }}
             </a>
             <x-theme-toggle />
         </header>

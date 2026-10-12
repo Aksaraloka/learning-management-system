@@ -4,23 +4,12 @@ namespace App\Enums;
 
 enum Role: string
 {
-    case SuperAdmin = 'super_admin';
     case Admin = 'admin';
     case Principal = 'principal';
     case Teacher = 'teacher';
     case Homeroom = 'homeroom';
     case Student = 'student';
     case Parent = 'parent';
-
-    /**
-     * Peran yang ada di dalam tenant (semua kecuali super admin platform).
-     *
-     * @return list<self>
-     */
-    public static function tenantRoles(): array
-    {
-        return array_values(array_filter(self::cases(), fn (self $role) => $role !== self::SuperAdmin));
-    }
 
     /**
      * Peran yang boleh diberikan lewat impor/pembuatan massal oleh admin.
@@ -35,7 +24,6 @@ enum Role: string
     public function label(): string
     {
         return match ($this) {
-            self::SuperAdmin => 'Super Admin',
             self::Admin => 'Admin',
             self::Principal => term('principal'),
             self::Teacher => term('teacher'),

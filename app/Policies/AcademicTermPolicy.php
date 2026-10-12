@@ -9,27 +9,27 @@ class AcademicTermPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->tenant_id !== null;
+        return true;
     }
 
     public function view(User $user, AcademicTerm $term): bool
     {
-        return $user->tenant_id === $term->tenant_id;
+        return true;
     }
 
     public function create(User $user): bool
     {
-        return $user->tenant_id !== null && $user->isAdmin();
+        return $user->isAdmin();
     }
 
     public function update(User $user, AcademicTerm $term): bool
     {
-        return $this->create($user) && $user->tenant_id === $term->tenant_id && ! $term->is_locked;
+        return $this->create($user) && ! $term->is_locked;
     }
 
     public function lock(User $user, AcademicTerm $term): bool
     {
-        return $this->create($user) && $user->tenant_id === $term->tenant_id;
+        return $this->create($user);
     }
 
     public function delete(User $user, AcademicTerm $term): bool

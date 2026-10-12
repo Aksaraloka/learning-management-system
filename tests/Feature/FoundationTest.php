@@ -4,8 +4,8 @@ use App\Support\Terminology;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\ViewErrorBag;
 
-it('renders the landing page in Indonesian with the anti-flash theme script', function () {
-    $this->get('/platform')
+it('renders the login page in Indonesian with the anti-flash theme script', function () {
+    $this->get('/login')
         ->assertOk()
         ->assertSee('lang="id"', false)
         ->assertSee('_x_theme', false)
@@ -68,8 +68,8 @@ it('switches terminology between school and campus', function () {
         ->and(term('section', Terminology::SCHOOL))->toBe('Topik');
 });
 
-it('uses campus terms when the bound tenant is a campus', function () {
-    app()->instance('tenant', (object) ['level' => 'campus']);
+it('uses campus terms when the institution is a campus', function () {
+    config(['institution.level' => 'campus']);
 
     expect(term('teacher'))->toBe('Dosen');
 });

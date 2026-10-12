@@ -43,3 +43,12 @@ Asumsi yang diambil saat PRD tidak mencakup detailnya.
 31. **Update Livewire membawa tenant**: rute kustom `/livewire-xxx/update/{tenant?}` didaftarkan di `AppServiceProvider::register()` (mendahului rute bawaan Livewire, yang otomatis 404 bila ada rute kustom). Endpoint upload file tidak butuh tenant (hanya menyimpan file sementara bertanda tangan).
 32. **Satu sesi per browser per host**: cookie sesi sama untuk semua slug. `TenantScope` pada provider auth + `tenant.member` membuat sesi tenant lain tidak berlaku di tenant ini, sehingga berpindah tenant berarti masuk ulang. Lapis isolasi lain tetap berlaku.
 33. **Slug**: 3-32 karakter `[a-z0-9-]`, tidak boleh diawali/diakhiri strip, tidak boleh dalam `reserved_slugs` atau diawali `livewire-`.
+
+## Perubahan: satu institusi (multi-tenant dihapus)
+
+34. **Satu institusi per instalasi** (menggantikan #14-#19 dan #28-#33 yang terkait tenant). Alasan: kebutuhan produk berubah; tanpa subdomain/domain. Tidak ada `tenants`, `tenant_id`, `TenantScope`, middleware tenant, panel super admin, atau prefix URL. URL kembali sederhana (`/login`, `/admin/pengguna`).
+35. **Nama & jenjang lewat `.env`** (`INSTITUTION_NAME`, `INSTITUTION_LEVEL`) dibaca `config/institution.php`, bukan tabel. Pengaturan lewat UI dapat ditambahkan nanti bila perlu.
+36. **Peran**: `super_admin` dihapus. Spatie tanpa teams (`teams = false`). Peran dibuat oleh migration `remove_multi_tenancy` dan oleh action `EnsureRoles`; admin pertama dibuat dengan `php artisan aksaraloka:install`.
+37. **Migration `2026_10_14_000001_remove_multi_tenancy`** (migration lama tidak diubah): membuang kolom `tenant_id`, tabel `tenants`, akun super admin, dan membangun ulang tabel peran spatie tanpa teams (peran & penugasan dipertahankan, peran duplikat per tenant digabung). Menolak berjalan bila ada lebih dari satu tenant karena NIS/email bisa bentrok; pada kasus itu pilih satu institusi atau pakai database baru. Jalur database baru terverifikasi di MySQL; jalur konversi dari database lama dengan satu tenant berperan belum diuji di MySQL.
+38. **Isolasi data lintas tenant tidak relevan lagi**: test isolasi dihapus. Hak akses tetap diuji (admin, kepala, guru, siswa).
+39. **Akun demo** memakai domain `@aksaraloka.test` (satu institusi).

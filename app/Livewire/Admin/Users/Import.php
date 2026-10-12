@@ -7,7 +7,6 @@ use App\Imports\RowsImport;
 use App\Jobs\ImportUsersJob;
 use App\Models\ImportRun;
 use App\Models\User;
-use App\Support\Tenancy;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Gate;
@@ -72,8 +71,7 @@ class Import extends Component
 
         $this->validate(['file' => ['required', 'file', 'mimes:csv,txt,xlsx,xls', 'max:5120']]);
 
-        $tenantId = (int) Tenancy::id();
-        $path = $this->file->store("imports/{$tenantId}", 'local');
+        $path = $this->file->store('imports', 'local');
 
         $run = ImportRun::create([
             'user_id' => auth()->id(),
@@ -82,7 +80,7 @@ class Import extends Component
             'status' => 'queued',
         ]);
 
-        ImportUsersJob::dispatch($tenantId, $run->id);
+        ImportUsersJob::dispatch($run->id);
 
         $this->reset('file', 'preview', 'totalRows', 'invalidRows');
         $this->dispatch('toast', message: __('ui.users.import_queued'), type: 'success');

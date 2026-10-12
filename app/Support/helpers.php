@@ -1,11 +1,10 @@
 <?php
 
-use App\Support\Tenancy;
 use App\Support\Terminology;
 
 if (! function_exists('term')) {
     /**
-     * Istilah UI sesuai mode tenant, mis. term('teacher') => "Guru" atau "Dosen".
+     * Istilah UI sesuai jenjang institusi, mis. term('teacher') => "Guru" atau "Dosen".
      */
     function term(string $key, ?string $mode = null): string
     {
@@ -13,12 +12,12 @@ if (! function_exists('term')) {
     }
 }
 
-if (! function_exists('tenant_name')) {
+if (! function_exists('institution_name')) {
     /**
-     * Nama institusi aktif, atau nama platform di domain utama.
+     * Nama institusi (config 'institution.name').
      */
-    function tenant_name(): string
+    function institution_name(): string
     {
-        return Tenancy::current()->name ?? (string) config('app.name');
+        return (string) config('institution.name');
     }
 }

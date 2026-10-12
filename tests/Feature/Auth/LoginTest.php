@@ -4,16 +4,14 @@ use App\Enums\Role;
 use App\Livewire\Auth\ForgotPassword;
 use App\Livewire\Auth\Login;
 use App\Livewire\Auth\ResetPassword;
-use App\Models\User;
-use App\Support\Tenancy;
 use Illuminate\Auth\Notifications\ResetPassword as ResetPasswordNotification;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
 use Livewire\Livewire;
 
 beforeEach(function () {
-    $this->tenant = makeTenant(['slug' => 'smp1']);
-    $this->student = makeUser($this->tenant, Role::Student, [
+    $this->student = makeUser(Role::Student, [
         'email' => 'andi@contoh.test', 'identity_number' => '2026001', 'password' => 'rahasia123',
     ]);
 });
@@ -23,63 +21,34 @@ function attemptLogin(string $identifier, string $password)
     return Livewire::test(Login::class)->set('identifier', $identifier)->set('password', $password)->call('login');
 }
 
-it('logs in with email', function () {
-    Tenancy::bind($this->tenant);
+it('shows the login page with the institution name', function () {
+    $this->get('/login')->assertOk()->assertSee('SMP Contoh')->assertSee('Masuk');
+});
 
+it('sends guests from the root to login', function () {
+    $this->get('/')->assertRedirect(route('login'));
+});
+
+it('logs in with email', function () {
     attemptLogin('andi@contoh.test', 'rahasia123')->assertHasNoErrors()->assertRedirect(route('home'));
 
     $this->assertAuthenticatedAs($this->student);
 });
 
 it('logs in with NIS/NIM', function () {
-    Tenancy::bind($this->tenant);
-
     attemptLogin('2026001', 'rahasia123')->assertHasNoErrors();
 
     $this->assertAuthenticatedAs($this->student);
 });
 
-it('rejects a wrong password', function () {
-    Tenancy::bind($this->tenant);
-
+it('rejects a wrong password or unknown account', function () {
     attemptLogin('2026001', 'salah')->assertHasErrors('identifier');
+    attemptLogin('tidak-ada@contoh.test', 'rahasia123')->assertHasErrors('identifier');
 
     $this->assertGuest();
-});
-
-it('does not log a user into another tenant', function () {
-    $other = makeTenant(['slug' => 'smp2']);
-    Tenancy::bind($other);
-
-    attemptLogin('2026001', 'rahasia123')->assertHasErrors('identifier');
-    attemptLogin('andi@contoh.test', 'rahasia123')->assertHasErrors('identifier');
-
-    $this->assertGuest();
-});
-
-it('keeps tenant users out of the root domain', function () {
-    Tenancy::forget();
-
-    attemptLogin('andi@contoh.test', 'rahasia123')->assertHasErrors('identifier');
-
-    $this->assertGuest();
-});
-
-it('lets a super admin log in only on the root domain', function () {
-    User::factory()->superAdmin()->create(['email' => 'super@aksaraloka.test', 'password' => 'rahasia123']);
-
-    Tenancy::bind($this->tenant);
-    attemptLogin('super@aksaraloka.test', 'rahasia123')->assertHasErrors('identifier');
-
-    Tenancy::forget();
-    attemptLogin('super@aksaraloka.test', 'rahasia123')->assertHasNoErrors();
-
-    $this->assertAuthenticated();
 });
 
 it('rate limits repeated failed logins', function () {
-    Tenancy::bind($this->tenant);
-
     foreach (range(1, 5) as $_) {
         attemptLogin('2026001', 'salah');
     }
@@ -90,22 +59,20 @@ it('rate limits repeated failed logins', function () {
 });
 
 it('requires both fields', function () {
-    Tenancy::bind($this->tenant);
-
     Livewire::test(Login::class)->call('login')->assertHasErrors(['identifier', 'password']);
 });
 
 it('redirects guests away from protected pages and logs out', function () {
-    $this->get($this->tenant->url('/profil'))->assertRedirect(route('login'));
+    $this->get('/profil')->assertRedirect(route('login'));
+    $this->get('/admin/pengguna')->assertRedirect(route('login'));
 
-    $this->actingAs($this->student)->post($this->tenant->url('/logout'))->assertRedirect(route('home'));
+    $this->actingAs($this->student)->post('/logout')->assertRedirect(route('home'));
 
     $this->assertGuest();
 });
 
 it('sends a reset link only to existing emails without revealing which', function () {
     Notification::fake();
-    Tenancy::bind($this->tenant);
 
     Livewire::test(ForgotPassword::class)->set('email', 'tidak-ada@contoh.test')->call('send')->assertSet('sent', true);
     Notification::assertNothingSent();
@@ -115,7 +82,6 @@ it('sends a reset link only to existing emails without revealing which', functio
 });
 
 it('resets the password with a valid token', function () {
-    Tenancy::bind($this->tenant);
     $token = Password::createToken($this->student);
 
     Livewire::withQueryParams(['email' => 'andi@contoh.test'])
@@ -127,8 +93,6 @@ it('resets the password with a valid token', function () {
 });
 
 it('rejects an invalid reset token', function () {
-    Tenancy::bind($this->tenant);
-
     Livewire::withQueryParams(['email' => 'andi@contoh.test'])
         ->test(ResetPassword::class, ['token' => 'salah'])
         ->set('password', 'baru12345')->set('password_confirmation', 'baru12345')
@@ -136,16 +100,15 @@ it('rejects an invalid reset token', function () {
 });
 
 it('stores the chosen theme on the account', function () {
-    $this->actingAs($this->student)
-        ->putJson($this->tenant->url('/theme'), ['theme' => 'dark'])->assertOk();
+    $this->actingAs($this->student)->putJson('/theme', ['theme' => 'dark'])->assertOk();
 
     expect($this->student->fresh()->theme)->toBe('dark');
 
-    $this->actingAs($this->student)->putJson($this->tenant->url('/theme'), ['theme' => 'neon'])->assertUnprocessable();
+    $this->actingAs($this->student)->putJson('/theme', ['theme' => 'neon'])->assertUnprocessable();
 });
 
 it('applies the account theme on a new device', function () {
     $this->student->forceFill(['theme' => 'dark'])->save();
 
-    $this->actingAs($this->student)->get($this->tenant->url('/profil'))->assertSee("var server = 'dark'", false);
+    $this->actingAs($this->student)->get('/profil')->assertSee("var server = 'dark'", false);
 });

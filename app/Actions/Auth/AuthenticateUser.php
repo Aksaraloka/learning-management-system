@@ -15,8 +15,7 @@ class AuthenticateUser
     public const MAX_ATTEMPTS = 5;
 
     /**
-     * Login dengan email atau NIS/NIM/NIP. Pencarian otomatis dibatasi ke tenant
-     * aktif (TenantScope); di domain utama hanya akun platform yang boleh masuk.
+     * Login dengan email atau NIS/NIM/NIP.
      *
      * @throws ValidationException
      */
@@ -32,7 +31,9 @@ class AuthenticateUser
             ]);
         }
 
-        $user = $this->find($identifier);
+        $user = User::query()
+            ->where(fn ($q) => $q->where('email', $identifier)->orWhere('identity_number', $identifier))
+            ->first();
 
         if (! $user || ! Hash::check($password, $user->password)) {
             RateLimiter::hit($key);
@@ -44,18 +45,5 @@ class AuthenticateUser
         Auth::login($user, $remember);
 
         return $user;
-    }
-
-    private function find(string $identifier): ?User
-    {
-        $query = User::query()->where(
-            fn ($q) => $q->where('email', $identifier)->orWhere('identity_number', $identifier)
-        );
-
-        if (app()->bound('tenant') === false) {
-            $query->whereNull('tenant_id');
-        }
-
-        return $query->first();
     }
 }

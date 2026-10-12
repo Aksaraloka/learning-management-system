@@ -19,7 +19,8 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
-        <env name="APP_URL" value="http://aksaraloka.test"/>
+        <env name="INSTITUTION_NAME" value="SMP Contoh"/>
+        <env name="INSTITUTION_LEVEL" value="school"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="BROADCAST_CONNECTION" value="null"/>

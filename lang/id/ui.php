@@ -11,7 +11,6 @@ return [
         'profile' => 'Profil',
         'users' => 'Pengguna',
         'terms' => 'Tahun Ajaran',
-        'tenants' => 'Institusi',
         'main' => 'Navigasi utama',
         'skip' => 'Lompat ke konten',
         'collapse' => 'Ciutkan sidebar',
@@ -33,7 +32,6 @@ return [
         'reset_title' => 'Buat kata sandi baru',
         'new_password' => 'Kata sandi baru',
         'confirm_password' => 'Ulangi kata sandi baru',
-        'central_hint' => 'Halaman ini khusus pengelola platform. Siswa, guru, dan admin sekolah/kampus masuk lewat alamat institusinya, mis. :example (awali dengan nama institusi sebelum /login).',
         'back_to_login' => 'Kembali ke halaman masuk',
     ],
 
@@ -84,27 +82,7 @@ return [
         'confirm_delete' => 'Hapus tahun ajaran ini?',
     ],
 
-    'tenants' => [
-        'add' => 'Tambah institusi',
-        'name' => 'Nama institusi',
-        'slug' => 'Alamat (slug)',
-        'address' => 'Alamat',
-        'level' => 'Jenjang',
-        'school' => 'Sekolah',
-        'campus' => 'Kampus',
-        'plan' => 'Paket',
-        'admin_name' => 'Nama admin',
-        'admin_email' => 'Email admin',
-        'created' => 'Institusi :name dibuat.',
-        'active' => 'Aktif',
-        'suspended' => 'Nonaktif',
-        'suspend' => 'Nonaktifkan',
-        'activate' => 'Aktifkan',
-    ],
-
     'dashboard' => ['welcome' => 'Selamat datang, :name'],
-
-    'tenant' => ['suspended' => 'Akun institusi ini sedang dinonaktifkan. Hubungi pengelola platform.'],
 
     'privacy' => ['title' => 'Kebijakan Privasi'],
 

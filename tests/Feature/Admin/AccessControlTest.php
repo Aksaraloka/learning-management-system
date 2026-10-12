@@ -4,17 +4,11 @@ use App\Actions\Users\ResetUserPassword;
 use App\Enums\Role;
 use App\Livewire\Admin\Users\Index;
 use App\Models\User;
-use App\Support\Tenancy;
+use Illuminate\Support\Facades\Hash;
 use Livewire\Livewire;
 
-beforeEach(function () {
-    $this->tenant = makeTenant(['slug' => 'smp1']);
-});
-
 it('allows only admin and principal to see the user list', function (Role $role, int $status) {
-    $user = makeUser($this->tenant, $role);
-
-    $this->actingAs($user)->get($this->tenant->url('/admin/pengguna'))->assertStatus($status);
+    $this->actingAs(makeUser($role))->get('/admin/pengguna')->assertStatus($status);
 })->with([
     [Role::Admin, 200],
     [Role::Principal, 200],
@@ -24,26 +18,31 @@ it('allows only admin and principal to see the user list', function (Role $role,
     [Role::Parent, 403],
 ]);
 
-it('allows only admins to manage terms page edits but everyone to view', function () {
-    $this->actingAs(makeUser($this->tenant, Role::Student))->get($this->tenant->url('/admin/tahun-ajaran'))->assertOk();
+it('lets every signed-in user view the terms page', function () {
+    $this->actingAs(makeUser(Role::Student))->get('/admin/tahun-ajaran')->assertOk();
 });
 
-it('lets a principal view but not reset passwords', function () {
-    $principal = makeUser($this->tenant, Role::Principal);
-    $student = makeUser($this->tenant, Role::Student);
-    actingInTenant($this->tenant, $principal);
+it('lets a principal view but not reset passwords or import', function () {
+    $principal = makeUser(Role::Principal);
+    $student = makeUser(Role::Student);
 
     expect($principal->can('viewAny', User::class))->toBeTrue()
         ->and($principal->can('resetPassword', $student))->toBeFalse()
         ->and($principal->can('import', User::class))->toBeFalse();
 });
 
-it('lets an admin reset a password and shows it once', function () {
-    $admin = makeUser($this->tenant, Role::Admin);
-    $student = makeUser($this->tenant, Role::Student, ['password' => 'lama12345']);
-    actingInTenant($this->tenant, $admin);
+it('lets one account hold several roles', function () {
+    $user = makeUser([Role::Teacher, Role::Homeroom]);
 
-    $component = Livewire::test(Index::class)->call('resetPassword', $student->id);
+    expect($user->hasAppRole(Role::Teacher))->toBeTrue()
+        ->and($user->hasAppRole(Role::Homeroom))->toBeTrue()
+        ->and($user->hasAppRole(Role::Student))->toBeFalse();
+});
+
+it('lets an admin reset a password and shows it once', function () {
+    $student = makeUser(Role::Student, ['password' => 'lama12345']);
+
+    $component = Livewire::actingAs(makeUser(Role::Admin))->test(Index::class)->call('resetPassword', $student->id);
 
     $new = $component->get('revealed')['password'];
 
@@ -53,16 +52,23 @@ it('lets an admin reset a password and shows it once', function () {
     $component->call('dismiss')->assertSet('revealed', null);
 });
 
+it('forbids non-admins from resetting passwords', function () {
+    $student = makeUser(Role::Student, ['password' => 'lama12345']);
+
+    Livewire::actingAs(makeUser(Role::Teacher))->test(Index::class)->assertForbidden();
+    Livewire::actingAs(makeUser(Role::Principal))->test(Index::class)->call('resetPassword', $student->id)->assertForbidden();
+
+    expect(Hash::check('lama12345', $student->fresh()->password))->toBeTrue();
+});
+
 it('does not let an admin reset their own password through the admin action', function () {
-    $admin = makeUser($this->tenant, Role::Admin);
-    actingInTenant($this->tenant, $admin);
+    $admin = makeUser(Role::Admin);
 
     expect($admin->can('resetPassword', $admin))->toBeFalse();
 });
 
 it('generates a random password when none is given', function () {
-    $user = makeUser($this->tenant, Role::Student);
-    Tenancy::bind($this->tenant);
+    $user = makeUser(Role::Student);
 
     $a = app(ResetUserPassword::class)->handle($user);
     $b = app(ResetUserPassword::class)->handle($user);
@@ -71,28 +77,17 @@ it('generates a random password when none is given', function () {
 });
 
 it('filters and searches the user list', function () {
-    $admin = makeUser($this->tenant, Role::Admin);
-    makeUser($this->tenant, Role::Teacher, ['name' => 'Bu Guru Mawar']);
-    makeUser($this->tenant, Role::Student, ['name' => 'Siswa Melati', 'identity_number' => '555']);
-    actingInTenant($this->tenant, $admin);
+    makeUser(Role::Teacher, ['name' => 'Bu Guru Mawar']);
+    makeUser(Role::Student, ['name' => 'Siswa Melati', 'identity_number' => '555']);
 
-    Livewire::test(Index::class)
+    Livewire::actingAs(makeUser(Role::Admin))->test(Index::class)
         ->set('search', 'Mawar')->assertSee('Bu Guru Mawar')->assertDontSee('Siswa Melati')
         ->set('search', '555')->assertSee('Siswa Melati')->assertDontSee('Bu Guru Mawar')
         ->set('search', '')->set('role', 'teacher')->assertSee('Bu Guru Mawar')->assertDontSee('Siswa Melati');
 });
 
 it('treats LIKE wildcards in search literally', function () {
-    $admin = makeUser($this->tenant, Role::Admin);
-    makeUser($this->tenant, Role::Student, ['name' => 'Budi']);
-    actingInTenant($this->tenant, $admin);
+    makeUser(Role::Student, ['name' => 'Budi']);
 
-    Livewire::test(Index::class)->set('search', '%')->assertDontSee('Budi');
-});
-
-it('keeps admin and platform areas separated by context', function () {
-    $admin = makeUser($this->tenant, Role::Admin);
-
-    $this->actingAs($admin)->get('/admin/pengguna')->assertNotFound();
-    $this->actingAs($admin)->get($this->tenant->url('/platform/institusi'))->assertNotFound();
+    Livewire::actingAs(makeUser(Role::Admin))->test(Index::class)->set('search', '%')->assertDontSee('Budi');
 });
