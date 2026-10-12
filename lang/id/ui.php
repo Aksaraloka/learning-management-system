@@ -33,6 +33,7 @@ return [
         'reset_title' => 'Buat kata sandi baru',
         'new_password' => 'Kata sandi baru',
         'confirm_password' => 'Ulangi kata sandi baru',
+        'central_hint' => 'Halaman ini khusus pengelola platform. Siswa, guru, dan admin sekolah/kampus masuk lewat alamat institusinya, mis. :example.',
         'back_to_login' => 'Kembali ke halaman masuk',
     ],
 

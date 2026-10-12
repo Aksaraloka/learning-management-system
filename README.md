@@ -27,25 +27,26 @@ dan tanpa mengubah file hosts (Chrome, Edge, Firefox otomatis me-resolve `*.loca
 
 (Safari belum me-resolve `*.localhost`; pakai Chrome/Firefox atau tambahkan entri hosts.) Untuk produksi atau Herd, ubah `APP_URL`
 dan `TENANT_ROOT_DOMAIN` (mis. `aksaraloka.id`) dan siapkan wildcard DNS `*.aksaraloka.id`. Host yang tidak dikenal dianggap domain utama.
+
 ## Akun demo
 
 Semua kata sandi: `password`. Hasil dari `php artisan db:seed` (DemoSeeder).
 
-| Domain | Peran | Login |
-| --- | --- | --- |
-| `localhost:8000` | Super admin | `super@aksaraloka.test` |
-| `smpn1bandung.localhost:8000` | Admin | `admin@smpn1bandung.test` |
-| | Kepala sekolah | `kepala@smpn1bandung.test` |
-| | Guru + wali kelas | `guru1@smpn1bandung.test` |
-| | Guru | `guru2@smpn1bandung.test`, `guru3@smpn1bandung.test` |
-| | Siswa (email) | `siswa1@smpn1bandung.test` … `siswa5@…` |
-| | Siswa (NIS saja) | `2026006` … `2026030` |
-| `kampusdemo.localhost:8000` | Admin | `admin@kampusdemo.test` |
-| | Ketua prodi | `kepala@kampusdemo.test` |
-| | Dosen + dosen wali | `guru1@kampusdemo.test` |
-| | Dosen | `guru2@kampusdemo.test`, `guru3@kampusdemo.test` |
-| | Mahasiswa (email) | `siswa1@kampusdemo.test` … `siswa5@…` |
-| | Mahasiswa (NIM saja) | `2260006` … `2260030` |
+| Domain                        | Peran                | Login                                                |
+| ----------------------------- | -------------------- | ---------------------------------------------------- |
+| `localhost:8000`              | Super admin          | `super@aksaraloka.test`                              |
+| `smpn1bandung.localhost:8000` | Admin                | `admin@smpn1bandung.test`                            |
+|                               | Kepala sekolah       | `kepala@smpn1bandung.test`                           |
+|                               | Guru + wali kelas    | `guru1@smpn1bandung.test`                            |
+|                               | Guru                 | `guru2@smpn1bandung.test`, `guru3@smpn1bandung.test` |
+|                               | Siswa (email)        | `siswa1@smpn1bandung.test` … `siswa5@…`              |
+|                               | Siswa (NIS saja)     | `2026006` … `2026030`                                |
+| `kampusdemo.localhost:8000`   | Admin                | `admin@kampusdemo.test`                              |
+|                               | Ketua prodi          | `kepala@kampusdemo.test`                             |
+|                               | Dosen + dosen wali   | `guru1@kampusdemo.test`                              |
+|                               | Dosen                | `guru2@kampusdemo.test`, `guru3@kampusdemo.test`     |
+|                               | Mahasiswa (email)    | `siswa1@kampusdemo.test` … `siswa5@…`                |
+|                               | Mahasiswa (NIM saja) | `2260006` … `2260030`                                |
 
 Login menerima email **atau** NIS/NIM/NIP. Kelas, materi, tugas, dan kuis demo ditambahkan di fase berikutnya.
 
