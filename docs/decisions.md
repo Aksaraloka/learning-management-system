@@ -17,3 +17,19 @@ Asumsi yang diambil saat PRD tidak mencakup detailnya.
 11. **PWA**: `vite-plugin-pwa` terpasang tetapi belum dikonfigurasi (Fase 6).
 12. **Contoh PDF** `public/samples/sample.pdf` hanya untuk galeri `/ui`.
 13. **Plugin Alpine**: Livewire 4 sudah membundel `persist`, `focus`, dan `collapse`; mendaftarkannya lagi dari npm menyebabkan error `Cannot redefine property: $persist` sehingga paket `@alpinejs/*` tidak dipasang.
+
+## Fase 1
+
+14. **Breeze tidak dijalankan**: installer-nya menimpa layout/route Fase 0 dan mengasumsikan satu pengguna global. Auth (login, lupa/reset kata sandi, profil, logout) ditulis sebagai komponen Livewire sendiri dengan pola yang sama.
+15. **Satu set rute untuk domain utama dan tenant**: konteks ditentukan middleware `ResolveTenant`, bukan `Route::domain`. Host tak dikenal (localhost, IP) diperlakukan sebagai domain utama agar mudah dipakai saat development.
+16. **Email unik global, NIS/NIM unik per tenant**: tabel `password_reset_tokens` memakai email sebagai kunci, jadi email tidak boleh sama lintas tenant. Email boleh kosong (siswa login dengan NIS).
+17. **Peran platform = team 0**: kolom `tenant_id` pada spatie `model_has_roles` ikut primary key sehingga tidak boleh NULL. Role `super_admin` disimpan dengan `tenant_id = 0`; akun super admin punya `users.tenant_id = NULL`.
+18. **Hanya roles, tanpa permissions**: akses diatur Policy yang memeriksa peran; tabel permissions belum dipakai.
+19. **Lapis isolasi**: (a) `TenantScope` pada semua model bertenant, termasuk provider auth sehingga sesi tenant lain tidak memuat pengguna; (b) middleware `tenant.member` menghentikan sesi bila `tenant_id` pengguna tidak cocok dengan host; (c) cookie sesi host-only (tidak lintas subdomain); (d) login di domain utama hanya untuk `tenant_id IS NULL`.
+20. **Impor pengguna**: kata sandi awal = NIS/NIM/NIP bila kolom kosong (kebiasaan sekolah; admin dapat mereset). Peran `admin`/`super_admin`/`parent` tidak bisa diimpor (cegah eskalasi hak). Duplikat NIS/email ditolak, bukan di-update. Pratinjau memeriksa 200 baris pertama; seluruh baris diperiksa saat job. Impor kelas ditunda ke Fase 2 karena tabel `courses` belum ada. Hash per baris membuat ribuan baris lambat, tetapi berjalan di queue `imports`.
+21. **Reset kata sandi oleh admin**: kata sandi acak 10 karakter ditampilkan sekali di layar admin (belum dikirim lewat email).
+22. **Tahun ajaran terkunci**: tidak bisa diubah/dihapus sampai dibuka kuncinya oleh admin. Penguncian nilai oleh semester ditegakkan di Fase 5.
+23. **Pesan lupa kata sandi selalu sama** (anti-enumerasi). Rate limit login: 5 percobaan gagal per kombinasi identitas+IP.
+24. **Kebijakan privasi** berupa draf statis di `/kebijakan-privasi`; ekspor/hapus data pengguna oleh admin dikerjakan di fase berikutnya.
+25. **Seeder demo Fase 1** hanya berisi pengguna dan tahun ajaran; kelas, materi, tugas, kuis ditambahkan seeder fase terkait.
+26. **Tema tersinkron ke akun** lewat `PUT /theme`; perangkat baru tanpa pilihan lokal memakai `users.theme`.

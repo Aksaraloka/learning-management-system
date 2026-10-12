@@ -7,7 +7,10 @@ Laravel 13 (PHP 8.3+), Livewire 4 + Alpine, Tailwind CSS v4 (Vite), Pest, Pint, 
 
 ## Arsitektur & konvensi
 - Monolit; logika di `app/Actions/*` / `app/Domain/*`, komponen Livewire tetap tipis (agar API Sanctum bisa ditambah nanti).
-- Multi-tenant per subdomain; trait `BelongsToTenant` (global scope `tenant_id`). Tenant aktif di `app('tenant')`. (Fase 1)
+- Multi-tenant per subdomain: middleware `ResolveTenant` (web group) memasang tenant lewat `App\Support\Tenancy` (`app('tenant')` + team spatie). Model bertenant memakai trait `BelongsToTenant` (global scope + isi `tenant_id` otomatis). Domain utama/host tak dikenal = tanpa tenant (landing + super admin). Alias rute: `tenant`, `central`, `tenant.member`. Job antrean wajib membawa `tenant_id` dan memakai `Tenancy::run()`.
+- Peran: enum `App\Enums\Role`, spatie teams (`tenant_id` = team; peran platform memakai team 0). Hak akses lewat Policy (`app/Policies`); Livewire memakai `Gate::authorize` (403) dan `findOrFail` (404 untuk data tenant lain). Test Livewire: pakai `assertForbidden()`/`assertNotFound()`, bukan `toThrow`.
+- Logika di Actions (`app/Actions/*`); email unik global, NIS/NIM unik per tenant; login = email atau NIS/NIM/NIP.
+- Test: helper `makeTenant()`, `makeUser()`, `actingInTenant()` di `tests/Pest.php`; URL tenant lewat `$tenant->url('/path')`.
 - Istilah UI menyesuaikan mode tenant: `term('teacher')` → Guru/Dosen (`lang/id/terms.php`, `App\Support\Terminology`).
 - Warna hanya lewat design token (`bg-bg`, `bg-surface`, `text-text-muted`, `border-border`, `bg-primary`, `text-danger`, ...) di `resources/css/app.css`; jangan hardcode warna. Dark mode berbasis class `.dark`.
 - Library berat (Tiptap, PDF.js, Chart.js, KaTeX, FilePond, Tom Select, Flatpickr, SortableJS) dibungkus Alpine.data di `resources/js/components/index.js` dan di-import dinamis; CSS vendor ada di `resources/css/vendor/`.
@@ -21,7 +24,7 @@ Laravel 13 (PHP 8.3+), Livewire 4 + Alpine, Tailwind CSS v4 (Vite), Pest, Pint, 
 - `composer dev` (server+queue+vite) · `npm run build` · `php artisan test` · `./vendor/bin/pint` · `./vendor/bin/phpstan analyse --memory-limit=1G`
 
 ## Status fase
-Fase 0 (fondasi) selesai. Berikutnya: Fase 1 (multi-tenant & auth). Rencana lengkap di prompt awal proyek.
+Fase 0 (fondasi) dan Fase 1 (multi-tenant & auth) selesai. Berikutnya: Fase 2 (kelas & materi). Rencana lengkap di prompt awal proyek.
 
 <laravel-boost-guidelines>
 === foundation rules ===

@@ -1,8 +1,49 @@
 <?php
 
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\SessionController;
+use App\Http\Controllers\UserImportTemplateController;
+use App\Livewire\Admin\Terms;
+use App\Livewire\Admin\Users;
+use App\Livewire\Auth\ForgotPassword;
+use App\Livewire\Auth\Login;
+use App\Livewire\Auth\ResetPassword;
+use App\Livewire\Platform\Tenants;
+use App\Livewire\Profile;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'welcome')->name('home');
+/*
+| Tenant ditentukan oleh middleware ResolveTenant dari subdomain. Rute yang sama dipakai
+| di domain utama dan subdomain; alias `tenant` / `central` membatasi konteksnya.
+*/
+
+Route::get('/', HomeController::class)->name('home');
+Route::view('/kebijakan-privasi', 'privacy')->name('privacy');
+
+Route::middleware('guest')->group(function () {
+    Route::get('/login', Login::class)->name('login');
+    Route::get('/lupa-kata-sandi', ForgotPassword::class)->name('password.request');
+    Route::get('/reset-kata-sandi/{token}', ResetPassword::class)->name('password.reset');
+});
+
+Route::middleware(['auth', 'tenant.member'])->group(function () {
+    Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
+    Route::put('/theme', [SessionController::class, 'theme'])->name('theme.update');
+    Route::get('/profil', Profile::class)->name('profile.edit');
+});
+
+// Admin institusi (subdomain tenant).
+Route::middleware(['auth', 'tenant', 'tenant.member'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/pengguna', Users\Index::class)->name('users.index');
+    Route::get('/pengguna/impor', Users\Import::class)->name('users.import');
+    Route::get('/pengguna/impor/templat', UserImportTemplateController::class)->name('users.import.template');
+    Route::get('/tahun-ajaran', Terms\Index::class)->name('terms.index');
+});
+
+// Panel super admin (domain utama).
+Route::middleware(['auth', 'central', 'tenant.member'])->prefix('platform')->name('platform.')->group(function () {
+    Route::get('/institusi', Tenants\Index::class)->name('tenants.index');
+});
 
 // Galeri komponen untuk pengembangan; tidak tersedia di production.
 if (app()->environment('local')) {

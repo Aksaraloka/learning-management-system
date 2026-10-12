@@ -1,58 +1,72 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Aksaraloka
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+LMS web multi-tenant untuk SMP, SMA/SMK, dan perguruan tinggi di Indonesia. Laravel 13, Livewire 4, Tailwind CSS v4, mobile-first.
 
-## About Laravel
+> Status: **Fase 0 (fondasi) dan Fase 1 (multi-tenant & auth)** selesai. Rencana lengkap ada di prompt awal proyek; keputusan teknis di [docs/decisions.md](docs/decisions.md).
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Menjalankan di lokal
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Prasyarat: PHP 8.3+, Composer, Node 20+, database (MySQL/PostgreSQL; SQLite untuk test).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```sh
+composer install && npm install
+cp .env.example .env && php artisan key:generate
+# atur DB_* di .env, lalu:
+php artisan migrate --seed
+composer dev        # server + queue + vite
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### Subdomain tenant
 
-## Contributing
+Setiap institusi diakses lewat `{subdomain}.aksaraloka.test`. Atur `APP_URL` dan `TENANT_ROOT_DOMAIN` (default `aksaraloka.test`).
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- **Laravel Herd / Valet**: situs `aksaraloka.test` otomatis melayani semua subdomain.
+- **`php artisan serve`**: tambahkan ke file hosts (`C:\Windows\System32\drivers\etc\hosts`):
+  `127.0.0.1 aksaraloka.test smpn1bandung.aksaraloka.test kampusdemo.aksaraloka.test`
+  lalu buka `http://smpn1bandung.aksaraloka.test:8000`.
 
-## Code of Conduct
+Host selain `*.aksaraloka.test` (mis. `localhost`) dianggap domain utama (landing + panel super admin).
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Akun demo
 
-## Security Vulnerabilities
+Semua kata sandi: `password`. Hasil dari `php artisan db:seed` (DemoSeeder).
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+| Domain | Peran | Login |
+| --- | --- | --- |
+| `aksaraloka.test` | Super admin | `super@aksaraloka.test` |
+| `smpn1bandung.aksaraloka.test` | Admin | `admin@smpn1bandung.test` |
+| | Kepala sekolah | `kepala@smpn1bandung.test` |
+| | Guru + wali kelas | `guru1@smpn1bandung.test` |
+| | Guru | `guru2@smpn1bandung.test`, `guru3@smpn1bandung.test` |
+| | Siswa (email) | `siswa1@smpn1bandung.test` … `siswa5@…` |
+| | Siswa (NIS saja) | `2026006` … `2026030` |
+| `kampusdemo.aksaraloka.test` | Admin | `admin@kampusdemo.test` |
+| | Ketua prodi | `kepala@kampusdemo.test` |
+| | Dosen + dosen wali | `guru1@kampusdemo.test` |
+| | Dosen | `guru2@kampusdemo.test`, `guru3@kampusdemo.test` |
+| | Mahasiswa (email) | `siswa1@kampusdemo.test` … `siswa5@…` |
+| | Mahasiswa (NIM saja) | `2260006` … `2260030` |
 
-## License
+Login menerima email **atau** NIS/NIM/NIP. Kelas, materi, tugas, dan kuis demo ditambahkan di fase berikutnya.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Impor pengguna
+
+Admin: **Pengguna → Impor pengguna**. Unduh templat CSV, isi kolom `name, identity_number, email, role, password`
+(`role` boleh beberapa, dipisah `|`, mis. `teacher|homeroom`; bisa juga `guru`, `siswa`, `dosen`, `mahasiswa`).
+Kata sandi kosong → kata sandi awal = NIS/NIM/NIP. Peran `admin` tidak dapat diimpor. Pemrosesan lewat antrean (queue `imports`);
+jalankan worker dengan `php artisan queue:work --queue=imports,default` (atau `composer dev`).
+
+## Perintah penting
+
+```sh
+php artisan test                                   # Pest
+./vendor/bin/pint                                  # format
+./vendor/bin/phpstan analyse --memory-limit=1G     # Larastan level 6
+npm run build                                      # build aset
+```
+
+Galeri komponen UI: `/ui` (hanya `APP_ENV=local`).
+
+## Catatan produksi (akan dilengkapi di Fase 6)
+
+PostgreSQL, Redis + Horizon (Linux), disk `s3`/R2, HTTPS, wildcard DNS `*.domain`, catatan uji beban kuis 1.000 siswa serentak.

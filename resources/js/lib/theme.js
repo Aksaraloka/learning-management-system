@@ -58,6 +58,23 @@ export function registerTheme(Alpine) {
             window.dispatchEvent(
                 new CustomEvent('theme-changed', { detail: { choice: this.choice, dark: this.dark, persist: notifyServer } }),
             );
+
+            if (notifyServer && document.body.dataset.auth === '1') {
+                this.sync();
+            }
+        },
+
+        // Simpan ke users.theme agar pilihan ikut saat login di perangkat lain.
+        sync() {
+            fetch('/theme', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+                },
+                body: JSON.stringify({ theme: this.choice }),
+            }).catch(() => {});
         },
     });
 }

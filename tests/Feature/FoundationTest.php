@@ -9,7 +9,7 @@ it('renders the landing page in Indonesian with the anti-flash theme script', fu
         ->assertOk()
         ->assertSee('lang="id"', false)
         ->assertSee('_x_theme', false)
-        ->assertSee('Beranda');
+        ->assertSee('Masuk');
 });
 
 it('does not expose the component gallery outside local', function () {

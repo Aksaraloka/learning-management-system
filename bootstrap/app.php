@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Middleware\EnsureTenantMember;
+use App\Http\Middleware\RequireTenant;
+use App\Http\Middleware\ResolveTenant;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -12,7 +15,17 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Tenant harus sudah terpasang sebelum session/auth memuat pengguna.
+        $middleware->web(prepend: [ResolveTenant::class]);
+
+        $middleware->alias([
+            'tenant' => RequireTenant::class.':tenant',
+            'central' => RequireTenant::class.':central',
+            'tenant.member' => EnsureTenantMember::class,
+        ]);
+
+        $middleware->redirectGuestsTo(fn () => route('login'));
+        $middleware->redirectUsersTo(fn () => route('home'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
