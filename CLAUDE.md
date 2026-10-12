@@ -1,16 +1,16 @@
 # Aksaraloka
 
-LMS web multi-tenant untuk SMP, SMA/SMK, dan perguruan tinggi di Indonesia. Pengguna utama memakai HP Android dengan koneksi lambat: mobile-first, halaman ringan (target < 500 KB, < 3 dtk di 3G). UI **Bahasa Indonesia** lewat `lang/id`; kode, tabel, kolom berbahasa Inggris.
+LMS web untuk satu institusi: SMP, SMA/SMK, dan perguruan tinggi di Indonesia. Pengguna utama memakai HP Android dengan koneksi lambat: mobile-first, halaman ringan (target < 500 KB, < 3 dtk di 3G). UI **Bahasa Indonesia** lewat `lang/id`; kode, tabel, kolom berbahasa Inggris.
 
 ## Stack
-Laravel 13 (PHP 8.3+), Livewire 4 + Alpine, Tailwind CSS v4 (Vite), Pest, Pint, Larastan level 6, spatie/laravel-permission (teams = tenant), maatwebsite/excel, mews/purifier, Horizon. DB target PostgreSQL (dev: SQLite). Library JS dimuat lewat npm + Vite, tanpa CDN.
+Laravel 13 (PHP 8.3+), Livewire 4 + Alpine, Tailwind CSS v4 (Vite), Pest, Pint, Larastan level 6, spatie/laravel-permission (tanpa teams), maatwebsite/excel, mews/purifier, Horizon. DB target PostgreSQL (dev: SQLite). Library JS dimuat lewat npm + Vite, tanpa CDN.
 
 ## Arsitektur & konvensi
 - Monolit; logika di `app/Actions/*` / `app/Domain/*`, komponen Livewire tetap tipis (agar API Sanctum bisa ditambah nanti).
 - **Satu institusi** (bukan multi-tenant): nama & jenjang dari `.env` (`INSTITUTION_NAME`, `INSTITUTION_LEVEL` = `school|campus`, lihat `config/institution.php`). Tidak ada `tenant_id`, subdomain, atau slug URL; jangan menambahkan lagi tanpa keputusan baru.
 - Peran: enum `App\Enums\Role` (admin, principal, teacher, homeroom, student, parent) dengan spatie/laravel-permission tanpa teams; hanya roles, tanpa permissions. Hak akses lewat Policy (`app/Policies`); Livewire memakai `Gate::authorize` (403). Test Livewire: pakai `assertForbidden()`/`assertNotFound()`, bukan `toThrow`. Peran dibuat oleh migration dan `EnsureRoles`; admin pertama lewat `php artisan aksaraloka:install --email=...`.- Logika di Actions (`app/Actions/*`); email unik global, NIS/NIM unik per tenant; login = email atau NIS/NIM/NIP.
 - Test: helper `makeUser(Role, attrs)` di `tests/Pest.php`; config institusi untuk test diset di `phpunit.xml`..
-- Istilah UI menyesuaikan mode tenant: `term('teacher')` → Guru/Dosen (`lang/id/terms.php`, `App\Support\Terminology`).
+- Istilah UI menyesuaikan jenjang institusi (INSTITUTION_LEVEL): `term('teacher')` → Guru/Dosen (`lang/id/terms.php`, `App\Support\Terminology`).
 - Warna hanya lewat design token (`bg-bg`, `bg-surface`, `text-text-muted`, `border-border`, `bg-primary`, `text-danger`, ...) di `resources/css/app.css`; jangan hardcode warna. Dark mode berbasis class `.dark`.
 - Library berat (Tiptap, PDF.js, Chart.js, KaTeX, FilePond, Tom Select, Flatpickr, SortableJS) dibungkus Alpine.data di `resources/js/components/index.js` dan di-import dinamis; CSS vendor ada di `resources/css/vendor/`.
 - Komponen Blade di `resources/views/components` (`<x-button>`, `<x-input>`, `<x-input.select>`, `<x-input.date>`, `<x-editor>`, ...). Galeri: `/ui` (hanya `APP_ENV=local`).

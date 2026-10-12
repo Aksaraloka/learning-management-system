@@ -1,8 +1,9 @@
 # Aksaraloka
 
-LMS web multi-tenant untuk SMP, SMA/SMK, dan perguruan tinggi di Indonesia. Laravel 13, Livewire 4, Tailwind CSS v4, mobile-first.
+LMS web untuk **satu** sekolah (SMP, SMA/SMK) atau perguruan tinggi di Indonesia. Laravel 13, Livewire 4, Tailwind CSS v4, mobile-first.
 
-> Status: **Fase 0 (fondasi) dan Fase 1 (multi-tenant & auth)** selesai. Rencana lengkap ada di prompt awal proyek; keputusan teknis di [docs/decisions.md](docs/decisions.md).
+> Status: **Fase 0 (fondasi) dan Fase 1 (auth, peran, pengguna, tahun ajaran)** selesai. Aplikasi melayani **satu institusi**
+> (versi multi-tenant sudah dihapus; lihat [docs/decisions.md](docs/decisions.md)). Rencana lengkap ada di prompt awal proyek.
 
 ## Menjalankan di lokal
 
@@ -11,41 +12,43 @@ Prasyarat: PHP 8.3+, Composer, Node 20+, database (MySQL/PostgreSQL; SQLite untu
 ```sh
 composer install && npm install
 cp .env.example .env && php artisan key:generate
-# atur DB_* di .env, lalu:
-php artisan migrate --seed
-composer dev        # server + queue + vite
+# atur DB_*, INSTITUTION_NAME, INSTITUTION_LEVEL di .env, lalu:
+php artisan migrate --seed     # --seed = data demo
+composer dev                   # server + queue + vite
 ```
 
-### Alamat tenant (tanpa subdomain / domain)
+Buka <http://localhost:8000>. Tidak butuh domain atau subdomain.
 
-Setiap institusi diakses lewat **segmen pertama URL**, jadi cukup satu host (`localhost:8000`), tanpa DNS, hosts file, atau beli domain:
+### Institusi
 
-- Platform / super admin: <http://localhost:8000/platform/login>
-- SMP demo: <http://localhost:8000/smpn1bandung/login>
-- Kampus demo: <http://localhost:8000/kampusdemo/login>
+Diatur lewat `.env`:
 
-`APP_URL` menentukan basis URL (`http://localhost:8000`). Slug `platform` dan beberapa kata lain dicadangkan (lihat `config/tenancy.php`).
-Login satu akun per browser pada satu waktu (cookie sesi dipakai bersama oleh semua alamat di host yang sama); gunakan jendela
-penyamaran/profil lain untuk masuk ke dua tenant sekaligus.
+```dotenv
+INSTITUTION_NAME="SMP Negeri 1 Bandung"
+INSTITUTION_LEVEL=school   # school = SMP/SMA/SMK, campus = perguruan tinggi
+```
+
+`INSTITUTION_LEVEL` menentukan istilah di UI: Guru/Dosen, Siswa/Mahasiswa, Topik/Pertemuan, NIS/NIM.
+
+### Produksi / tanpa data demo
+
+```sh
+php artisan migrate --force
+php artisan aksaraloka:install --name="Admin TU" --email=admin@sekolah.sch.id   # kata sandi acak ditampilkan sekali
+```
+
 ## Akun demo
 
-Semua kata sandi: `password`. Hasil dari `php artisan db:seed` (DemoSeeder).
+Semua kata sandi: `password`. Hasil `php artisan db:seed` (DemoSeeder).
 
-| Alamat (login di /…/login)    | Peran                | Login                                                |
-| ----------------------------- | -------------------- | ---------------------------------------------------- |
-| `/platform`                   | Super admin          | `super@aksaraloka.test`                              |
-| `/smpn1bandung` | Admin                | `admin@smpn1bandung.test`                            |
-|                               | Kepala sekolah       | `kepala@smpn1bandung.test`                           |
-|                               | Guru + wali kelas    | `guru1@smpn1bandung.test`                            |
-|                               | Guru                 | `guru2@smpn1bandung.test`, `guru3@smpn1bandung.test` |
-|                               | Siswa (email)        | `siswa1@smpn1bandung.test` … `siswa5@…`              |
-|                               | Siswa (NIS saja)     | `2026006` … `2026030`                                |
-| `/kampusdemo`   | Admin                | `admin@kampusdemo.test`                              |
-|                               | Ketua prodi          | `kepala@kampusdemo.test`                             |
-|                               | Dosen + dosen wali   | `guru1@kampusdemo.test`                              |
-|                               | Dosen                | `guru2@kampusdemo.test`, `guru3@kampusdemo.test`     |
-|                               | Mahasiswa (email)    | `siswa1@kampusdemo.test` … `siswa5@…`                |
-|                               | Mahasiswa (NIM saja) | `2260006` … `2260030`                                |
+| Peran | Login |
+| --- | --- |
+| Admin | `admin@aksaraloka.test` |
+| Kepala sekolah / ketua prodi | `kepala@aksaraloka.test` |
+| Guru + wali kelas | `guru1@aksaraloka.test` |
+| Guru | `guru2@aksaraloka.test`, `guru3@aksaraloka.test` |
+| Siswa (email) | `siswa1@aksaraloka.test` … `siswa5@aksaraloka.test` |
+| Siswa (NIS saja) | `2026006` … `2026030` (jenjang `campus`: NIM `2260006` … `2260030`) |
 
 Login menerima email **atau** NIS/NIM/NIP. Kelas, materi, tugas, dan kuis demo ditambahkan di fase berikutnya.
 
@@ -69,4 +72,4 @@ Galeri komponen UI: `/ui` (hanya `APP_ENV=local`).
 
 ## Catatan produksi (akan dilengkapi di Fase 6)
 
-PostgreSQL, Redis + Horizon (Linux), disk `s3`/R2, HTTPS, wildcard DNS `*.domain`, catatan uji beban kuis 1.000 siswa serentak.
+PostgreSQL, Redis + Horizon (Linux), disk `s3`/R2, HTTPS, catatan uji beban kuis 1.000 siswa serentak.
