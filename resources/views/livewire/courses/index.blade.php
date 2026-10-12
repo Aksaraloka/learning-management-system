@@ -27,7 +27,7 @@
                            :description="auth()->user()->can('create', \App\Models\Course::class) ? __('courses.index.empty_manager') : __('courses.index.empty_student')" />
         </x-card>
     @else
-        <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" x-reveal>
             @foreach ($courses as $course)
                 <li wire:key="course-{{ $course->id }}">
                     <a href="{{ route('courses.show', $course) }}" wire:navigate

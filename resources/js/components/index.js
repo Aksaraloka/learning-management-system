@@ -279,9 +279,10 @@ export function registerLazyComponents(Alpine) {
                     animation: 150,
                     handle: options.handle ?? '[data-handle]',
                     ghostClass: 'opacity-40',
-                    onEnd: () => {
+                    onEnd: (event) => {
                         const ids = [...this.$el.children].map((el) => el.dataset.id);
 
+                        import('../lib/motion').then(({ pulse }) => pulse(event.item));
                         this.$dispatch('sorted', { ids });
                         options.onSort?.(ids);
                     },

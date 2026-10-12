@@ -9,10 +9,10 @@
     </x-card>
 
     @if ($stats)
-        <div class="mt-6 grid gap-4 sm:grid-cols-3">
-            <x-card :title="__('ui.nav.users')"><p class="text-3xl font-bold">{{ $stats['users'] }}</p></x-card>
-            <x-card :title="__('ui.nav.terms')"><p class="text-3xl font-bold">{{ $stats['terms'] }}</p></x-card>
-            <x-card :title="__('ui.nav.classes')"><p class="text-3xl font-bold">{{ $stats['courses'] }}</p></x-card>
+        <div class="mt-6 grid gap-4 sm:grid-cols-3" x-reveal>
+            <x-card :title="__('ui.nav.users')"><p class="text-3xl font-bold" x-countup>{{ $stats['users'] }}</p></x-card>
+            <x-card :title="__('ui.nav.terms')"><p class="text-3xl font-bold" x-countup>{{ $stats['terms'] }}</p></x-card>
+            <x-card :title="__('ui.nav.classes')"><p class="text-3xl font-bold" x-countup>{{ $stats['courses'] }}</p></x-card>
         </div>
     @endif
 
@@ -25,7 +25,7 @@
         @if ($courses->isEmpty())
             <x-card><x-empty-state icon="book-open" :title="__('courses.index.empty_title')" :description="__('courses.index.empty_student')" /></x-card>
         @else
-            <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" x-reveal>
                 @foreach ($courses as $course)
                     <li>
                         <a href="{{ route('courses.show', $course) }}" class="flex h-full flex-col gap-2 rounded-card border border-border bg-surface p-4 hover:border-primary">

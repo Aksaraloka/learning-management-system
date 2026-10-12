@@ -53,7 +53,7 @@
                 <x-empty-state icon="folder" :title="__('courses.show.empty_sections')" :description="$canManage ? __('courses.show.empty_sections_manager') : ''" />
             </x-card>
         @else
-            <x-sortable handle="[data-section-handle]" class="space-y-4" @sorted="$wire.reorderSections($event.detail.ids)">
+            <x-sortable handle="[data-section-handle]" class="space-y-4" x-reveal @sorted="$wire.reorderSections($event.detail.ids)">
                 @foreach ($sections as $section)
                     <li data-id="{{ $section->id }}" wire:key="section-{{ $section->id }}">
                         <x-card :padding="false">
