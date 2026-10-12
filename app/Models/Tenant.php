@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['name', 'subdomain', 'level', 'plan', 'status', 'settings'])]
+#[Fillable(['name', 'slug', 'level', 'plan', 'status', 'settings'])]
 class Tenant extends Model
 {
     /** @use HasFactory<TenantFactory> */
@@ -44,13 +44,12 @@ class Tenant extends Model
     }
 
     /**
-     * URL absolut ke tenant ini, mengikuti skema & port dari APP_URL.
+     * URL absolut ke tenant ini: {APP_URL}/{slug}/{path}.
      */
     public function url(string $path = '/'): string
     {
-        $app = parse_url((string) config('app.url')) + ['scheme' => 'http'];
-        $port = isset($app['port']) ? ':'.$app['port'] : '';
+        $path = trim($path, '/');
 
-        return $app['scheme'].'://'.$this->subdomain.'.'.config('tenancy.root_domain').$port.'/'.ltrim($path, '/');
+        return rtrim((string) config('app.url'), '/').'/'.$this->slug.($path === '' ? '' : '/'.$path);
     }
 }

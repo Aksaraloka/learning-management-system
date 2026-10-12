@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Password;
 use Livewire\Livewire;
 
 beforeEach(function () {
-    $this->tenant = makeTenant(['subdomain' => 'smp1']);
+    $this->tenant = makeTenant(['slug' => 'smp1']);
     $this->student = makeUser($this->tenant, Role::Student, [
         'email' => 'andi@contoh.test', 'identity_number' => '2026001', 'password' => 'rahasia123',
     ]);
@@ -48,7 +48,7 @@ it('rejects a wrong password', function () {
 });
 
 it('does not log a user into another tenant', function () {
-    $other = makeTenant(['subdomain' => 'smp2']);
+    $other = makeTenant(['slug' => 'smp2']);
     Tenancy::bind($other);
 
     attemptLogin('2026001', 'rahasia123')->assertHasErrors('identifier');

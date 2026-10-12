@@ -9,22 +9,29 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Membaca subdomain dari host dan memasang tenant aktif ke container.
- * Berjalan di setiap request web (termasuk /livewire/update).
+ * Membaca slug tenant dari parameter rute `{tenant}` (segmen pertama URL) dan memasang
+ * tenant aktif ke container. Berjalan di setiap request web, termasuk update Livewire
+ * (`/livewire-xxx/update/{tenant?}`). Tanpa parameter = domain utama.
  */
 class ResolveTenant
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $subdomain = $this->subdomain($request->getHost());
+        $route = $request->route();
+        $slug = $route?->parameter('tenant');
 
-        if ($subdomain === null) {
+        // Tanpa parameter (mis. /platform/institusi) atau slug `platform` = domain utama.
+        if (! is_string($slug) || $slug === '' || $slug === Tenancy::PLATFORM_SLUG) {
             Tenancy::forget();
+            $route?->forgetParameter('tenant');
 
             return $next($request);
         }
 
-        $tenant = Tenant::query()->where('subdomain', $subdomain)->first();
+        // Jangan diteruskan sebagai argumen ke controller / mount() komponen.
+        $route->forgetParameter('tenant');
+
+        $tenant = Tenant::query()->where('slug', strtolower($slug))->first();
 
         abort_if($tenant === null, 404);
         abort_unless($tenant->isActive(), 403, __('ui.tenant.suspended'));
@@ -32,27 +39,5 @@ class ResolveTenant
         Tenancy::bind($tenant);
 
         return $next($request);
-    }
-
-    /**
-     * Null berarti domain utama (atau host yang tidak dikenal, mis. localhost).
-     */
-    private function subdomain(string $host): ?string
-    {
-        $root = (string) config('tenancy.root_domain');
-        $host = strtolower($host);
-
-        if ($host === $root || ! str_ends_with($host, '.'.$root)) {
-            return null;
-        }
-
-        $subdomain = substr($host, 0, -strlen('.'.$root));
-
-        // www.aksaraloka.test dan subdomain tingkat dalam bukan tenant.
-        if (in_array($subdomain, config('tenancy.reserved_subdomains'), true) || str_contains($subdomain, '.')) {
-            return null;
-        }
-
-        return $subdomain;
     }
 }

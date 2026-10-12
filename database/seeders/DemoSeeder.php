@@ -34,35 +34,35 @@ class DemoSeeder extends Seeder
     /**
      * @param  array{NIS: string, staff: string}  $meta
      */
-    private function seedTenant(string $name, string $subdomain, string $level, array $meta): void
+    private function seedTenant(string $name, string $slug, string $level, array $meta): void
     {
         $result = app(CreateTenant::class)->handle(
-            ['name' => $name, 'subdomain' => $subdomain, 'level' => $level],
-            ['name' => 'Admin '.$name, 'email' => "admin@{$subdomain}.test", 'password' => self::PASSWORD],
+            ['name' => $name, 'slug' => $slug, 'level' => $level],
+            ['name' => 'Admin '.$name, 'email' => "admin@{$slug}.test", 'password' => self::PASSWORD],
         );
 
-        Tenancy::run($result['tenant'], function () use ($subdomain, $meta) {
+        Tenancy::run($result['tenant'], function () use ($slug, $meta) {
             AcademicTerm::factory()->create(['name' => '2026/2027 Ganjil']);
 
             foreach (range(1, 3) as $i) {
                 User::factory()
                     ->role(...($i === 1 ? [Role::Teacher, Role::Homeroom] : [Role::Teacher]))
                     ->create([
-                        'email' => "guru{$i}@{$subdomain}.test",
+                        'email' => "guru{$i}@{$slug}.test",
                         'identity_number' => $meta['staff'] === 'NIP' ? '19800101200501'.$i : '00112233'.$i,
                         'password' => self::PASSWORD,
                     ]);
             }
 
             User::factory()->role(Role::Principal)->create([
-                'email' => "kepala@{$subdomain}.test",
+                'email' => "kepala@{$slug}.test",
                 'identity_number' => '1975010120000100',
                 'password' => self::PASSWORD,
             ]);
 
             foreach (range(1, 30) as $i) {
                 User::factory()->role(Role::Student)->create([
-                    'email' => $i <= 5 ? "siswa{$i}@{$subdomain}.test" : null, // sisanya login dengan NIS/NIM
+                    'email' => $i <= 5 ? "siswa{$i}@{$slug}.test" : null, // sisanya login dengan NIS/NIM
                     'identity_number' => $meta['NIS'].str_pad((string) $i, 3, '0', STR_PAD_LEFT),
                     'password' => self::PASSWORD,
                 ]);

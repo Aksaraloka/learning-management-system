@@ -33,7 +33,7 @@ return [
         'reset_title' => 'Buat kata sandi baru',
         'new_password' => 'Kata sandi baru',
         'confirm_password' => 'Ulangi kata sandi baru',
-        'central_hint' => 'Halaman ini khusus pengelola platform. Siswa, guru, dan admin sekolah/kampus masuk lewat alamat institusinya, mis. :example.',
+        'central_hint' => 'Halaman ini khusus pengelola platform. Siswa, guru, dan admin sekolah/kampus masuk lewat alamat institusinya, mis. :example (awali dengan nama institusi sebelum /login).',
         'back_to_login' => 'Kembali ke halaman masuk',
     ],
 
@@ -87,6 +87,8 @@ return [
     'tenants' => [
         'add' => 'Tambah institusi',
         'name' => 'Nama institusi',
+        'slug' => 'Alamat (slug)',
+        'address' => 'Alamat',
         'level' => 'Jenjang',
         'school' => 'Sekolah',
         'campus' => 'Kampus',

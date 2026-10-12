@@ -12,7 +12,7 @@ use Livewire\Livewire;
 beforeEach(function () {
     Storage::fake('local');
 
-    $this->tenant = makeTenant(['subdomain' => 'smp1']);
+    $this->tenant = makeTenant(['slug' => 'smp1']);
     $this->admin = makeUser($this->tenant, Role::Admin);
     makeUser($this->tenant, Role::Student, ['identity_number' => '1111', 'email' => 'ada@contoh.test']);
 
@@ -88,7 +88,7 @@ it('rejects duplicate identity numbers within the same file', function () {
 });
 
 it('imports into the right tenant even when another tenant has the same NIS', function () {
-    $other = makeTenant(['subdomain' => 'smp2']);
+    $other = makeTenant(['slug' => 'smp2']);
     makeUser($other, Role::Student, ['identity_number' => '7001']);
 
     Livewire::test(Import::class)->set('file', csv([HEADER, ['Baru', '7001', '', 'student', '']]))->call('import');
@@ -117,7 +117,7 @@ it('refuses files that are not csv or excel', function () {
 });
 
 it('only shows own tenant import history', function () {
-    $other = makeTenant(['subdomain' => 'smp2']);
+    $other = makeTenant(['slug' => 'smp2']);
     Tenancy::run($other, fn () => ImportRun::create([
         'user_id' => makeUser($other, Role::Admin)->id, 'type' => 'users', 'file_path' => 'x.csv', 'status' => 'done', 'total_rows' => 99, 'success_rows' => 99,
     ]));

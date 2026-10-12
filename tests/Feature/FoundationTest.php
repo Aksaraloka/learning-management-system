@@ -5,7 +5,7 @@ use Illuminate\Support\MessageBag;
 use Illuminate\Support\ViewErrorBag;
 
 it('renders the landing page in Indonesian with the anti-flash theme script', function () {
-    $this->get('/')
+    $this->get('/platform')
         ->assertOk()
         ->assertSee('lang="id"', false)
         ->assertSee('_x_theme', false)

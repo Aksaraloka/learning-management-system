@@ -17,7 +17,7 @@ class TenantFactory extends Factory
     {
         return [
             'name' => 'SMP Negeri '.fake()->numberBetween(1, 99).' '.fake()->city(),
-            'subdomain' => fake()->unique()->lexify('sekolah-????'),
+            'slug' => fake()->unique()->lexify('sekolah-????'),
             'level' => 'school',
             'plan' => 'free',
             'status' => Tenant::STATUS_ACTIVE,

@@ -8,7 +8,7 @@ use App\Support\Tenancy;
 use Livewire\Livewire;
 
 beforeEach(function () {
-    $this->tenant = makeTenant(['subdomain' => 'smp1']);
+    $this->tenant = makeTenant(['slug' => 'smp1']);
 });
 
 it('allows only admin and principal to see the user list', function (Role $role, int $status) {
@@ -93,6 +93,6 @@ it('treats LIKE wildcards in search literally', function () {
 it('keeps admin and platform areas separated by context', function () {
     $admin = makeUser($this->tenant, Role::Admin);
 
-    $this->actingAs($admin)->get('http://aksaraloka.test/admin/pengguna')->assertNotFound();
+    $this->actingAs($admin)->get('/admin/pengguna')->assertNotFound();
     $this->actingAs($admin)->get($this->tenant->url('/platform/institusi'))->assertNotFound();
 });

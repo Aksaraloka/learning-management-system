@@ -16,18 +16,17 @@ php artisan migrate --seed
 composer dev        # server + queue + vite
 ```
 
-### Subdomain tenant
+### Alamat tenant (tanpa subdomain / domain)
 
-Setiap institusi diakses lewat `{subdomain}.{TENANT_ROOT_DOMAIN}`. Default lokal memakai **`localhost`**, jadi tanpa beli domain
-dan tanpa mengubah file hosts (Chrome, Edge, Firefox otomatis me-resolve `*.localhost` ke komputer Anda):
+Setiap institusi diakses lewat **segmen pertama URL**, jadi cukup satu host (`localhost:8000`), tanpa DNS, hosts file, atau beli domain:
 
-- Platform / super admin: <http://localhost:8000>
-- SMP demo: <http://smpn1bandung.localhost:8000>
-- Kampus demo: <http://kampusdemo.localhost:8000>
+- Platform / super admin: <http://localhost:8000/platform/login>
+- SMP demo: <http://localhost:8000/smpn1bandung/login>
+- Kampus demo: <http://localhost:8000/kampusdemo/login>
 
-(Safari belum me-resolve `*.localhost`; pakai Chrome/Firefox atau tambahkan entri hosts.) Untuk produksi atau Herd, ubah `APP_URL`
-dan `TENANT_ROOT_DOMAIN` (mis. `aksaraloka.id`) dan siapkan wildcard DNS `*.aksaraloka.id`. Host yang tidak dikenal dianggap domain utama.
-
+`APP_URL` menentukan basis URL (`http://localhost:8000`). Slug `platform` dan beberapa kata lain dicadangkan (lihat `config/tenancy.php`).
+Login satu akun per browser pada satu waktu (cookie sesi dipakai bersama oleh semua alamat di host yang sama); gunakan jendela
+penyamaran/profil lain untuk masuk ke dua tenant sekaligus.
 ## Akun demo
 
 Semua kata sandi: `password`. Hasil dari `php artisan db:seed` (DemoSeeder).
@@ -35,13 +34,13 @@ Semua kata sandi: `password`. Hasil dari `php artisan db:seed` (DemoSeeder).
 | Domain                        | Peran                | Login                                                |
 | ----------------------------- | -------------------- | ---------------------------------------------------- |
 | `localhost:8000`              | Super admin          | `super@aksaraloka.test`                              |
-| `smpn1bandung.localhost:8000` | Admin                | `admin@smpn1bandung.test`                            |
+| `/smpn1bandung` | Admin                | `admin@smpn1bandung.test`                            |
 |                               | Kepala sekolah       | `kepala@smpn1bandung.test`                           |
 |                               | Guru + wali kelas    | `guru1@smpn1bandung.test`                            |
 |                               | Guru                 | `guru2@smpn1bandung.test`, `guru3@smpn1bandung.test` |
 |                               | Siswa (email)        | `siswa1@smpn1bandung.test` … `siswa5@…`              |
 |                               | Siswa (NIS saja)     | `2026006` … `2026030`                                |
-| `kampusdemo.localhost:8000`   | Admin                | `admin@kampusdemo.test`                              |
+| `/kampusdemo`   | Admin                | `admin@kampusdemo.test`                              |
 |                               | Ketua prodi          | `kepala@kampusdemo.test`                             |
 |                               | Dosen + dosen wali   | `guru1@kampusdemo.test`                              |
 |                               | Dosen                | `guru2@kampusdemo.test`, `guru3@kampusdemo.test`     |

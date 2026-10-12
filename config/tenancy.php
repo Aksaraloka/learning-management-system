@@ -3,11 +3,10 @@
 return [
 
     /*
-    | Domain utama platform (landing + panel super admin). Setiap tenant
-    | dilayani di {subdomain}.{root_domain}. Host lain (localhost, IP) dianggap
-    | domain utama agar mudah dipakai saat development.
+    | Tenant ditentukan dari segmen pertama URL: /{slug}/login, /{slug}/admin/pengguna, dst.
+    | Tanpa slug (/, /login, /platform/institusi) berarti domain utama: landing + panel super admin.
+    | Tidak butuh domain, DNS, atau subdomain; cukup satu host (mis. localhost:8000).
     */
-    'root_domain' => env('TENANT_ROOT_DOMAIN', 'aksaraloka.test'),
 
     /*
     | Spatie permission memakai kolom `tenant_id` sebagai "team". Peran platform
@@ -15,6 +14,13 @@ return [
     */
     'platform_team_id' => 0,
 
-    // Subdomain yang tidak boleh dipakai tenant.
-    'reserved_subdomains' => ['www', 'admin', 'api', 'app', 'mail', 'static', 'assets'],
+    /*
+    | Slug yang tidak boleh dipakai tenant karena bentrok dengan rute platform atau aset.
+    | Segmen `livewire-*` (endpoint Livewire) otomatis dikecualikan.
+    */
+    'reserved_slugs' => [
+        'login', 'logout', 'platform', 'admin', 'api', 'ui', 'up', 'theme', 'profil',
+        'lupa-kata-sandi', 'reset-kata-sandi', 'kebijakan-privasi',
+        'livewire', 'storage', 'build', 'vendor', 'samples', 'www', 'app', 'mail', 'static', 'assets',
+    ],
 ];

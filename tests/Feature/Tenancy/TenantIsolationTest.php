@@ -11,8 +11,8 @@ use Livewire\Livewire;
 use Spatie\Permission\PermissionRegistrar;
 
 beforeEach(function () {
-    $this->a = makeTenant(['subdomain' => 'sekolah-a']);
-    $this->b = makeTenant(['subdomain' => 'sekolah-b']);
+    $this->a = makeTenant(['slug' => 'sekolah-a']);
+    $this->b = makeTenant(['slug' => 'sekolah-b']);
 
     $this->adminA = makeUser($this->a, Role::Admin, ['name' => 'Admin A']);
     $this->adminB = makeUser($this->b, Role::Admin, ['name' => 'Admin B']);

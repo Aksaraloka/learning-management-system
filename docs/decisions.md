@@ -34,3 +34,12 @@ Asumsi yang diambil saat PRD tidak mencakup detailnya.
 25. **Seeder demo Fase 1** hanya berisi pengguna dan tahun ajaran; kelas, materi, tugas, kuis ditambahkan seeder fase terkait.
 26. **Tema tersinkron ke akun** lewat `PUT /theme`; perangkat baru tanpa pilihan lokal memakai `users.theme`.
 27. **Domain root lokal = `localhost`**: `*.localhost` di-resolve browser tanpa DNS/hosts, sehingga tenant bisa dicoba tanpa membeli domain. Test dipaku ke `aksaraloka.test` lewat `phpunit.xml`.
+
+## Perubahan metode tenant: subdomain -> path
+
+28. **Tenant berbasis path, bukan subdomain** (menggantikan #15 dan #27; catatan #19(c) tidak berlaku). Alasan: pengguna tidak memiliki domain/DNS untuk subdomain. Tenant = segmen pertama URL (`/smpn1bandung/login`). Tabel `tenants.subdomain` diganti nama menjadi `slug` (migration baru; migration lama tidak diubah).
+29. **Domain utama = slug `platform`**: parameter opsional di tengah URI (`{tenant?}/login`) tidak didukung Laravel, jadi satu set rute dengan prefix `{tenant}` wajib dipakai dan konteks platform memakai slug khusus `platform` (`/platform/login`, `/platform/institusi`). `/` hanya redirect ke `/platform`.
+30. **URL dibangun otomatis**: `Tenancy::bind()` memasang `URL::defaults(['tenant' => slug])`, `forget()` memasang `platform`, sehingga `route('login')` tidak perlu diubah di kode/view.
+31. **Update Livewire membawa tenant**: rute kustom `/livewire-xxx/update/{tenant?}` didaftarkan di `AppServiceProvider::register()` (mendahului rute bawaan Livewire, yang otomatis 404 bila ada rute kustom). Endpoint upload file tidak butuh tenant (hanya menyimpan file sementara bertanda tangan).
+32. **Satu sesi per browser per host**: cookie sesi sama untuk semua slug. `TenantScope` pada provider auth + `tenant.member` membuat sesi tenant lain tidak berlaku di tenant ini, sehingga berpindah tenant berarti masuk ulang. Lapis isolasi lain tetap berlaku.
+33. **Slug**: 3-32 karakter `[a-z0-9-]`, tidak boleh diawali/diakhiri strip, tidak boleh dalam `reserved_slugs` atau diawali `livewire-`.

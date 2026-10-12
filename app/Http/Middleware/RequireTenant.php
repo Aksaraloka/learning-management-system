@@ -8,8 +8,8 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Alias `tenant`: rute hanya ada di subdomain tenant.
- * Alias `central`: rute hanya ada di domain utama (parameter `central`).
+ * Alias `tenant`: rute hanya ada di dalam tenant (/{slug}/...).
+ * Alias `central`: rute hanya ada di domain utama (tanpa slug).
  */
 class RequireTenant
 {

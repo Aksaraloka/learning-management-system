@@ -6,7 +6,7 @@ use App\Models\AcademicTerm;
 use Livewire\Livewire;
 
 beforeEach(function () {
-    $this->tenant = makeTenant(['subdomain' => 'smp1']);
+    $this->tenant = makeTenant(['slug' => 'smp1']);
     $this->admin = makeUser($this->tenant, Role::Admin);
 });
 

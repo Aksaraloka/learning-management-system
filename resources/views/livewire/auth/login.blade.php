@@ -3,7 +3,7 @@
 
     @unless (app()->bound('tenant'))
         <p class="mt-3 rounded-lg bg-surface-muted p-3 text-sm text-text-muted" role="note">
-            {{ __('ui.auth.central_hint', ['example' => 'namasekolah.'.config('tenancy.root_domain')]) }}
+            {{ __('ui.auth.central_hint', ['example' => rtrim(config('app.url'), '/').'/namasekolah/login']) }}
         </p>
     @endunless
 

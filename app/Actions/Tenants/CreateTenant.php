@@ -15,7 +15,7 @@ class CreateTenant
     /**
      * Membuat tenant beserta peran bawaannya dan satu akun admin institusi.
      *
-     * @param  array{name: string, subdomain: string, level: string, plan?: string}  $data
+     * @param  array{name: string, slug: string, level: string, plan?: string}  $data
      * @param  array{name: string, email: string, identity_number?: string|null, password?: string|null}  $admin
      * @return array{tenant: Tenant, admin: User, password: string}
      */
@@ -24,7 +24,7 @@ class CreateTenant
         return DB::transaction(function () use ($data, $admin) {
             $tenant = Tenant::create([
                 'name' => $data['name'],
-                'subdomain' => $data['subdomain'],
+                'slug' => $data['slug'],
                 'level' => $data['level'],
                 'plan' => $data['plan'] ?? 'free',
                 'status' => Tenant::STATUS_ACTIVE,
