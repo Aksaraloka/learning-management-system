@@ -7,14 +7,13 @@ use App\Actions\Materials\DeleteMaterial;
 use App\Models\Assignment;
 use App\Models\Course;
 use App\Models\Section;
-use App\Support\Terminology;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class ManageSections
 {
     /**
-     * Menambah topik (sekolah) atau pertemuan (kampus, maks. config courses.max_meetings) di urutan terakhir.
+     * Menambah pertemuan (maks. config courses.max_meetings = 16) di urutan terakhir.
      *
      * @throws ValidationException
      */
@@ -22,7 +21,7 @@ class ManageSections
     {
         $count = $course->sections()->count();
 
-        if (Terminology::mode() === Terminology::CAMPUS && $count >= (int) config('courses.max_meetings')) {
+        if ($count >= (int) config('courses.max_meetings')) {
             throw ValidationException::withMessages([
                 'title' => __('courses.sections.max_meetings', ['max' => config('courses.max_meetings')]),
             ]);
@@ -42,7 +41,7 @@ class ManageSections
     }
 
     /**
-     * Menghapus topik beserta materi dan berkasnya, lalu merapikan urutan.
+     * Menghapus pertemuan beserta materi dan berkasnya, lalu merapikan urutan.
      */
     public function delete(Section $section, DeleteMaterial $deleteMaterial): void
     {
@@ -51,7 +50,7 @@ class ManageSections
                 $deleteMaterial->handle($material);
             }
 
-            // Tugas (termasuk yang sudah diarsipkan) beserta lampiran dan kiriman siswa ikut dihapus permanen.
+            // Tugas (termasuk yang sudah diarsipkan) beserta lampiran dan kiriman mahasiswa ikut dihapus permanen.
             foreach (Assignment::withTrashed()->where('section_id', $section->id)->get() as $assignment) {
                 app(ManageAttachments::class)->purge($assignment);
             }

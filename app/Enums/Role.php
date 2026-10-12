@@ -41,10 +41,10 @@ enum Role: string
         $key = mb_strtolower(trim($input));
 
         $aliases = [
-            'guru' => self::Teacher, 'dosen' => self::Teacher,
-            'siswa' => self::Student, 'mahasiswa' => self::Student,
-            'wali kelas' => self::Homeroom, 'dosen wali' => self::Homeroom,
-            'kepala sekolah' => self::Principal, 'kaprodi' => self::Principal,
+            'dosen' => self::Teacher, 'guru' => self::Teacher,
+            'mahasiswa' => self::Student, 'siswa' => self::Student,
+            'dosen wali' => self::Homeroom, 'wali kelas' => self::Homeroom,
+            'kaprodi' => self::Principal, 'ketua program studi' => self::Principal, 'kepala sekolah' => self::Principal,
         ];
 
         return $aliases[$key] ?? self::tryFrom($key);

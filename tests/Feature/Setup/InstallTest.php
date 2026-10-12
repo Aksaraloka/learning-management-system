@@ -3,7 +3,6 @@
 use App\Actions\Setup\EnsureRoles;
 use App\Enums\Role;
 use App\Models\User;
-use App\Support\Terminology;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role as RoleModel;
 
@@ -45,24 +44,30 @@ it('only sets up roles when no email is given', function () {
     expect(User::count())->toBe(0);
 });
 
-it('takes the institution name and terminology from config', function () {
-    expect(institution_name())->toBe('SMP Contoh')->and(term('teacher'))->toBe('Guru');
+it('takes the university name from config', function () {
+    expect(institution_name())->toBe('Universitas Contoh');
 
-    config(['institution.level' => 'campus', 'institution.name' => 'Universitas X']);
+    config(['institution.name' => 'Universitas X']);
 
-    expect(institution_name())->toBe('Universitas X')
-        ->and(Terminology::mode())->toBe('campus')
-        ->and(term('teacher'))->toBe('Dosen')
+    expect(institution_name())->toBe('Universitas X');
+});
+
+it('uses a single university vocabulary', function () {
+    expect(term('teacher'))->toBe('Dosen')
+        ->and(term('student'))->toBe('Mahasiswa')
+        ->and(term('course'))->toBe('Mata Kuliah')
         ->and(term('section'))->toBe('Pertemuan')
-        ->and(term('section', 'school'))->toBe('Topik');
+        ->and(term('homeroom'))->toBe('Dosen Wali')
+        ->and(term('principal'))->toBe('Ketua Program Studi')
+        ->and(term('identity'))->toBe('NIM/NIDN')
+        ->and(term('term'))->toBe('Semester')
+        ->and(term('credits'))->toBe('SKS');
 });
 
-it('falls back to school terms for an unknown level', function () {
-    config(['institution.level' => 'lainnya']);
-
-    expect(Terminology::mode())->toBe('school');
+it('has no school-mode switch left', function () {
+    expect(config('institution'))->toBe(['name' => 'Universitas Contoh'])
+        ->and(class_exists('App\\Support\\Terminology'))->toBeFalse();
 });
-
 it('leaves no multi-tenant artifacts in the schema', function () {
     expect(Schema::hasTable('tenants'))->toBeFalse()
         ->and(Schema::hasColumn('users', 'tenant_id'))->toBeFalse()

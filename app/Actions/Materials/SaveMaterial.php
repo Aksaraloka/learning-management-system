@@ -63,7 +63,7 @@ class SaveMaterial
     }
 
     /**
-     * Urutkan ulang materi dalam satu topik. Id yang bukan milik topik ini diabaikan.
+     * Urutkan ulang materi dalam satu pertemuan. Id yang bukan milik pertemuan ini diabaikan.
      *
      * @param  list<int|string>  $ids
      */

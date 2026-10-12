@@ -38,8 +38,8 @@
             <form class="grid gap-4 sm:grid-cols-2" onsubmit="return false">
                 <x-input name="name" label="Nama lengkap" placeholder="Mis. Budi Santoso" hint="Sesuai data akademik." />
                 <x-input name="email" type="email" label="Email" value="salah-format" aria-invalid="true" />
-                <x-select name="level" label="Jenjang" placeholder="Pilih jenjang" :options="['smp' => 'SMP', 'sma' => 'SMA', 'smk' => 'SMK']" />
-                <x-input.select name="student" label="Siswa (cari)" :options="['1' => 'Andi Pratama', '2' => 'Bunga Lestari', '3' => 'Citra Dewi', '4' => 'Dimas Aditya']" />
+                <x-select name="program" label="Program studi" placeholder="Pilih program studi" :options="['ti' => 'Teknik Informatika', 'si' => 'Sistem Informasi', 'mn' => 'Manajemen']" />
+                <x-input.select name="student" label="Mahasiswa (cari)" :options="['1' => 'Andi Pratama', '2' => 'Bunga Lestari', '3' => 'Citra Dewi', '4' => 'Dimas Aditya']" />
                 <x-input.select name="classes" label="Kelas (banyak)" multiple :options="['7a' => 'VII-A', '7b' => 'VII-B', '8a' => 'VIII-A']" />
                 <x-input.date name="due" label="Tenggat" time />
                 <x-textarea name="note" label="Catatan" class="sm:col-span-2" />
@@ -110,7 +110,7 @@
 
         <div class="grid gap-6 lg:grid-cols-2">
             <x-card title="Grafik (Chart.js)">
-                <x-chart type="bar" label="Distribusi nilai" :data="['labels' => ['<60', '60-70', '70-80', '80-90', '90+'], 'datasets' => [['label' => 'Siswa', 'data' => [2, 5, 12, 8, 3]]]]"
+                <x-chart type="bar" label="Distribusi nilai" :data="['labels' => ['<60', '60-70', '70-80', '80-90', '90+'], 'datasets' => [['label' => 'Mahasiswa', 'data' => [2, 5, 12, 8, 3]]]]"
                          :options="['plugins' => ['legend' => ['display' => false]]]" />
             </x-card>
             <x-card title="Pratinjau PDF (PDF.js)">
@@ -118,9 +118,8 @@
             </x-card>
         </div>
 
-        <x-card title="Istilah per mode">
-            <p class="text-sm text-text-muted">Sekolah: {{ term('teacher', 'school') }}, {{ term('student', 'school') }}, {{ term('section', 'school') }} ·
-                Kampus: {{ term('teacher', 'campus') }}, {{ term('student', 'campus') }}, {{ term('section', 'campus') }}</p>
+        <x-card title="Istilah universitas">
+            <p class="text-sm text-text-muted">{{ term('teacher') }}, {{ term('student') }}, {{ term('section') }}, {{ term('course') }}, {{ term('homeroom') }}, {{ term('principal') }}</p>
         </x-card>
     </div>
 </x-layouts.app>

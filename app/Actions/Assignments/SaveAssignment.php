@@ -10,7 +10,7 @@ use Mews\Purifier\Facades\Purifier;
 class SaveAssignment
 {
     /**
-     * Membuat atau memperbarui tugas. Instruksi disanitasi (Purifier). Topik dan kategori harus milik kelas ini
+     * Membuat atau memperbarui tugas. Instruksi disanitasi (Purifier). pertemuan dan kategori harus milik kelas ini
      * (divalidasi pemanggil).
      *
      * @param  array{section_id: int, grade_category_id: int|null, title: string, instructions?: string|null, due_at: CarbonInterface|null, max_score: int, allow_late: bool}  $data

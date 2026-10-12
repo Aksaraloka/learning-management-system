@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Topik (sekolah) atau pertemuan ke-n (kampus).
+ * Pertemuan ke-n (1-16) dalam sebuah mata kuliah.
  *
  * @property int $id
  * @property int $course_id

@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 class CreateCourse
 {
     /**
-     * Membuat kelas beserta kode gabung dan mendaftarkan pengajarnya.
+     * Membuat kelas beserta kode gabung dan mendaftarkan dosennya.
      *
      * @param  array{academic_term_id: int, name: string, credits?: int|null, description?: string|null}  $data
      */

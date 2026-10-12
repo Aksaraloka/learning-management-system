@@ -51,7 +51,7 @@ it('creates a section in the target course when it has none', function () {
 
     copyPage($this)->set('copyTo', [(string) $this->parallel->id])->call('copy');
 
-    expect($this->parallel->sections()->pluck('title')->all())->toBe(['Topik 1']);
+    expect($this->parallel->sections()->pluck('title')->all())->toBe(['Pertemuan 1']);
 });
 
 it('puts the copy in the first existing section', function () {

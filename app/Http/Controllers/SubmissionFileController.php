@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class SubmissionFileController extends Controller
 {
     /**
-     * Berkas kiriman siswa: hanya pemilik, pengelola kelas, dan kepala. Siswa lain tidak pernah.
+     * Berkas kiriman mahasiswa: hanya pemilik, pengelola kelas, dan kepala. mahasiswa lain tidak pernah.
      */
     public function __invoke(Request $request, Submission $submission): StreamedResponse
     {

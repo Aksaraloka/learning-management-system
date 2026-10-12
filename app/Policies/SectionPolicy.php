@@ -8,7 +8,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 
 /**
- * Hak akses topik/pertemuan mengikuti kelasnya.
+ * Hak akses pertemuan mengikuti kelasnya.
  */
 class SectionPolicy
 {

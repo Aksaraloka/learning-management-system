@@ -15,7 +15,7 @@ use Mews\Purifier\Facades\Purifier;
 class SubmitAssignment
 {
     /**
-     * Siswa mengumpulkan atau mengganti kiriman. Aturan: tenggat (kecuali boleh terlambat), terkunci setelah dinilai,
+     * mahasiswa mengumpulkan atau mengganti kiriman. Aturan: tenggat (kecuali boleh terlambat), terkunci setelah dinilai,
      * terbuka lagi bila dikembalikan untuk revisi. Minimal teks atau berkas. Berkas lama dihapus saat diganti.
      *
      * @throws ValidationException

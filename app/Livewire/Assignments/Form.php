@@ -66,7 +66,7 @@ class Form extends Component
 
         Gate::authorize('create', [Assignment::class, $course]);
 
-        $this->section_id = (string) request()->query('topik', '');
+        $this->section_id = (string) request()->query('pertemuan', '');
         $this->grade_category_id = (string) ($course->gradeCategories()->where('name', 'Tugas')->value('id') ?? '');
     }
 

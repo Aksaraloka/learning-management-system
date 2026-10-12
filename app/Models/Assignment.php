@@ -97,7 +97,7 @@ class Assignment extends Model
     }
 
     /**
-     * Apakah siswa boleh mengumpulkan / mengganti kiriman sekarang?
+     * Apakah mahasiswa boleh mengumpulkan / mengganti kiriman sekarang?
      * Sudah dinilai = terkunci; dikembalikan untuk revisi = selalu boleh; selain itu patuhi tenggat.
      */
     public function acceptsSubmissionFrom(?Submission $existing): bool
@@ -114,7 +114,7 @@ class Assignment extends Model
     }
 
     /**
-     * Status tugas bagi satu siswa dari kiriman yang sudah dimuat (null = belum mengumpulkan).
+     * Status tugas bagi satu mahasiswa dari kiriman yang sudah dimuat (null = belum mengumpulkan).
      */
     public static function statusOf(?Submission $submission): SubmissionStatus
     {

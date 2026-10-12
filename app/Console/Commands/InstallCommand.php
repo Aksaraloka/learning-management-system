@@ -21,7 +21,7 @@ class InstallCommand extends Command
         $email = (string) $this->option('email');
 
         if ($email === '') {
-            $this->components->warn('Tidak ada --email, akun admin tidak dibuat. Contoh: php artisan aksaraloka:install --email=admin@sekolah.sch.id');
+            $this->components->warn('Tidak ada --email, akun admin tidak dibuat. Contoh: php artisan aksaraloka:install --email=admin@kampus.ac.id');
 
             return self::SUCCESS;
         }

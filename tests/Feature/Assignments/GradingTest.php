@@ -33,7 +33,7 @@ function gradePage($test, $user = null, ?int $student = null): Testable
 {
     $params = ['course' => $test->course, 'assignment' => $test->assignment];
 
-    return Livewire::actingAs($user ?? $test->teacher)->withQueryParams($student ? ['siswa' => $student] : [])->test(Grade::class, $params);
+    return Livewire::actingAs($user ?? $test->teacher)->withQueryParams($student ? ['mahasiswa' => $student] : [])->test(Grade::class, $params);
 }
 
 it('grades a submission', function () {
@@ -171,7 +171,7 @@ it('returns 404 for a student who is not in the course', function () {
     $outsider = makeUser(Role::Student);
 
     gradePage($this)->call('select', $outsider->id)->assertNotFound();
-    $this->actingAs($this->teacher)->get(route('assignments.grade', ['course' => $this->course, 'assignment' => $this->assignment, 'siswa' => $outsider->id]))->assertNotFound();
+    $this->actingAs($this->teacher)->get(route('assignments.grade', ['course' => $this->course, 'assignment' => $this->assignment, 'mahasiswa' => $outsider->id]))->assertNotFound();
 });
 
 it('returns 404 for an assignment of another course', function () {

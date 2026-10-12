@@ -1,6 +1,5 @@
 <?php
 
-use App\Support\Terminology;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\ViewErrorBag;
 
@@ -61,17 +60,8 @@ it('shows validation errors on form fields with accessible markup', function () 
         ->assertSee('for="name"', false);
 });
 
-it('switches terminology between school and campus', function () {
-    expect(term('teacher'))->toBe('Guru')
-        ->and(term('student', Terminology::CAMPUS))->toBe('Mahasiswa')
-        ->and(term('section', Terminology::CAMPUS))->toBe('Pertemuan')
-        ->and(term('section', Terminology::SCHOOL))->toBe('Topik');
-});
-
-it('uses campus terms when the institution is a campus', function () {
-    config(['institution.level' => 'campus']);
-
-    expect(term('teacher'))->toBe('Dosen');
+it('uses university terminology', function () {
+    expect(term('teacher'))->toBe('Dosen')->and(term('student'))->toBe('Mahasiswa')->and(term('section'))->toBe('Pertemuan');
 });
 
 it('keeps design tokens declared for both themes', function () {

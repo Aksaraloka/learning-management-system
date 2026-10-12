@@ -13,7 +13,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Dua tugas per kelas demo: satu masih terbuka (siswa1 belum mengumpulkan, bisa dicoba) dan satu sudah lewat tenggat
+ * Dua tugas per kelas demo: satu masih terbuka (mahasiswa1 belum mengumpulkan, bisa dicoba) dan satu sudah lewat tenggat
  * dengan campuran status (dinilai, menunggu nilai, terlambat, perlu revisi, belum mengumpulkan). Jalankan setelah CourseSeeder.
  */
 class AssignmentSeeder extends Seeder
@@ -32,7 +32,7 @@ class AssignmentSeeder extends Seeder
 
             $open = Assignment::create([
                 'course_id' => $course->id, 'section_id' => $section->id, 'grade_category_id' => $category?->id,
-                'title' => 'Latihan 1: '.$section->title,
+                'title' => 'Latihan 1',
                 'instructions' => '<p>Kerjakan latihan berikut dan kumpulkan sebelum tenggat.</p><ol><li>Baca ringkasan materi.</li><li>Jawab soal 1-5.</li></ol><p>Rumus bantu: $a^2 + b^2 = c^2$</p>',
                 'due_at' => now()->addDays(5)->setTime(23, 59), 'max_score' => 100, 'allow_late' => true, 'position' => 1,
             ]);
@@ -42,7 +42,7 @@ class AssignmentSeeder extends Seeder
             Storage::disk(config('courses.disk'))->put($path, $pdf);
             $open->attachments()->create(['file_path' => $path, 'file_name' => 'soal-latihan-1.pdf', 'file_size' => strlen($pdf), 'mime_type' => 'application/pdf']);
 
-            // Hanya siswa kedua yang sudah mengumpulkan di tugas terbuka; siswa pertama (akun demo) bisa mencoba.
+            // Hanya mahasiswa kedua yang sudah mengumpulkan di tugas terbuka; mahasiswa pertama (akun demo) bisa mencoba.
             if ($student = $students->get(1)) {
                 Submission::create([
                     'assignment_id' => $open->id, 'user_id' => $student->id, 'body' => '<p>Jawaban saya: 1) 12, 2) 15, 3) 9.</p>',
@@ -52,7 +52,7 @@ class AssignmentSeeder extends Seeder
 
             $closed = Assignment::create([
                 'course_id' => $course->id, 'section_id' => $section->id, 'grade_category_id' => $category?->id,
-                'title' => 'Tugas Mandiri: '.$section->title,
+                'title' => 'Tugas Mandiri: Rangkuman Pertemuan',
                 'instructions' => '<p>Tulis rangkuman satu halaman.</p>',
                 'due_at' => now()->subDays(2)->setTime(23, 59), 'max_score' => 100, 'allow_late' => false, 'position' => 2,
             ]);

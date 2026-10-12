@@ -24,7 +24,7 @@ class CoursePolicy
     }
 
     /**
-     * Mengubah kelas, topik/pertemuan, materi, dan anggota: admin atau pengajar kelas itu.
+     * Mengubah kelas, pertemuan, materi, dan anggota: admin atau dosen kelas itu.
      */
     public function update(User $user, Course $course): bool
     {
@@ -42,7 +42,7 @@ class CoursePolicy
     }
 
     /**
-     * Daftar peserta lengkap: pengelola kelas dan kepala. Siswa hanya melihat pengajar.
+     * Daftar peserta lengkap: pengelola kelas dan kepala. mahasiswa hanya melihat dosen.
      */
     public function viewRoster(User $user, Course $course): bool
     {
@@ -50,7 +50,7 @@ class CoursePolicy
     }
 
     /**
-     * Bergabung lewat kode: hanya akun siswa yang belum terdaftar di kelas itu.
+     * Bergabung lewat kode: hanya akun mahasiswa yang belum terdaftar di kelas itu.
      */
     public function join(User $user): bool
     {

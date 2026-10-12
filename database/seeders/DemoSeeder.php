@@ -7,13 +7,12 @@ use App\Actions\Setup\EnsureRoles;
 use App\Enums\Role;
 use App\Models\AcademicTerm;
 use App\Models\User;
-use App\Support\Terminology;
 use Illuminate\Database\Seeder;
 
 /**
- * Data demo untuk satu institusi (jenjang mengikuti INSTITUTION_LEVEL): 1 admin, 1 kepala,
- * 3 guru/dosen, 30 siswa/mahasiswa, dan 1 tahun ajaran. Kelas, materi, tugas, dan kuis
- * ditambahkan seeder fase berikutnya. Kata sandi semua akun demo: "password".
+ * Data demo satu universitas: 1 admin, 1 ketua program studi, 3 dosen (satu merangkap dosen wali),
+ * 30 mahasiswa, dan 1 semester. Mata kuliah, materi, tugas, dan kuis ditambahkan seeder lain.
+ * Kata sandi semua akun demo: "password".
  */
 class DemoSeeder extends Seeder
 {
@@ -23,16 +22,14 @@ class DemoSeeder extends Seeder
     {
         app(EnsureRoles::class)->handle();
 
-        $campus = Terminology::mode() === Terminology::CAMPUS;
-
         app(CreateAdmin::class)->handle('Admin '.institution_name(), 'admin@aksaraloka.test', self::PASSWORD);
 
         AcademicTerm::factory()->create(['name' => '2026/2027 Ganjil']);
 
         User::factory()->role(Role::Principal)->create([
-            'name' => $campus ? 'Ketua Program Studi' : 'Kepala Sekolah',
-            'email' => 'kepala@aksaraloka.test',
-            'identity_number' => '1975010120000100',
+            'name' => 'Ketua Program Studi',
+            'email' => 'kaprodi@aksaraloka.test',
+            'identity_number' => '0011223300',
             'password' => self::PASSWORD,
         ]);
 
@@ -40,16 +37,16 @@ class DemoSeeder extends Seeder
             User::factory()
                 ->role(...($i === 1 ? [Role::Teacher, Role::Homeroom] : [Role::Teacher]))
                 ->create([
-                    'email' => "guru{$i}@aksaraloka.test",
-                    'identity_number' => ($campus ? '00112233' : '19800101200501').$i,
+                    'email' => "dosen{$i}@aksaraloka.test",
+                    'identity_number' => '00112233'.$i,
                     'password' => self::PASSWORD,
                 ]);
         }
 
         foreach (range(1, 30) as $i) {
             User::factory()->role(Role::Student)->create([
-                'email' => $i <= 5 ? "siswa{$i}@aksaraloka.test" : null, // sisanya login dengan NIS/NIM
-                'identity_number' => ($campus ? '2260' : '2026').str_pad((string) $i, 3, '0', STR_PAD_LEFT),
+                'email' => $i <= 5 ? "mahasiswa{$i}@aksaraloka.test" : null, // sisanya login dengan NIM
+                'identity_number' => '2260'.str_pad((string) $i, 3, '0', STR_PAD_LEFT),
                 'password' => self::PASSWORD,
             ]);
         }

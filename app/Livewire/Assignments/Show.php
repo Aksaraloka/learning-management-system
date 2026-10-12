@@ -84,7 +84,7 @@ class Show extends Component
         $user = Auth::user();
         $isManager = Gate::allows('update', $this->assignment);
 
-        // Pengajar membalas komentar privat di layar penilaian; di sini hanya komentar publik.
+        // dosen membalas komentar privat di layar penilaian; di sini hanya komentar publik.
         $addComment->handle($this->assignment, $user, $this->commentBody, private: $this->commentPrivate && ! $isManager);
 
         $this->reset('commentBody', 'commentPrivate');
@@ -130,7 +130,7 @@ class Show extends Component
     }
 
     /**
-     * Kelas lain di tahun ajaran yang sama yang boleh dikelola pengguna (kelas paralel).
+     * Kelas lain di semester yang sama yang boleh dikelola pengguna (kelas paralel).
      *
      * @return Builder<Course>
      */

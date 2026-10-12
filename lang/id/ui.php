@@ -5,12 +5,12 @@ return [
 
     'nav' => [
         'home' => 'Beranda',
-        'classes' => 'Kelas',
+        'classes' => 'Mata Kuliah',
         'tasks' => 'Tugas',
         'notifications' => 'Notifikasi',
         'profile' => 'Profil',
         'users' => 'Pengguna',
-        'terms' => 'Tahun Ajaran',
+        'terms' => 'Semester',
         'main' => 'Navigasi utama',
         'skip' => 'Lompat ke konten',
         'collapse' => 'Ciutkan sidebar',
@@ -21,7 +21,7 @@ return [
         'login' => 'Masuk',
         'logout' => 'Keluar',
         'login_title' => 'Masuk ke akun Anda',
-        'identifier' => 'Email atau NIS/NIM/NIP',
+        'identifier' => 'Email atau NIM/NIDN',
         'password' => 'Kata sandi',
         'remember' => 'Ingat saya di perangkat ini',
         'forgot' => 'Lupa kata sandi?',
@@ -38,12 +38,12 @@ return [
     'page' => 'Halaman :page',
 
     'users' => [
-        'search_placeholder' => 'Nama, email, atau NIS/NIM',
+        'search_placeholder' => 'Nama, email, atau NIM/NIDN',
         'all_roles' => 'Semua peran',
         'actions' => 'Aksi',
         'status' => 'Status',
         'import' => 'Impor pengguna',
-        'import_help' => 'Unggah file CSV atau Excel dengan kolom: name, identity_number, email, role, password. Kolom role boleh berisi beberapa peran dipisah "|" (mis. teacher|homeroom). Bila password kosong, kata sandi awal sama dengan NIS/NIM/NIP.',
+        'import_help' => 'Unggah file CSV atau Excel dengan kolom: name, identity_number, email, role, password. Kolom role boleh berisi beberapa peran dipisah "|" (mis. teacher|homeroom). Bila password kosong, kata sandi awal sama dengan NIM/NIDN.',
         'template' => 'Unduh templat CSV',
         'file' => 'File impor',
         'unreadable' => 'File tidak dapat dibaca. Pastikan formatnya CSV atau Excel dengan baris judul kolom.',
@@ -69,8 +69,8 @@ return [
     ],
 
     'terms' => [
-        'add' => 'Tambah tahun ajaran',
-        'edit' => 'Ubah tahun ajaran',
+        'add' => 'Tambah semester',
+        'edit' => 'Ubah semester',
         'name' => 'Nama',
         'starts_at' => 'Mulai',
         'ends_at' => 'Selesai',
@@ -79,7 +79,7 @@ return [
         'open' => 'Terbuka',
         'lock' => 'Kunci',
         'unlock' => 'Buka kunci',
-        'confirm_delete' => 'Hapus tahun ajaran ini?',
+        'confirm_delete' => 'Hapus semester ini?',
     ],
 
     'dashboard' => ['welcome' => 'Selamat datang, :name'],

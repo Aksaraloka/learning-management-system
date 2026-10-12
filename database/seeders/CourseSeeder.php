@@ -12,13 +12,12 @@ use App\Models\Material;
 use App\Models\Section;
 use App\Models\User;
 use App\Support\SamplePdf;
-use App\Support\Terminology;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * 4 kelas demo (mata pelajaran untuk sekolah, mata kuliah untuk kampus) lengkap dengan
- * topik/pertemuan, materi teks/berkas/tautan/video, dan peserta. Dijalankan setelah DemoSeeder.
+ * 4 mata kuliah demo lengkap dengan pertemuan, materi teks/berkas/tautan/video, dan peserta.
+ * Dijalankan setelah DemoSeeder.
  */
 class CourseSeeder extends Seeder
 {
@@ -26,35 +25,34 @@ class CourseSeeder extends Seeder
     {
         $term = AcademicTerm::query()->orderByDesc('starts_at')->firstOrFail();
         $students = User::query()->role(Role::Student->value)->orderBy('identity_number')->get();
-        $campus = Terminology::mode() === Terminology::CAMPUS;
 
-        foreach ($this->definitions($campus) as $i => $def) {
+        foreach ($this->definitions() as $i => $def) {
             $course = Course::create([
                 'academic_term_id' => $term->id,
                 'name' => $def['name'],
                 'code' => Course::generateCode(),
-                'credits' => $campus ? $def['credits'] : null,
+                'credits' => $def['credits'],
                 'description' => $def['description'],
             ]);
 
-            $teacher = User::where('email', "guru{$def['teacher']}@aksaraloka.test")->firstOrFail();
+            $teacher = User::where('email', "dosen{$def['teacher']}@aksaraloka.test")->firstOrFail();
             Enrollment::create(['course_id' => $course->id, 'user_id' => $teacher->id, 'role' => EnrollmentRole::Teacher]);
 
-            // Kelas 1-2: siswa 1-15. Kelas 3-4: siswa 1-5 (akun demo ber-email) dan 16-30.
+            // Mata kuliah 1-2: mahasiswa 1-15. Mata kuliah 3-4: mahasiswa 1-5 (akun demo ber-email) dan 16-30.
             $members = $i < 2 ? $students->slice(0, 15) : $students->slice(0, 5)->merge($students->slice(15));
             Enrollment::insert($members->map(fn (User $s) => [
                 'course_id' => $course->id, 'user_id' => $s->id, 'role' => EnrollmentRole::Student->value,
                 'created_at' => now(), 'updated_at' => now(),
             ])->all());
 
-            foreach ($def['sections'] as $position => $sectionDef) {
+            foreach ($def['sections'] as $position => $title) {
                 $section = Section::create([
                     'course_id' => $course->id,
-                    'title' => $campus ? 'Pertemuan '.($position + 1).': '.$sectionDef['title'] : $sectionDef['title'],
+                    'title' => 'Pertemuan '.($position + 1).': '.$title,
                     'position' => $position + 1,
                 ]);
 
-                $this->materials($course, $section, $sectionDef['title'], $position === 0);
+                $this->materials($course, $section, $title, $position === 0);
             }
         }
     }
@@ -94,32 +92,19 @@ class CourseSeeder extends Seeder
     }
 
     /**
-     * @return list<array{name: string, teacher: int, credits?: int, description: string, sections: list<array{title: string}>}>
+     * @return list<array{name: string, teacher: int, credits: int, description: string, sections: list<string>}>
      */
-    private function definitions(bool $campus): array
+    private function definitions(): array
     {
-        if ($campus) {
-            return [
-                ['name' => 'Algoritma dan Pemrograman', 'teacher' => 1, 'credits' => 3, 'description' => 'Dasar berpikir algoritmik dan pemrograman terstruktur.',
-                    'sections' => [['title' => 'Pengantar Algoritma'], ['title' => 'Percabangan'], ['title' => 'Perulangan'], ['title' => 'Fungsi']]],
-                ['name' => 'Basis Data', 'teacher' => 2, 'credits' => 3, 'description' => 'Perancangan dan penggunaan basis data relasional.',
-                    'sections' => [['title' => 'Model Relasional'], ['title' => 'SQL Dasar'], ['title' => 'Normalisasi']]],
-                ['name' => 'Jaringan Komputer', 'teacher' => 3, 'credits' => 3, 'description' => 'Konsep jaringan dan protokol internet.',
-                    'sections' => [['title' => 'Model OSI'], ['title' => 'Pengalamatan IP'], ['title' => 'Routing']]],
-                ['name' => 'Pemrograman Web', 'teacher' => 1, 'credits' => 4, 'description' => 'Membangun aplikasi web modern.',
-                    'sections' => [['title' => 'HTML dan CSS'], ['title' => 'JavaScript'], ['title' => 'Backend dengan PHP']]],
-            ];
-        }
-
         return [
-            ['name' => 'Matematika VII-A', 'teacher' => 1, 'description' => 'Bilangan, pecahan, dan aljabar dasar.',
-                'sections' => [['title' => 'Bilangan Bulat'], ['title' => 'Pecahan'], ['title' => 'Aljabar Dasar']]],
-            ['name' => 'IPA VII-A', 'teacher' => 2, 'description' => 'Ilmu pengetahuan alam terpadu.',
-                'sections' => [['title' => 'Besaran dan Satuan'], ['title' => 'Klasifikasi Makhluk Hidup'], ['title' => 'Zat dan Wujudnya']]],
-            ['name' => 'Bahasa Indonesia VII-B', 'teacher' => 3, 'description' => 'Menyimak, membaca, menulis, dan berbicara.',
-                'sections' => [['title' => 'Teks Deskripsi'], ['title' => 'Teks Narasi'], ['title' => 'Teks Prosedur']]],
-            ['name' => 'IPS VII-B', 'teacher' => 1, 'description' => 'Manusia, tempat, dan lingkungan.',
-                'sections' => [['title' => 'Interaksi Sosial'], ['title' => 'Kondisi Geografis Indonesia']]],
+            ['name' => 'Algoritma dan Pemrograman', 'teacher' => 1, 'credits' => 3, 'description' => 'Dasar berpikir algoritmik dan pemrograman terstruktur.',
+                'sections' => ['Pengantar Algoritma', 'Percabangan', 'Perulangan', 'Fungsi']],
+            ['name' => 'Basis Data', 'teacher' => 2, 'credits' => 3, 'description' => 'Perancangan dan penggunaan basis data relasional.',
+                'sections' => ['Model Relasional', 'SQL Dasar', 'Normalisasi']],
+            ['name' => 'Jaringan Komputer', 'teacher' => 3, 'credits' => 3, 'description' => 'Konsep jaringan dan protokol internet.',
+                'sections' => ['Model OSI', 'Pengalamatan IP', 'Routing']],
+            ['name' => 'Pemrograman Web', 'teacher' => 1, 'credits' => 4, 'description' => 'Membangun aplikasi web modern.',
+                'sections' => ['HTML dan CSS', 'JavaScript', 'Backend dengan PHP']],
         ];
     }
 }

@@ -42,7 +42,7 @@ class Form extends Component
         Gate::authorize('update', $course);
 
         $this->course = $course;
-        $this->section_id = (string) request()->query('topik', '');
+        $this->section_id = (string) request()->query('pertemuan', '');
 
         if ($material?->exists) {
             $material->loadMissing('section');

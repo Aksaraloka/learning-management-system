@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Gate;
 class SubmissionPolicy
 {
     /**
-     * Pemilik, pengelola kelas, dan kepala (hanya baca). Siswa lain tidak pernah.
+     * Pemilik, pengelola kelas, dan kepala (hanya baca). mahasiswa lain tidak pernah.
      */
     public function view(User $user, Submission $submission): bool
     {

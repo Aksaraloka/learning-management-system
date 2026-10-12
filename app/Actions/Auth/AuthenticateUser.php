@@ -15,7 +15,7 @@ class AuthenticateUser
     public const MAX_ATTEMPTS = 5;
 
     /**
-     * Login dengan email atau NIS/NIM/NIP.
+     * Login dengan email atau NIM/NIDN.
      *
      * @throws ValidationException
      */

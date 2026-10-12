@@ -10,7 +10,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 
 /**
- * Hak akses tugas mengikuti kelasnya. Penilaian tambahan terkunci saat tahun ajaran dikunci admin.
+ * Hak akses tugas mengikuti kelasnya. Penilaian tambahan terkunci saat semester dikunci admin.
  */
 class AssignmentPolicy
 {
@@ -45,7 +45,7 @@ class AssignmentPolicy
     }
 
     /**
-     * Daftar kiriman semua siswa: pengelola kelas dan kepala (hanya baca).
+     * Daftar kiriman semua mahasiswa: pengelola kelas dan kepala (hanya baca).
      */
     public function viewSubmissions(User $user, Assignment $assignment): bool
     {
@@ -53,8 +53,8 @@ class AssignmentPolicy
     }
 
     /**
-     * Memberi/mengubah nilai dan mengembalikan kiriman. Guru tidak bisa mengubah nilai
-     * setelah tahun ajaran dikunci admin.
+     * Memberi/mengubah nilai dan mengembalikan kiriman. dosen tidak bisa mengubah nilai
+     * setelah semester dikunci admin.
      */
     public function grade(User $user, Assignment $assignment): bool
     {
@@ -68,7 +68,7 @@ class AssignmentPolicy
     }
 
     /**
-     * Mengumpulkan: hanya siswa yang terdaftar sebagai peserta kelas. Aturan tenggat ada di
+     * Mengumpulkan: hanya mahasiswa yang terdaftar sebagai peserta kelas. Aturan tenggat ada di
      * Assignment::acceptsSubmissionFrom().
      */
     public function submit(User $user, Assignment $assignment): bool

@@ -53,7 +53,7 @@ return [
         'name' => 'nama',
         'email' => 'email',
         'password' => 'kata sandi',
-        'identity_number' => 'NIS/NIM/NIP',
+        'identity_number' => 'NIM/NIDN',
         'title' => 'judul',
     ],
 ];

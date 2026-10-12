@@ -76,10 +76,10 @@
                                     <h3 class="min-w-0 flex-1 truncate font-semibold">{{ $section->title }}</h3>
 
                                     @if ($canManage)
-                                        <x-button variant="ghost" size="sm" icon="plus" :href="route('materials.create', ['course' => $course, 'topik' => $section->id])" wire:navigate>{{ __('courses.materials.add') }}</x-button>
+                                        <x-button variant="ghost" size="sm" icon="plus" :href="route('materials.create', ['course' => $course, 'pertemuan' => $section->id])" wire:navigate>{{ __('courses.materials.add') }}</x-button>
                                         <x-dropdown :label="__('ui.actions.more')">
                                             <x-slot:trigger><x-icon name="chevron-down" class="size-4" /></x-slot:trigger>
-                                            <a href="{{ route('assignments.create', ['course' => $course, 'topik' => $section->id]) }}" role="menuitem" wire:navigate class="flex min-h-10 w-full items-center gap-2 rounded-md px-3 text-sm hover:bg-surface-muted"><x-icon name="clipboard-list" class="size-4" /> {{ __('assignments.course.add') }}</a>
+                                            <a href="{{ route('assignments.create', ['course' => $course, 'pertemuan' => $section->id]) }}" role="menuitem" wire:navigate class="flex min-h-10 w-full items-center gap-2 rounded-md px-3 text-sm hover:bg-surface-muted"><x-icon name="clipboard-list" class="size-4" /> {{ __('assignments.course.add') }}</a>
                                             <button type="button" role="menuitem" wire:click="startRename({{ $section->id }})" class="flex min-h-10 w-full items-center gap-2 rounded-md px-3 text-sm hover:bg-surface-muted"><x-icon name="pencil" class="size-4" /> {{ __('courses.sections.rename') }}</button>
                                             <button type="button" role="menuitem" wire:click="deleteSection({{ $section->id }})" wire:confirm="{{ __('courses.sections.confirm_delete') }}" class="flex min-h-10 w-full items-center gap-2 rounded-md px-3 text-sm text-danger hover:bg-surface-muted"><x-icon name="trash-2" class="size-4" /> {{ __('courses.sections.delete') }}</button>
                                         </x-dropdown>

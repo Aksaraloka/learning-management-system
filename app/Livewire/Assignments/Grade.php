@@ -26,7 +26,7 @@ class Grade extends Component
     #[Locked]
     public Assignment $assignment;
 
-    #[Url(as: 'siswa')]
+    #[Url(as: 'mahasiswa')]
     public ?int $studentId = null;
 
     #[Url(as: 'cari')]
@@ -63,7 +63,7 @@ class Grade extends Component
             return;
         }
 
-        // Hanya peserta kelas ini; id siswa lain menghasilkan 404.
+        // Hanya peserta kelas ini; id mahasiswa lain menghasilkan 404.
         $student = $this->course->students()->findOrFail($id);
         $submission = $this->submissionOf($student->id);
 
@@ -139,7 +139,7 @@ class Grade extends Component
     }
 
     /**
-     * Daftar siswa beserta statusnya; yang perlu dinilai di urutan teratas.
+     * Daftar mahasiswa beserta statusnya; yang perlu dinilai di urutan teratas.
      *
      * @return Collection<int, array{student: User, submission: Submission|null, status: SubmissionStatus}>
      */
@@ -159,7 +159,7 @@ class Grade extends Component
     }
 
     /**
-     * Apakah baris siswa lolos pencarian nama dan filter status saat ini?
+     * Apakah baris mahasiswa lolos pencarian nama dan filter status saat ini?
      *
      * @param  array{student: User, submission: Submission|null, status: SubmissionStatus}  $row
      */

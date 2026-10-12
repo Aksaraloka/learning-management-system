@@ -13,7 +13,7 @@ class GradeSubmission
 {
     /**
      * Memberi nilai. Tanpa kiriman tetap bisa dinilai (mis. tugas dikumpulkan di kertas); baris kosong dibuat.
-     * Ditolak bila tahun ajaran dikunci. Nilai harus 0..max_score.
+     * Ditolak bila semester dikunci. Nilai harus 0..max_score.
      *
      * @throws AuthorizationException|ValidationException
      */
@@ -40,7 +40,7 @@ class GradeSubmission
     }
 
     /**
-     * Mengembalikan kiriman untuk direvisi: nilai dihapus, siswa boleh mengumpulkan ulang.
+     * Mengembalikan kiriman untuk direvisi: nilai dihapus, mahasiswa boleh mengumpulkan ulang.
      *
      * @throws AuthorizationException
      */

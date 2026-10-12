@@ -21,7 +21,7 @@
     @endif
 
     <div class="grid gap-4 lg:grid-cols-[20rem_1fr]">
-        {{-- Daftar siswa: di HP tampil sampai siswa dipilih --}}
+        {{-- Daftar mahasiswa: di HP tampil sampai mahasiswa dipilih --}}
         <aside @class(['space-y-3', 'hidden lg:block' => $studentId]) aria-label="{{ __('assignments.grade.back_list') }}">
             <x-input name="search" type="search" wire:model.live.debounce.300ms="search" :label="__('assignments.grade.search')" />
 

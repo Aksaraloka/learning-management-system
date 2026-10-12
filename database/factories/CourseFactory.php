@@ -15,9 +15,9 @@ class CourseFactory extends Factory
     {
         return [
             'academic_term_id' => AcademicTerm::factory(),
-            'name' => fake()->randomElement(['Matematika', 'IPA', 'IPS', 'Bahasa Indonesia']).' '.fake()->randomElement(['VII-A', 'VII-B', 'VIII-A']),
+            'name' => fake()->randomElement(['Algoritma', 'Basis Data', 'Jaringan Komputer', 'Kalkulus']).' '.fake()->randomElement(['A', 'B', 'C']),
             'code' => Course::generateCode(),
-            'credits' => null,
+            'credits' => 3,
             'description' => fake()->sentence(),
         ];
     }

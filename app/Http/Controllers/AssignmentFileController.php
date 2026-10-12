@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class AssignmentFileController extends Controller
 {
     /**
-     * Lampiran tugas dari guru: anggota kelas, admin, dan kepala.
+     * Lampiran tugas dari dosen: anggota kelas, admin, dan kepala.
      */
     public function __invoke(Request $request, Assignment $assignment, AssignmentFile $file): StreamedResponse
     {

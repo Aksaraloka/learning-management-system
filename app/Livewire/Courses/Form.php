@@ -7,7 +7,6 @@ use App\Enums\Role;
 use App\Models\AcademicTerm;
 use App\Models\Course;
 use App\Models\User;
-use App\Support\Terminology;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -48,13 +47,12 @@ class Form extends Component
     public function save(CreateCourse $createCourse): void
     {
         $user = Auth::user();
-        $campus = Terminology::mode() === Terminology::CAMPUS;
         $needsTeacher = ! $this->course && $user->isAdmin();
 
         $data = $this->validate([
             'academic_term_id' => ['required', Rule::exists('academic_terms', 'id')->whereNull('deleted_at')],
             'name' => ['required', 'string', 'max:255'],
-            'credits' => $campus ? ['required', 'integer', 'between:1,24'] : ['nullable'],
+            'credits' => ['required', 'integer', 'between:1,24'],
             'description' => ['nullable', 'string', 'max:5000'],
             'teacher_id' => $needsTeacher ? ['required', 'integer', 'exists:users,id'] : ['nullable'],
         ], [], [
@@ -67,7 +65,7 @@ class Form extends Component
         $attributes = [
             'academic_term_id' => (int) $data['academic_term_id'],
             'name' => trim($data['name']),
-            'credits' => $campus ? (int) $data['credits'] : null,
+            'credits' => (int) $data['credits'],
             'description' => trim((string) $data['description']) ?: null,
         ];
 
@@ -95,7 +93,6 @@ class Form extends Component
             'teachers' => ! $this->course && $user->isAdmin()
                 ? User::query()->role(Role::Teacher->value)->orderBy('name')->pluck('name', 'id')->all()
                 : [],
-            'campus' => Terminology::mode() === Terminology::CAMPUS,
         ])->title($this->course ? __('courses.form.edit') : __('courses.form.create'));
     }
 }

@@ -10,8 +10,8 @@ use App\Models\User;
 class EnrollMembers
 {
     /**
-     * Mendaftarkan banyak akun sekaligus berdasarkan NIS/NIM/NIP atau email.
-     * Akun harus punya peran aplikasi yang sesuai (guru untuk pengajar, siswa untuk peserta).
+     * Mendaftarkan banyak akun sekaligus berdasarkan NIM/NIDN atau email.
+     * Akun harus punya peran aplikasi yang sesuai (dosen untuk dosen, mahasiswa untuk peserta).
      *
      * @param  list<string>  $identifiers
      * @return array{added: int, missing: list<string>, ineligible: list<string>, skipped: list<string>}

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Gate;
 class AssignmentCommentPolicy
 {
     /**
-     * Semua anggota kelas boleh berkomentar. Komentar privat hanya antara seorang siswa dan pengajar.
+     * Semua anggota kelas boleh berkomentar. Komentar privat hanya antara seorang mahasiswa dan dosen.
      */
     public function create(User $user, Assignment $assignment): bool
     {

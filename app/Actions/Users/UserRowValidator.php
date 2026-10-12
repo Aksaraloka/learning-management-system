@@ -24,7 +24,7 @@ class UserRowValidator
      */
     public function validate(array $row): array
     {
-        // Excel membaca NIS/NIM sebagai angka; samakan semuanya menjadi teks.
+        // Excel membaca NIM sebagai angka; samakan semuanya menjadi teks.
         $row = array_map(fn ($v) => is_scalar($v) ? trim((string) $v) : $v, $row);
 
         $validator = Validator::make($row, [
@@ -58,7 +58,7 @@ class UserRowValidator
         $email = mb_strtolower((string) ($row['email'] ?? ''));
 
         if ($identity !== '' && isset($this->identities()[$identity])) {
-            $errors[] = "NIS/NIM/NIP {$identity} sudah terdaftar.";
+            $errors[] = "NIM/NIDN {$identity} sudah terdaftar.";
         }
 
         if ($email !== '' && isset($this->emails()[$email])) {

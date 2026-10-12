@@ -19,50 +19,48 @@ beforeEach(function () {
     $this->seed(DemoSeeder::class);
 });
 
-it('seeds four school courses with sections and materials', function () {
+it('seeds one university with a lecturer, a head of study program and 30 students', function () {
+    expect(User::count())->toBe(35)
+        ->and(User::role(Role::Student->value)->count())->toBe(30)
+        ->and(User::role(Role::Teacher->value)->count())->toBe(3)
+        ->and(User::where('email', 'kaprodi@aksaraloka.test')->firstOrFail()->hasAppRole(Role::Principal))->toBeTrue()
+        ->and(User::where('email', 'dosen1@aksaraloka.test')->firstOrFail()->hasAppRole(Role::Teacher, Role::Homeroom))->toBeTrue()
+        ->and(User::where('identity_number', '2260001')->exists())->toBeTrue();
+});
+
+it('seeds four courses with credits, meetings and materials', function () {
     $this->seed(CourseSeeder::class);
 
     expect(Course::count())->toBe(4)
-        ->and(Section::count())->toBe(11)
-        ->and(Material::where('type', 'file')->count())->toBe(11)
-        ->and(Material::where('type', 'video')->count())->toBe(4)
-        ->and(Course::whereNotNull('credits')->count())->toBe(0);
+        ->and(Course::whereNull('credits')->count())->toBe(0)
+        ->and(Course::where('name', 'Pemrograman Web')->firstOrFail()->credits)->toBe(4)
+        ->and(Section::count())->toBe(13)
+        ->and(Section::where('title', 'like', 'Pertemuan 1:%')->count())->toBe(4)
+        ->and(Material::where('type', 'file')->count())->toBe(13)
+        ->and(Material::where('type', 'video')->count())->toBe(4);
 
     Material::where('type', 'file')->each(fn ($m) => Storage::disk('local')->assertExists($m->file_path));
 
-    $demo = User::where('email', 'siswa1@aksaraloka.test')->firstOrFail();
+    $demo = User::where('email', 'mahasiswa1@aksaraloka.test')->firstOrFail();
 
     expect(Course::visibleTo($demo)->count())->toBe(4);
 });
 
-it('seeds campus courses with credits and meeting titles', function () {
-    config(['institution.level' => 'campus']);
-
+it('lets the demo lecturer manage and the demo student read the seeded courses', function () {
     $this->seed(CourseSeeder::class);
 
-    expect(Course::whereNull('credits')->count())->toBe(0)
-        ->and(Course::where('name', 'Pemrograman Web')->firstOrFail()->credits)->toBe(4)
-        ->and(Section::where('title', 'like', 'Pertemuan 1:%')->count())->toBe(4);
-});
+    $teacher = User::where('email', 'dosen1@aksaraloka.test')->firstOrFail();
+    $student = User::where('email', 'mahasiswa1@aksaraloka.test')->firstOrFail();
+    $course = Course::where('name', 'Algoritma dan Pemrograman')->firstOrFail();
 
-it('lets the demo teacher manage and the demo student read the seeded courses', function () {
-    $this->seed(CourseSeeder::class);
-
-    $teacher = User::where('email', 'guru1@aksaraloka.test')->firstOrFail();
-    $student = User::where('email', 'siswa1@aksaraloka.test')->firstOrFail();
-    $course = Course::where('name', 'Matematika VII-A')->firstOrFail();
-
-    Livewire::actingAs($teacher)->test(Show::class, ['course' => $course])->assertSee('Bilangan Bulat')->assertSee($course->code);
-    Livewire::actingAs($student)->test(Show::class, ['course' => $course])->assertSee('Bilangan Bulat')->assertDontSee($course->code);
-
-    expect($teacher->hasAppRole(Role::Teacher))->toBeTrue();
+    Livewire::actingAs($teacher)->test(Show::class, ['course' => $course])->assertSee('Pengantar Algoritma')->assertSee($course->code);
+    Livewire::actingAs($student)->test(Show::class, ['course' => $course])->assertSee('Pengantar Algoritma')->assertDontSee($course->code);
 });
 
 it('produces valid PDFs for the demo files', function () {
     $this->seed(CourseSeeder::class);
 
-    $material = Material::where('type', 'file')->firstOrFail();
-    $bytes = Storage::disk('local')->get($material->file_path);
+    $bytes = Storage::disk('local')->get(Material::where('type', 'file')->firstOrFail()->file_path);
 
     expect($bytes)->toStartWith('%PDF-1.4')->and($bytes)->toContain('xref')->and($bytes)->toEndWith("%%EOF\n");
 });
@@ -77,9 +75,9 @@ it('seeds demo assignments with a mix of statuses', function () {
 
     expect($statuses)->toBe(['graded', 'late', 'returned', 'submitted']);
 
-    $demo = User::where('email', 'siswa1@aksaraloka.test')->firstOrFail();
+    $demo = User::where('email', 'mahasiswa1@aksaraloka.test')->firstOrFail();
     $open = Assignment::where('title', 'like', 'Latihan 1%')->firstOrFail();
 
-    // Akun demo siswa1 belum mengumpulkan tugas terbuka, jadi bisa langsung mencoba.
+    // Akun demo mahasiswa1 belum mengumpulkan tugas terbuka, jadi bisa langsung mencoba.
     expect(Submission::where('assignment_id', $open->id)->where('user_id', $demo->id)->exists())->toBeFalse();
 });

@@ -69,7 +69,8 @@ return new class extends Migration
             $table->foreignId('thread_user_id')->nullable()->constrained('users')->cascadeOnDelete();
             $table->timestamps();
 
-            $table->index(['assignment_id', 'is_private', 'thread_user_id']);
+            // Nama eksplisit: nama otomatis (>64 karakter) ditolak MySQL.
+            $table->index(['assignment_id', 'is_private', 'thread_user_id'], 'assignment_comments_thread_index');
         });
     }
 

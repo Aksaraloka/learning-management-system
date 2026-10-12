@@ -1,20 +1,18 @@
 <?php
 
-use App\Support\Terminology;
-
 if (! function_exists('term')) {
     /**
-     * Istilah UI sesuai jenjang institusi, mis. term('teacher') => "Guru" atau "Dosen".
+     * Istilah UI perguruan tinggi, mis. term('teacher') => "Dosen" (lang/id/terms.php).
      */
-    function term(string $key, ?string $mode = null): string
+    function term(string $key): string
     {
-        return Terminology::get($key, $mode);
+        return __('terms.'.$key);
     }
 }
 
 if (! function_exists('institution_name')) {
     /**
-     * Nama institusi (config 'institution.name').
+     * Nama universitas (config 'institution.name').
      */
     function institution_name(): string
     {

@@ -126,7 +126,7 @@ class Show extends Component
 
     private function section(int $id): Section
     {
-        // Dibatasi ke kelas ini: id topik kelas lain menghasilkan 404.
+        // Dibatasi ke kelas ini: id pertemuan kelas lain menghasilkan 404.
         return $this->course->sections()->findOrFail($id);
     }
 
@@ -138,7 +138,7 @@ class Show extends Component
         $canManage = Gate::allows('update', $this->course);
         $canRoster = Gate::allows('viewRoster', $this->course);
 
-        // Pengajar/kepala melihat jumlah kiriman; siswa melihat statusnya sendiri.
+        // dosen/kepala melihat jumlah kiriman; mahasiswa melihat statusnya sendiri.
         $sections = $this->course->sections()->with(['materials', 'assignments' => fn ($q) => $canRoster
             ? $q->withCount(['submissions as submitted_count' => fn ($s) => $s->whereIn('status', ['submitted', 'late', 'graded']), 'submissions as pending_count' => fn ($s) => $s->whereIn('status', SubmissionStatus::awaitingGrading())])
             : $q->with(['submissions' => fn ($s) => $s->where('user_id', $user->id)])])->get();

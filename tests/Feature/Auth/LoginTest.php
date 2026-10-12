@@ -22,7 +22,7 @@ function attemptLogin(string $identifier, string $password)
 }
 
 it('shows the login page with the institution name', function () {
-    $this->get('/login')->assertOk()->assertSee('SMP Contoh')->assertSee('Masuk');
+    $this->get('/login')->assertOk()->assertSee('Universitas Contoh')->assertSee('Masuk');
 });
 
 it('sends guests from the root to login', function () {
@@ -35,7 +35,7 @@ it('logs in with email', function () {
     $this->assertAuthenticatedAs($this->student);
 });
 
-it('logs in with NIS/NIM', function () {
+it('logs in with NIM', function () {
     attemptLogin('2026001', 'rahasia123')->assertHasNoErrors();
 
     $this->assertAuthenticatedAs($this->student);

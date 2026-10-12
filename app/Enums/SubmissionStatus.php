@@ -18,7 +18,7 @@ enum SubmissionStatus: string
         return __('ui.status.'.$this->value);
     }
 
-    /** Menunggu penilaian guru. */
+    /** Menunggu penilaian dosen. */
     public function needsGrading(): bool
     {
         return in_array($this, [self::Submitted, self::Late], true);

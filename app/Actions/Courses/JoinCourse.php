@@ -14,7 +14,7 @@ class JoinCourse
     private const MAX_ATTEMPTS = 10;
 
     /**
-     * Siswa bergabung ke kelas dengan kode gabung. Percobaan kode salah dibatasi per akun.
+     * mahasiswa bergabung ke kelas dengan kode gabung. Percobaan kode salah dibatasi per akun.
      *
      * @throws ValidationException
      */

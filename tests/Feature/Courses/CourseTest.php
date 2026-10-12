@@ -17,15 +17,15 @@ it('lets a teacher create a course and enrolls them as its teacher', function ()
     $teacher = makeUser(Role::Teacher);
 
     Livewire::actingAs($teacher)->test(Form::class)
-        ->set('academic_term_id', (string) $this->term->id)->set('name', 'Matematika VII-A')->set('description', 'Aljabar')
+        ->set('academic_term_id', (string) $this->term->id)->set('name', 'Kalkulus I')->set('credits', '3')->set('description', 'Limit dan turunan')
         ->call('save')->assertHasNoErrors();
 
     $course = Course::firstOrFail();
 
-    expect($course->name)->toBe('Matematika VII-A')
+    expect($course->name)->toBe('Kalkulus I')
         ->and($course->code)->toMatch('/^[A-HJKMNP-Z2-9]{6}$/')
         ->and($course->isTaughtBy($teacher))->toBeTrue()
-        ->and($course->credits)->toBeNull();
+        ->and($course->credits)->toBe(3);
 });
 
 it('requires an admin to choose the teacher', function () {
@@ -33,11 +33,11 @@ it('requires an admin to choose the teacher', function () {
     $teacher = makeUser(Role::Teacher);
 
     Livewire::actingAs($admin)->test(Form::class)
-        ->set('academic_term_id', (string) $this->term->id)->set('name', 'IPA')
+        ->set('academic_term_id', (string) $this->term->id)->set('name', 'Statistika')->set('credits', '2')
         ->call('save')->assertHasErrors('teacher_id');
 
     Livewire::actingAs($admin)->test(Form::class)
-        ->set('academic_term_id', (string) $this->term->id)->set('name', 'IPA')->set('teacher_id', (string) $teacher->id)
+        ->set('academic_term_id', (string) $this->term->id)->set('name', 'Statistika')->set('credits', '2')->set('teacher_id', (string) $teacher->id)
         ->call('save')->assertHasNoErrors();
 
     expect(Course::firstOrFail()->isTaughtBy($teacher))->toBeTrue();
@@ -48,38 +48,24 @@ it('refuses a teacher id that is not a teacher', function () {
     $student = makeUser(Role::Student);
 
     Livewire::actingAs($admin)->test(Form::class)
-        ->set('academic_term_id', (string) $this->term->id)->set('name', 'IPA')->set('teacher_id', (string) $student->id)
+        ->set('academic_term_id', (string) $this->term->id)->set('name', 'Statistika')->set('credits', '2')->set('teacher_id', (string) $student->id)
         ->call('save')->assertStatus(422);
 
     expect(Course::count())->toBe(0);
 });
 
 it('validates the course form', function () {
-    Livewire::actingAs(makeUser(Role::Teacher))->test(Form::class)->call('save')->assertHasErrors(['academic_term_id', 'name']);
+    Livewire::actingAs(makeUser(Role::Teacher))->test(Form::class)->call('save')->assertHasErrors(['academic_term_id', 'name', 'credits']);
 });
 
-it('requires credits in campus mode and ignores them in school mode', function () {
-    $teacher = makeUser(Role::Teacher);
-    config(['institution.level' => 'campus']);
+it('requires credits (SKS) between 1 and 24', function (string $credits, bool $valid) {
+    $component = Livewire::actingAs(makeUser(Role::Teacher))->test(Form::class)
+        ->set('academic_term_id', (string) $this->term->id)->set('name', 'Basis Data')->set('credits', $credits)->call('save');
 
-    Livewire::actingAs($teacher)->test(Form::class)
-        ->set('academic_term_id', (string) $this->term->id)->set('name', 'Basis Data')
-        ->call('save')->assertHasErrors('credits');
+    $valid ? $component->assertHasNoErrors() : $component->assertHasErrors('credits');
 
-    Livewire::actingAs($teacher)->test(Form::class)
-        ->set('academic_term_id', (string) $this->term->id)->set('name', 'Basis Data')->set('credits', '3')
-        ->call('save')->assertHasNoErrors();
-
-    expect(Course::firstOrFail()->credits)->toBe(3);
-
-    config(['institution.level' => 'school']);
-
-    Livewire::actingAs($teacher)->test(Form::class)
-        ->set('academic_term_id', (string) $this->term->id)->set('name', 'IPA')->set('credits', '9')
-        ->call('save')->assertHasNoErrors();
-
-    expect(Course::where('name', 'IPA')->firstOrFail()->credits)->toBeNull();
-});
+    expect(Course::count())->toBe($valid ? 1 : 0);
+})->with([['', false], ['0', false], ['25', false], ['abc', false], ['1', true], ['24', true], ['3', true]]);
 
 it('forbids students and principals from creating courses', function (Role $role) {
     $this->actingAs(makeUser($role))->get('/kelas/buat')->assertForbidden();

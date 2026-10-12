@@ -5,11 +5,9 @@
         @else
             <form wire:submit="save" class="space-y-4">
                 <x-select name="academic_term_id" wire:model="academic_term_id" :label="__('courses.form.term')" :placeholder="__('courses.form.term_placeholder')" :options="$terms" required />
-                <x-input name="name" wire:model="name" :label="__('courses.form.name')" placeholder="{{ $campus ? 'Algoritma dan Pemrograman' : 'Matematika VII-A' }}" required />
+                <x-input name="name" wire:model="name" :label="__('courses.form.name')" placeholder="Algoritma dan Pemrograman" required />
 
-                @if ($campus)
-                    <x-input name="credits" type="number" min="1" max="24" wire:model="credits" :label="__('courses.form.credits')" required />
-                @endif
+                <x-input name="credits" type="number" min="1" max="24" wire:model="credits" :label="__('courses.form.credits')" required />
 
                 @if ($teachers)
                     <x-select name="teacher_id" wire:model="teacher_id" :label="term('teacher')" :hint="__('courses.form.teacher_hint')"

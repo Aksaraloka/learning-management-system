@@ -12,7 +12,7 @@ class CopyAssignment
 {
     /**
      * Menyalin tugas (instruksi, tenggat, nilai maks., lampiran) ke kelas lain, mis. kelas paralel.
-     * Kiriman siswa tidak ikut disalin. Di tiap kelas tujuan tugas masuk ke topik pertama (dibuat bila belum ada)
+     * Kiriman mahasiswa tidak ikut disalin. Di tiap kelas tujuan tugas masuk ke pertemuan pertama (dibuat bila belum ada)
      * dan memakai kategori bernama sama (atau tanpa kategori).
      *
      * @param  iterable<Course>  $targets  kelas tujuan (sudah dipastikan boleh dikelola pemanggil)

@@ -26,7 +26,7 @@ class ManageAttachments
     }
 
     /**
-     * Hapus permanen semua berkas tugas (lampiran guru dan kiriman siswa) dari storage.
+     * Hapus permanen semua berkas tugas (lampiran dosen dan kiriman mahasiswa) dari storage.
      */
     public function purge(Assignment $assignment): void
     {

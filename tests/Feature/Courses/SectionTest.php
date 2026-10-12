@@ -19,13 +19,11 @@ it('adds sections with automatic numbering', function () {
 
     $component->call('addSection')->set('newSectionTitle', 'Pecahan')->call('addSection')->call('addSection');
 
-    expect($this->course->sections->pluck('title')->all())->toBe(['Topik 1', 'Pecahan', 'Topik 3'])
+    expect($this->course->sections->pluck('title')->all())->toBe(['Pertemuan 1', 'Pecahan', 'Pertemuan 3'])
         ->and($this->course->sections->pluck('position')->all())->toBe([1, 2, 3]);
 });
 
-it('numbers meetings in campus mode and caps them at 16', function () {
-    config(['institution.level' => 'campus']);
-
+it('numbers meetings and caps them at 16', function () {
     $component = Livewire::actingAs($this->teacher)->test(Show::class, ['course' => $this->course]);
 
     foreach (range(1, 16) as $_) {
@@ -40,14 +38,16 @@ it('numbers meetings in campus mode and caps them at 16', function () {
     expect($this->course->sections()->count())->toBe(16);
 });
 
-it('does not cap topics in school mode', function () {
+it('lets a lecturer reuse a freed meeting number after deleting one', function () {
     $component = Livewire::actingAs($this->teacher)->test(Show::class, ['course' => $this->course]);
 
-    foreach (range(1, 18) as $_) {
+    foreach (range(1, 16) as $_) {
         $component->call('addSection');
     }
 
-    expect($this->course->sections()->count())->toBe(18);
+    $component->call('deleteSection', $this->course->sections()->first()->id)->call('addSection')->assertHasNoErrors();
+
+    expect($this->course->sections()->count())->toBe(16);
 });
 
 it('renames a section', function () {
