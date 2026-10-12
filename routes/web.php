@@ -1,11 +1,14 @@
 <?php
 
+use App\Http\Controllers\AssignmentFileController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MaterialFileController;
 use App\Http\Controllers\SessionController;
+use App\Http\Controllers\SubmissionFileController;
 use App\Http\Controllers\UserImportTemplateController;
 use App\Livewire\Admin\Terms;
 use App\Livewire\Admin\Users;
+use App\Livewire\Assignments;
 use App\Livewire\Auth\ForgotPassword;
 use App\Livewire\Auth\Login;
 use App\Livewire\Auth\ResetPassword;
@@ -40,6 +43,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/kelas/{course}/materi/{material}', Materials\Show::class)->name('materials.show');
     Route::get('/kelas/{course}/materi/{material}/ubah', Materials\Form::class)->name('materials.edit');
     Route::get('/materi/{material}/berkas', MaterialFileController::class)->name('materials.file');
+
+    // Tugas.
+    Route::get('/tugas', Assignments\Index::class)->name('assignments.index');
+    Route::get('/kelas/{course}/tugas/buat', Assignments\Form::class)->name('assignments.create');
+    Route::get('/kelas/{course}/tugas/{assignment}', Assignments\Show::class)->name('assignments.show');
+    Route::get('/kelas/{course}/tugas/{assignment}/ubah', Assignments\Form::class)->name('assignments.edit');
+    Route::get('/kelas/{course}/tugas/{assignment}/nilai', Assignments\Grade::class)->name('assignments.grade');
+    Route::get('/tugas/{assignment}/lampiran/{file}', AssignmentFileController::class)->name('assignments.attachment');
+    Route::get('/pengumpulan/{submission}/berkas', SubmissionFileController::class)->name('submissions.file');
 });
 
 // Admin institusi.

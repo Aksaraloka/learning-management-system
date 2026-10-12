@@ -2,10 +2,13 @@
 
 use App\Enums\Role;
 use App\Livewire\Courses\Show;
+use App\Models\Assignment;
 use App\Models\Course;
 use App\Models\Material;
 use App\Models\Section;
+use App\Models\Submission;
 use App\Models\User;
+use Database\Seeders\AssignmentSeeder;
 use Database\Seeders\CourseSeeder;
 use Database\Seeders\DemoSeeder;
 use Illuminate\Support\Facades\Storage;
@@ -62,4 +65,21 @@ it('produces valid PDFs for the demo files', function () {
     $bytes = Storage::disk('local')->get($material->file_path);
 
     expect($bytes)->toStartWith('%PDF-1.4')->and($bytes)->toContain('xref')->and($bytes)->toEndWith("%%EOF\n");
+});
+
+it('seeds demo assignments with a mix of statuses', function () {
+    $this->seed(CourseSeeder::class);
+    $this->seed(AssignmentSeeder::class);
+
+    expect(Assignment::count())->toBe(8);
+
+    $statuses = Submission::query()->pluck('status')->map->value->unique()->sort()->values()->all();
+
+    expect($statuses)->toBe(['graded', 'late', 'returned', 'submitted']);
+
+    $demo = User::where('email', 'siswa1@aksaraloka.test')->firstOrFail();
+    $open = Assignment::where('title', 'like', 'Latihan 1%')->firstOrFail();
+
+    // Akun demo siswa1 belum mengumpulkan tugas terbuka, jadi bisa langsung mencoba.
+    expect(Submission::where('assignment_id', $open->id)->where('user_id', $demo->id)->exists())->toBeFalse();
 });

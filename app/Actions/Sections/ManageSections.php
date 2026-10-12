@@ -2,7 +2,9 @@
 
 namespace App\Actions\Sections;
 
+use App\Actions\Assignments\ManageAttachments;
 use App\Actions\Materials\DeleteMaterial;
+use App\Models\Assignment;
 use App\Models\Course;
 use App\Models\Section;
 use App\Support\Terminology;
@@ -47,6 +49,11 @@ class ManageSections
         DB::transaction(function () use ($section, $deleteMaterial) {
             foreach ($section->materials()->get() as $material) {
                 $deleteMaterial->handle($material);
+            }
+
+            // Tugas (termasuk yang sudah diarsipkan) beserta lampiran dan kiriman siswa ikut dihapus permanen.
+            foreach (Assignment::withTrashed()->where('section_id', $section->id)->get() as $assignment) {
+                app(ManageAttachments::class)->purge($assignment);
             }
 
             $course = $section->course_id;

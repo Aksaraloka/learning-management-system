@@ -95,6 +95,22 @@ class Course extends Model
     }
 
     /**
+     * @return HasMany<GradeCategory, $this>
+     */
+    public function gradeCategories(): HasMany
+    {
+        return $this->hasMany(GradeCategory::class)->orderBy('position');
+    }
+
+    /**
+     * @return HasMany<Assignment, $this>
+     */
+    public function assignments(): HasMany
+    {
+        return $this->hasMany(Assignment::class);
+    }
+
+    /**
      * @return HasMany<Section, $this>
      */
     public function sections(): HasMany

@@ -19,6 +19,9 @@ Laravel 13 (PHP 8.3+), Livewire 4 + Alpine, Tailwind CSS v4 (Vite), Pest, Pint, 
 - Kelas & materi: model `Course`/`Enrollment`/`Section`/`Material`, policy per model (hak materi & topik mengikuti kelasnya), action di `app/Actions/{Courses,Sections,Materials}`, halaman Livewire di `app/Livewire/{Courses,Materials}`. Berkas materi privat di `config('courses.disk')`, disajikan `MaterialFileController` (policy `view`); jangan pernah tautkan path storage langsung. HTML rich text wajib lewat `Purifier::clean($html, 'content')` sebelum disimpan.
 - JS: instance library berat (Tiptap, Chart.js, pdf.js, Sortable, FilePond, Tom Select, Flatpickr) disimpan di variabel **closure** pada `Alpine.data`, bukan properti komponen; Alpine membungkus properti dengan Proxy sehingga field privat library rusak. `pdfjs.getDocument` butuh objek `{ url }`.
 - Animasi: GSAP inti lewat directive Alpine x-reveal / x-countup (esources/js/lib/motion.js), dimuat lazy, mati di prefers-reduced-motion, tidak boleh menahan konten (fallback 600 ms). Jangan impor gsap statis di entry; pakai loadGsap(). Hanya opacity/	ransform.
+- Tugas: model `Assignment`/`AssignmentFile`/`Submission`/`AssignmentComment`/`GradeCategory`; aturan tenggat & penguncian ada di `Assignment::acceptsSubmissionFrom()`, penilaian di `GradeSubmission` (menolak bila tahun ajaran terkunci). Berkas tugas dan kiriman disajikan `AssignmentFileController`/`SubmissionFileController` lewat `FileResponse` (jangan sajikan path storage langsung). Status tampilan: enum `SubmissionStatus` (`not_submitted` tidak disimpan = tidak ada baris). Komentar privat memakai `thread_user_id` = siswa pemilik percakapan.
+- Blade: jangan campur `@php(...)` inline dengan blok `@php ... @endphp` dalam satu file (regex Blade menelan `@foreach` di antaranya); pakai blok di keduanya.
+- Test Livewire: `array + array` mempertahankan nilai KIRI; di helper pakai `$overrides + $defaults`, bukan sebaliknya.
 - Test Livewire: setelah `assertForbidden()`/`assertNotFound()` komponen tidak bisa dipakai lagi; buat komponen baru untuk panggilan berikutnya.
 - Verifikasi UI nyata: bisa memakai Chrome headless lewat DevTools Protocol (skrip contoh ada di riwayat sesi; jalankan server dengan `php artisan serve` dan sembunyikan `public/hot` agar memakai aset hasil build).
 - Setiap fitur wajib punya Pest feature test (termasuk hak akses & isolasi tenant).
@@ -28,7 +31,7 @@ Laravel 13 (PHP 8.3+), Livewire 4 + Alpine, Tailwind CSS v4 (Vite), Pest, Pint, 
 - `composer dev` (server+queue+vite) · `npm run build` · `php artisan test` · `./vendor/bin/pint` · `./vendor/bin/phpstan analyse --memory-limit=1G`
 
 ## Status fase
-Fase 0 (fondasi), Fase 1 (auth, peran, pengguna, tahun ajaran), dan Fase 2 (kelas & materi) selesai; multi-tenant dihapus. Berikutnya: Fase 3 (tugas). Rencana lengkap di prompt awal proyek.
+Fase 0 (fondasi), Fase 1 (auth, peran, pengguna, tahun ajaran), dan Fase 2 (kelas & materi) dan Fase 3 (tugas) selesai; multi-tenant dihapus. Berikutnya: Fase 4 (kuis). Rencana lengkap di prompt awal proyek.
 
 <laravel-boost-guidelines>
 === foundation rules ===

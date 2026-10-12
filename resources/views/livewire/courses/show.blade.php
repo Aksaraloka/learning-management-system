@@ -79,6 +79,7 @@
                                         <x-button variant="ghost" size="sm" icon="plus" :href="route('materials.create', ['course' => $course, 'topik' => $section->id])" wire:navigate>{{ __('courses.materials.add') }}</x-button>
                                         <x-dropdown :label="__('ui.actions.more')">
                                             <x-slot:trigger><x-icon name="chevron-down" class="size-4" /></x-slot:trigger>
+                                            <a href="{{ route('assignments.create', ['course' => $course, 'topik' => $section->id]) }}" role="menuitem" wire:navigate class="flex min-h-10 w-full items-center gap-2 rounded-md px-3 text-sm hover:bg-surface-muted"><x-icon name="clipboard-list" class="size-4" /> {{ __('assignments.course.add') }}</a>
                                             <button type="button" role="menuitem" wire:click="startRename({{ $section->id }})" class="flex min-h-10 w-full items-center gap-2 rounded-md px-3 text-sm hover:bg-surface-muted"><x-icon name="pencil" class="size-4" /> {{ __('courses.sections.rename') }}</button>
                                             <button type="button" role="menuitem" wire:click="deleteSection({{ $section->id }})" wire:confirm="{{ __('courses.sections.confirm_delete') }}" class="flex min-h-10 w-full items-center gap-2 rounded-md px-3 text-sm text-danger hover:bg-surface-muted"><x-icon name="trash-2" class="size-4" /> {{ __('courses.sections.delete') }}</button>
                                         </x-dropdown>
@@ -86,9 +87,9 @@
                                 @endif
                             </header>
 
-                            @if ($section->materials->isEmpty())
+                            @if ($section->materials->isEmpty() && $section->assignments->isEmpty())
                                 <p class="px-4 py-4 text-sm text-text-muted">{{ __('courses.show.empty_section') }}</p>
-                            @else
+                            @elseif ($section->materials->isNotEmpty())
                                 <x-sortable class="space-y-0 divide-y divide-border" @sorted="$wire.reorderMaterials({{ $section->id }}, $event.detail.ids)">
                                     @foreach ($section->materials as $material)
                                         <li data-id="{{ $material->id }}" wire:key="material-{{ $material->id }}" class="flex items-center gap-2 px-3 sm:px-4">
@@ -111,6 +112,32 @@
                                         </li>
                                     @endforeach
                                 </x-sortable>
+                            @endif
+
+                            @if ($section->assignments->isNotEmpty())
+                                <ul class="divide-y divide-border border-t border-border">
+                                    @foreach ($section->assignments as $assignment)
+                                        @php
+                                            $due = $assignment->due_at?->timezone(config('app.timezone'));
+                                            $mine = $isStudent ? $assignment->submissions->first() : null;
+                                        @endphp
+                                        <li wire:key="assignment-{{ $assignment->id }}">
+                                            <a href="{{ route('assignments.show', ['course' => $course, 'assignment' => $assignment]) }}" wire:navigate
+                                               class="flex min-h-12 items-center gap-3 px-3 py-2 hover:text-primary sm:px-4">
+                                                <x-icon name="clipboard-list" class="text-primary" />
+                                                <span class="min-w-0 flex-1">
+                                                    <span class="block truncate text-sm font-medium">{{ $assignment->title }}</span>
+                                                    <span class="block text-xs text-text-muted">{{ __('assignments.course.assignments') }} · {{ $due ? $due->translatedFormat('j M, H:i') : __('assignments.index.no_due') }}</span>
+                                                </span>
+                                                @if ($isStudent)
+                                                    <x-status-badge :status="\App\Models\Assignment::statusOf($mine)->value" />
+                                                @elseif ($canRoster)
+                                                    <span class="shrink-0 text-xs text-text-muted">{{ $assignment->submitted_count }}/{{ $studentCount }}@if ($assignment->pending_count) · <span class="font-semibold text-info">{{ __('assignments.index.pending', ['n' => $assignment->pending_count]) }}</span>@endif</span>
+                                                @endif
+                                            </a>
+                                        </li>
+                                    @endforeach
+                                </ul>
                             @endif
                         </x-card>
                     </li>

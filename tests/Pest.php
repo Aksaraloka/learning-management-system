@@ -2,6 +2,7 @@
 
 use App\Enums\EnrollmentRole;
 use App\Enums\Role;
+use App\Models\Assignment;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Material;
@@ -68,4 +69,25 @@ function makeMaterial(Section $section, array $attributes = []): Material
 function pdfBytes(): string
 {
     return "%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 100 100]>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n";
+}
+
+/**
+ * Tugas di kelas (membuat topik bila belum ada). Tenggat bawaan 3 hari lagi.
+ *
+ * @param  array<string, mixed>  $attributes
+ */
+function makeAssignment(Course $course, array $attributes = []): Assignment
+{
+    $section = $course->sections()->first() ?? makeSection($course);
+
+    return Assignment::create($attributes + [
+        'course_id' => $course->id,
+        'section_id' => $section->id,
+        'title' => 'Latihan',
+        'instructions' => '<p>Kerjakan</p>',
+        'due_at' => now()->addDays(3),
+        'max_score' => 100,
+        'allow_late' => false,
+        'position' => 1,
+    ]);
 }

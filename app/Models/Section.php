@@ -30,6 +30,14 @@ class Section extends Model
     }
 
     /**
+     * @return HasMany<Assignment, $this>
+     */
+    public function assignments(): HasMany
+    {
+        return $this->hasMany(Assignment::class)->orderBy('position')->orderBy('due_at');
+    }
+
+    /**
      * @return HasMany<Material, $this>
      */
     public function materials(): HasMany

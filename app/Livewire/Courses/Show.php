@@ -5,10 +5,13 @@ namespace App\Livewire\Courses;
 use App\Actions\Materials\DeleteMaterial;
 use App\Actions\Materials\SaveMaterial;
 use App\Actions\Sections\ManageSections;
+use App\Enums\Role;
+use App\Enums\SubmissionStatus;
 use App\Models\Course;
 use App\Models\Material;
 use App\Models\Section;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
@@ -131,10 +134,20 @@ class Show extends Component
     {
         $this->course->loadMissing(['term', 'teachers']);
 
+        $user = Auth::user();
+        $canManage = Gate::allows('update', $this->course);
+        $canRoster = Gate::allows('viewRoster', $this->course);
+
+        // Pengajar/kepala melihat jumlah kiriman; siswa melihat statusnya sendiri.
+        $sections = $this->course->sections()->with(['materials', 'assignments' => fn ($q) => $canRoster
+            ? $q->withCount(['submissions as submitted_count' => fn ($s) => $s->whereIn('status', ['submitted', 'late', 'graded']), 'submissions as pending_count' => fn ($s) => $s->whereIn('status', SubmissionStatus::awaitingGrading())])
+            : $q->with(['submissions' => fn ($s) => $s->where('user_id', $user->id)])])->get();
+
         return view('livewire.courses.show', [
-            'sections' => $this->course->sections()->with('materials')->get(),
-            'canManage' => Gate::allows('update', $this->course),
-            'canRoster' => Gate::allows('viewRoster', $this->course),
+            'sections' => $sections,
+            'isStudent' => ! $canRoster && $user->hasAppRole(Role::Student),
+            'canManage' => $canManage,
+            'canRoster' => $canRoster,
             'studentCount' => $this->course->students()->count(),
         ])->title($this->course->name);
     }

@@ -58,6 +58,10 @@ export function registerLazyComponents(Alpine) {
                 });
             },
 
+            clear() {
+                instance?.clear();
+            },
+
             destroy() {
                 instance?.destroy();
             },
@@ -157,6 +161,9 @@ export function registerLazyComponents(Alpine) {
                 ]);
 
                 registerPlugin(typePlugin, sizePlugin);
+
+                // Livewire meminta daftar dikosongkan setelah berkas diproses (mis. lampiran sudah tersimpan).
+                window.addEventListener('filepond-clear', () => pond?.removeFiles());
 
                 const livewireProp = options.livewireProp;
 

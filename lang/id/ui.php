@@ -108,6 +108,7 @@ return [
         'submitted' => 'Dikumpulkan',
         'late' => 'Terlambat',
         'graded' => 'Dinilai',
+        'returned' => 'Perlu revisi',
     ],
 
     'actions' => [
@@ -121,6 +122,7 @@ return [
         'add' => 'Tambah',
         'upload' => 'Unggah',
         'more' => 'Aksi lainnya',
+        'clear' => 'Kosongkan',
     ],
 
     'empty' => ['title' => 'Belum ada data', 'description' => 'Data akan muncul di sini setelah ditambahkan.'],

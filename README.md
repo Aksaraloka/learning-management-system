@@ -2,7 +2,7 @@
 
 LMS web untuk **satu** sekolah (SMP, SMA/SMK) atau perguruan tinggi di Indonesia. Laravel 13, Livewire 4, Tailwind CSS v4, mobile-first.
 
-> Status: **Fase 0 (fondasi), Fase 1 (auth, peran, pengguna, tahun ajaran), dan Fase 2 (kelas & materi)** selesai. Aplikasi melayani **satu institusi**
+> Status: **Fase 0 (fondasi), Fase 1 (auth, peran, pengguna, tahun ajaran), Fase 2 (kelas & materi), dan Fase 3 (tugas)** selesai. Aplikasi melayani **satu institusi**
 > (versi multi-tenant sudah dihapus; lihat [docs/decisions.md](docs/decisions.md)). Rencana lengkap ada di prompt awal proyek.
 
 ## Menjalankan di lokal
@@ -58,6 +58,13 @@ Login menerima email **atau** NIS/NIM/NIP. Data demo berisi 4 kelas (guru1 menga
 - **Topik** (sekolah) atau **pertemuan 1–16** (kampus) berisi materi: teks (editor Tiptap + rumus KaTeX), berkas (PDF dan gambar dapat dipratinjau), tautan, dan video (YouTube/Vimeo dimuat setelah tombol putar ditekan). Topik dan materi dapat diurutkan dengan drag & drop.
 - **Hak akses**: admin dan pengajar kelas mengelola; siswa membaca kelas yang diikutinya; kepala sekolah melihat semua kelas (hanya baca). Berkas disimpan privat dan hanya disajikan kepada anggota kelas.
 
+## Tugas
+
+- **Guru/admin** membuat tugas di topik/pertemuan: instruksi (editor + rumus), lampiran (maks. 10 berkas), tenggat, nilai maksimal, kategori nilai, dan opsi menerima pengumpulan terlambat. Tugas dapat **disalin ke kelas paralel** (tahun ajaran yang sama) beserta lampirannya.
+- **Siswa** mengumpulkan teks dan/atau satu berkas, dan boleh mengganti kiriman sebelum tenggat. Setelah dinilai kiriman terkunci; bila **dikembalikan untuk revisi** siswa boleh mengumpulkan ulang (walau lewat tenggat). Halaman **Tugas** menampilkan tenggat terdekat lebih dulu dan bisa difilter menurut status (Belum dikumpulkan, Dikumpulkan, Terlambat, Dinilai, Perlu revisi).
+- **Layar penilaian**: daftar siswa di kiri (yang perlu dinilai di atas), pratinjau kiriman (teks, PDF, gambar) + nilai + umpan balik di kanan, tombol *Simpan & berikutnya* dan *Kembalikan untuk revisi*. Di HP daftar dan detail bergantian.
+- **Komentar** per tugas: publik (seluruh kelas) atau pribadi siswa↔pengajar (pengajar membalas dari layar penilaian).
+- Penilaian **terkunci** saat admin mengunci tahun ajaran (menu Tahun Ajaran); kepala sekolah hanya dapat melihat.
 ### Batas unggah berkas
 
 Maksimal 50 MB per berkas (`config/courses.php`), tetapi tidak pernah melebihi batas PHP. Halaman unggah menampilkan batas yang sebenarnya berlaku.

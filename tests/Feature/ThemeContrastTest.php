@@ -55,7 +55,7 @@ it('meets WCAG AA text contrast in both themes', function (string $selector) {
     $t = $selector === ':root' ? themeTokens('@theme static') : themeTokens('.dark');
 
     foreach (['bg', 'surface', 'surface-muted'] as $background) {
-        foreach (['text', 'text-muted', 'primary', 'success', 'warning', 'danger'] as $foreground) {
+        foreach (['text', 'text-muted', 'primary', 'success', 'warning', 'danger', 'info'] as $foreground) {
             expect(contrast($t[$foreground], $t[$background]))
                 ->toBeGreaterThanOrEqual(4.5, "{$foreground} on {$background} ({$selector})");
         }
