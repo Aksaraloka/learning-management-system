@@ -1,0 +1,31 @@
+.ts-wrapper { position: relative; }
+.ts-control {
+    display: flex; flex-wrap: wrap; align-items: center; gap: .25rem;
+    min-height: 2.75rem; padding: .375rem .75rem;
+    background: var(--color-surface); color: var(--color-text);
+    border: 1px solid var(--color-border); border-radius: .5rem; cursor: text;
+}
+.ts-wrapper.focus .ts-control { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.ts-control > input { flex: 1 1 4rem; min-width: 4rem; border: 0; background: transparent; color: inherit; outline: none; font: inherit; }
+.ts-control > .item { color: var(--color-text); }
+.ts-wrapper.multi .ts-control > .item {
+    display: inline-flex; align-items: center; gap: .25rem; padding: .125rem .5rem;
+    background: var(--color-surface-muted); border: 1px solid var(--color-border); border-radius: .375rem; font-size: .875rem;
+}
+.ts-wrapper.multi .item .remove { color: var(--color-text-muted); text-decoration: none; padding: 0 .125rem; }
+.ts-dropdown {
+    position: absolute; z-index: 50; left: 0; right: 0; margin-top: .25rem;
+    background: var(--color-surface); color: var(--color-text);
+    border: 1px solid var(--color-border); border-radius: .5rem; overflow: hidden;
+    box-shadow: 0 4px 12px rgb(0 0 0 / .08);
+}
+.ts-dropdown .ts-dropdown-content { max-height: 14rem; overflow-y: auto; }
+.ts-dropdown .option, .ts-dropdown .no-results, .ts-dropdown .create { padding: .5rem .75rem; }
+.ts-dropdown .no-results { color: var(--color-text-muted); }
+.ts-dropdown .active { background: var(--color-surface-muted); }
+.ts-dropdown .selected { color: var(--color-primary); font-weight: 600; }
+.ts-hidden-accessible { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.ts-wrapper.single .ts-control::after {
+    content: ''; margin-left: auto; width: .5rem; height: .5rem;
+    border-right: 2px solid var(--color-text-muted); border-bottom: 2px solid var(--color-text-muted); transform: rotate(45deg) translateY(-2px);
+}

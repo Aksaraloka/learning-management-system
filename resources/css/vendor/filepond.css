@@ -1,0 +1,17 @@
+@import 'filepond/dist/filepond.min.css';
+
+/* Selaraskan FilePond dengan token tema (terang & gelap). */
+.filepond--root { font-family: inherit; margin-bottom: 0; }
+.filepond--panel-root { background: var(--color-surface-muted); border: 1px dashed var(--color-border); border-radius: .75rem; }
+.filepond--drop-label { color: var(--color-text-muted); }
+.filepond--drop-label label { font-size: .875rem; }
+.filepond--label-action { color: var(--color-primary); text-decoration: underline; text-decoration-color: currentColor; }
+.filepond--item-panel { background-color: var(--color-primary); }
+.filepond--file { color: var(--color-primary-fg); }
+[data-filepond-item-state='processing-complete'] .filepond--item-panel { background-color: var(--color-success); }
+[data-filepond-item-state*='error'] .filepond--item-panel,
+[data-filepond-item-state*='invalid'] .filepond--item-panel { background-color: var(--color-danger); }
+.dark [data-filepond-item-state='processing-complete'] .filepond--file,
+.dark [data-filepond-item-state*='error'] .filepond--file,
+.dark [data-filepond-item-state*='invalid'] .filepond--file { color: var(--color-primary-fg); }
+.filepond--drip-blob { background: var(--color-text-muted); }
