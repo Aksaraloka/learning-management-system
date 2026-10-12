@@ -33,3 +33,4 @@ Asumsi yang diambil saat PRD tidak mencakup detailnya.
 24. **Kebijakan privasi** berupa draf statis di `/kebijakan-privasi`; ekspor/hapus data pengguna oleh admin dikerjakan di fase berikutnya.
 25. **Seeder demo Fase 1** hanya berisi pengguna dan tahun ajaran; kelas, materi, tugas, kuis ditambahkan seeder fase terkait.
 26. **Tema tersinkron ke akun** lewat `PUT /theme`; perangkat baru tanpa pilihan lokal memakai `users.theme`.
+27. **Domain root lokal = `localhost`**: `*.localhost` di-resolve browser tanpa DNS/hosts, sehingga tenant bisa dicoba tanpa membeli domain. Test dipaku ke `aksaraloka.test` lewat `phpunit.xml`.

@@ -18,29 +18,29 @@ composer dev        # server + queue + vite
 
 ### Subdomain tenant
 
-Setiap institusi diakses lewat `{subdomain}.aksaraloka.test`. Atur `APP_URL` dan `TENANT_ROOT_DOMAIN` (default `aksaraloka.test`).
+Setiap institusi diakses lewat `{subdomain}.{TENANT_ROOT_DOMAIN}`. Default lokal memakai **`localhost`**, jadi tanpa beli domain
+dan tanpa mengubah file hosts (Chrome, Edge, Firefox otomatis me-resolve `*.localhost` ke komputer Anda):
 
-- **Laravel Herd / Valet**: situs `aksaraloka.test` otomatis melayani semua subdomain.
-- **`php artisan serve`**: tambahkan ke file hosts (`C:\Windows\System32\drivers\etc\hosts`):
-  `127.0.0.1 aksaraloka.test smpn1bandung.aksaraloka.test kampusdemo.aksaraloka.test`
-  lalu buka `http://smpn1bandung.aksaraloka.test:8000`.
+- Platform / super admin: <http://localhost:8000>
+- SMP demo: <http://smpn1bandung.localhost:8000>
+- Kampus demo: <http://kampusdemo.localhost:8000>
 
-Host selain `*.aksaraloka.test` (mis. `localhost`) dianggap domain utama (landing + panel super admin).
-
+(Safari belum me-resolve `*.localhost`; pakai Chrome/Firefox atau tambahkan entri hosts.) Untuk produksi atau Herd, ubah `APP_URL`
+dan `TENANT_ROOT_DOMAIN` (mis. `aksaraloka.id`) dan siapkan wildcard DNS `*.aksaraloka.id`. Host yang tidak dikenal dianggap domain utama.
 ## Akun demo
 
 Semua kata sandi: `password`. Hasil dari `php artisan db:seed` (DemoSeeder).
 
 | Domain | Peran | Login |
 | --- | --- | --- |
-| `aksaraloka.test` | Super admin | `super@aksaraloka.test` |
-| `smpn1bandung.aksaraloka.test` | Admin | `admin@smpn1bandung.test` |
+| `localhost:8000` | Super admin | `super@aksaraloka.test` |
+| `smpn1bandung.localhost:8000` | Admin | `admin@smpn1bandung.test` |
 | | Kepala sekolah | `kepala@smpn1bandung.test` |
 | | Guru + wali kelas | `guru1@smpn1bandung.test` |
 | | Guru | `guru2@smpn1bandung.test`, `guru3@smpn1bandung.test` |
 | | Siswa (email) | `siswa1@smpn1bandung.test` … `siswa5@…` |
 | | Siswa (NIS saja) | `2026006` … `2026030` |
-| `kampusdemo.aksaraloka.test` | Admin | `admin@kampusdemo.test` |
+| `kampusdemo.localhost:8000` | Admin | `admin@kampusdemo.test` |
 | | Ketua prodi | `kepala@kampusdemo.test` |
 | | Dosen + dosen wali | `guru1@kampusdemo.test` |
 | | Dosen | `guru2@kampusdemo.test`, `guru3@kampusdemo.test` |
