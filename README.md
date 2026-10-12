@@ -31,9 +31,9 @@ penyamaran/profil lain untuk masuk ke dua tenant sekaligus.
 
 Semua kata sandi: `password`. Hasil dari `php artisan db:seed` (DemoSeeder).
 
-| Domain                        | Peran                | Login                                                |
+| Alamat (login di /…/login)    | Peran                | Login                                                |
 | ----------------------------- | -------------------- | ---------------------------------------------------- |
-| `localhost:8000`              | Super admin          | `super@aksaraloka.test`                              |
+| `/platform`                   | Super admin          | `super@aksaraloka.test`                              |
 | `/smpn1bandung` | Admin                | `admin@smpn1bandung.test`                            |
 |                               | Kepala sekolah       | `kepala@smpn1bandung.test`                           |
 |                               | Guru + wali kelas    | `guru1@smpn1bandung.test`                            |
