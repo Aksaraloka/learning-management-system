@@ -34,15 +34,16 @@
 .dark {
     color-scheme: dark;
 
-    --color-bg: #18181b;
-    --color-surface: #202024;
-    --color-surface-muted: #27272a;
-    --color-border: #3f3f46;
+    /* Dasar hitam murni (#000000); kartu & input sedikit lebih terang agar tetap terpisah dari latar. */
+    --color-bg: #000000;
+    --color-surface: #0b0b0d;
+    --color-surface-muted: #17171a;
+    --color-border: #2c2c31;
     --color-text: #f4f4f5;
     --color-text-muted: #a1a1aa;
 
     --color-primary: #818cf8;
-    --color-primary-fg: #18181b;
+    --color-primary-fg: #000000;
 
     --color-success: #4ade80;
     --color-warning: #fbbf24;

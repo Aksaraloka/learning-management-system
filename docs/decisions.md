@@ -67,3 +67,7 @@ Asumsi yang diambil saat PRD tidak mencakup detailnya.
 49. **Perbaikan `artisan serve` di Windows**: `serve` membuang variabel lingkungan di luar `passthroughVariables`, termasuk `TMP/TEMP`, sehingga setiap unggahan gagal dengan "unable to create a temporary file". `AppServiceProvider` menambahkan variabel itu (terbukti lewat uji browser nyata). Herd/php-fpm tidak terpengaruh.
 50. **Instance library di luar state Alpine**: Proxy reaktif Alpine merusak field privat pdf.js/Tiptap/Chart.js; instance disimpan di closure. Ini juga memperbaiki pratinjau PDF galeri `/ui` (Fase 0) yang sebelumnya belum terverifikasi.
 51. **Data demo kelas**: 4 kelas (sekolah: Matematika VII-A, IPA VII-A, Bahasa Indonesia VII-B, IPS VII-B; kampus: 4 mata kuliah dengan SKS), guru1 mengampu dua kelas, siswa1–5 mengikuti semua kelas. Berkas PDF contoh dibuat oleh seeder.
+
+## Perubahan tema
+
+52. **Dark mode berlatar hitam murni `#000000`** (menggantikan aturan awal "bukan hitam pekat"; permintaan pemilik produk). "Primary" ditafsirkan sebagai warna dasar/latar utama. Kartu `#0b0b0d`, permukaan redup `#17171a`, border `#2c2c31` agar elemen tetap terpisah dari latar; aksen (`--color-primary`) tetap `#818cf8` dengan teks `#000000`. Test `ThemeContrastTest` menjaga kontras teks >= 4.5:1 (WCAG AA) di kedua tema. Jika yang dimaksud adalah aksen/tombol berwarna hitam di dark mode, itu akan tak terlihat di atas latar hitam (kontras 1:1) sehingga tidak diterapkan.
