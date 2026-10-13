@@ -7,6 +7,7 @@ use App\Enums\SubmissionStatus;
 use App\Models\Assignment;
 use App\Models\Submission;
 use App\Models\User;
+use App\Support\Audit;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Validation\ValidationException;
 
@@ -28,6 +29,8 @@ class GradeSubmission
             ]);
         }
 
+        $before = Submission::query()->where('assignment_id', $assignment->id)->where('user_id', $student->id)->value('score');
+
         $submission = Submission::updateOrCreate(
             ['assignment_id' => $assignment->id, 'user_id' => $student->id],
             [
@@ -38,6 +41,11 @@ class GradeSubmission
                 'graded_by' => $grader->id,
             ],
         );
+
+        Audit::record('submission.graded', $submission, [
+            'assignment' => $assignment->title, 'student_id' => $student->id,
+            'from' => $before !== null ? (float) $before : null, 'to' => (float) $submission->score,
+        ], $assignment->course_id);
 
         app(Notifier::class)->assignmentGraded($assignment, $student, (float) $submission->score);
 
@@ -52,6 +60,11 @@ class GradeSubmission
     public function returnForRevision(Assignment $assignment, Submission $submission, ?string $feedback): Submission
     {
         $this->ensureOpen($assignment);
+
+        Audit::record('submission.returned', $submission, [
+            'assignment' => $assignment->title, 'student_id' => $submission->user_id,
+            'from' => $submission->score !== null ? (float) $submission->score : null,
+        ], $assignment->course_id);
 
         $submission->update([
             'status' => SubmissionStatus::Returned,

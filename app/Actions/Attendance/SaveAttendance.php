@@ -5,6 +5,7 @@ namespace App\Actions\Attendance;
 use App\Enums\AttendanceStatus;
 use App\Models\AttendanceRecord;
 use App\Models\AttendanceSession;
+use App\Support\Audit;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 
@@ -47,6 +48,8 @@ class SaveAttendance
                 $saved++;
             }
         });
+
+        Audit::record('attendance.saved', $session, ['students' => $saved, 'date' => $session->held_on->toDateString()], $session->course_id);
 
         return $saved;
     }

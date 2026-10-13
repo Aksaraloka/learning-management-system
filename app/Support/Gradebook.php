@@ -34,10 +34,10 @@ class Gradebook
      *     weightTotal: int
      * }
      */
-    public static function compute(Course $course): array
+    public static function compute(Course $course, ?User $only = null): array
     {
         $categories = $course->gradeCategories()->get();
-        $students = $course->students()->reorder('users.name')->get();
+        $students = $course->students()->reorder('users.name')->when($only, fn ($q) => $q->where('users.id', $only->id))->get();
 
         $assignments = Assignment::query()->where('course_id', $course->id)->with('submissions')->orderBy('section_id')->orderBy('position')->get();
         $quizzes = Quiz::query()->where('course_id', $course->id)->where('is_published', true)->orderBy('section_id')->orderBy('position')->get();

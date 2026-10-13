@@ -3,11 +3,13 @@
 use App\Http\Controllers\AssignmentFileController;
 use App\Http\Controllers\GradebookExportController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ManifestController;
 use App\Http\Controllers\MaterialFileController;
 use App\Http\Controllers\QuestionImageController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\SubmissionFileController;
 use App\Http\Controllers\UserImportTemplateController;
+use App\Livewire\Admin\Audit;
 use App\Livewire\Admin\Terms;
 use App\Livewire\Admin\Users;
 use App\Livewire\Announcements;
@@ -26,6 +28,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
 Route::view('/kebijakan-privasi', 'privacy')->name('privacy');
+Route::get('/manifest.webmanifest', ManifestController::class)->name('manifest');
+Route::view('/offline', 'offline')->name('offline');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', Login::class)->name('login');
@@ -87,6 +91,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/pengguna/impor', Users\Import::class)->name('users.import');
     Route::get('/pengguna/impor/templat', UserImportTemplateController::class)->name('users.import.template');
     Route::get('/tahun-ajaran', Terms\Index::class)->name('terms.index');
+    Route::get('/audit', Audit\Index::class)->name('audit.index');
 });
 
 // Galeri komponen untuk pengembangan; tidak tersedia di production.

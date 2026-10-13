@@ -27,10 +27,7 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
      */
     protected function gate(): void
     {
-        Gate::define('viewHorizon', function ($user = null) {
-            return in_array(optional($user)->email, [
-                //
-            ]);
-        });
+        // Dashboard antrean hanya untuk admin (bawaan Horizon: tidak ada yang boleh di luar lingkungan lokal).
+        Gate::define('viewHorizon', fn ($user = null) => $user?->isAdmin() === true);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Actions\Users;
 
 use App\Models\ImportRun;
 use App\Models\User;
+use App\Support\Audit;
 use Illuminate\Support\Facades\DB;
 
 class ImportUsers
@@ -52,6 +53,8 @@ class ImportUsers
             'success_rows' => $success,
             'failed_rows' => $failed,
         ]);
+
+        Audit::record('users.imported', $run, ['success' => $success, 'failed' => count($failed)], null, $run->user_id);
 
         return $run;
     }

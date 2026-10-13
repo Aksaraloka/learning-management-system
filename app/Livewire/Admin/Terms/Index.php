@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin\Terms;
 
 use App\Models\AcademicTerm;
+use App\Support\Audit;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
@@ -68,6 +69,8 @@ class Index extends Component
         Gate::authorize('lock', $term);
 
         $term->update(['is_locked' => ! $term->is_locked]);
+
+        Audit::record($term->is_locked ? 'term.locked' : 'term.unlocked', $term, ['name' => $term->name]);
     }
 
     public function delete(int $id): void
@@ -75,6 +78,8 @@ class Index extends Component
         $term = AcademicTerm::findOrFail($id);
 
         Gate::authorize('delete', $term);
+
+        Audit::record('term.deleted', $term, ['name' => $term->name]);
 
         $term->delete();
     }

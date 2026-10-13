@@ -5,12 +5,19 @@ namespace Database\Seeders;
 use App\Actions\Announcements\SaveAnnouncement;
 use App\Actions\Attendance\SaveAttendance;
 use App\Actions\Notifications\Notifier;
+use App\Actions\Quizzes\GradeEssays;
+use App\Enums\QuestionType;
 use App\Enums\Role;
+use App\Enums\SubmissionStatus;
+use App\Models\Assignment;
 use App\Models\AttendanceSession;
 use App\Models\Course;
 use App\Models\Quiz;
+use App\Models\QuizAttempt;
+use App\Models\Submission;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
 
 /**
  * Data demo Fase 5: presensi (3 sesi per kelas dengan campuran status), pengumuman kelas dan universitas yang
@@ -47,6 +54,8 @@ class EngagementSeeder extends Seeder
                 $save->handle($session, $entries);
             }
 
+            $this->grade($course, $students, $teacher);
+
             $announce->handle($teacher, [
                 'course_id' => $course->id,
                 'title' => 'Selamat datang di '.$course->name,
@@ -73,5 +82,49 @@ class EngagementSeeder extends Seeder
 
         // Kuis yang masih terbuka diberitahukan ke pesertanya (seeder membuatnya tanpa melalui form).
         Quiz::query()->where('is_published', true)->whereNull('notified_at')->each(fn (Quiz $quiz) => app(Notifier::class)->quizPublished($quiz));
+    }
+
+    /**
+     * Nilai yang masuk akal agar dashboard dan buku nilai tidak kosong: tugas yang sudah lewat tenggat dinilai untuk
+     * hampir semua mahasiswa (satu dua sengaja tetap menunggu penilaian), dan esai kuis evaluasi dinilai untuk separuhnya.
+     * Dibuat langsung lewat model (tanpa notifikasi) karena ini data sejarah.
+     *
+     * @param  Collection<int, User>  $students
+     */
+    private function grade(Course $course, Collection $students, User $teacher): void
+    {
+        foreach (Assignment::query()->where('course_id', $course->id)->where('due_at', '<', now())->get() as $assignment) {
+            foreach ($students as $n => $student) {
+                $existing = Submission::query()->where('assignment_id', $assignment->id)->where('user_id', $student->id)->first();
+
+                // Satu dari delapan tidak mengumpulkan; yang sudah mengumpulkan dan masih menunggu dibiarkan sebagian.
+                if ($n % 8 === 7 || ($existing && $existing->status !== SubmissionStatus::Graded && $n % 5 === 0)) {
+                    continue;
+                }
+
+                Submission::updateOrCreate(['assignment_id' => $assignment->id, 'user_id' => $student->id], [
+                    'body' => $existing->body ?? '<p>Rangkuman dan jawaban saya.</p>',
+                    'status' => SubmissionStatus::Graded,
+                    'score' => $existing->score ?? 55 + (($n * 11 + $assignment->id * 7) % 41),
+                    'submitted_at' => $existing->submitted_at ?? $assignment->due_at->copy()->subHours(5),
+                    'graded_at' => now()->subDay(),
+                    'graded_by' => $teacher->id,
+                ]);
+            }
+        }
+
+        $evaluation = Quiz::query()->where('course_id', $course->id)->where('title', 'Kuis Evaluasi')->first();
+
+        if (! $evaluation) {
+            return;
+        }
+
+        $essay = $evaluation->questions()->where('type', QuestionType::Essay->value)->first();
+
+        QuizAttempt::query()->where('quiz_id', $evaluation->id)->orderBy('id')->get()->each(function (QuizAttempt $attempt, int $n) use ($essay) {
+            if ($essay && $n % 2 === 0) {
+                app(GradeEssays::class)->handle($attempt, [$essay->id => min($essay->points, 2 + ($n % 4))], [$essay->id => 'Penjelasan cukup, tambahkan contoh.']);
+            }
+        });
     }
 }

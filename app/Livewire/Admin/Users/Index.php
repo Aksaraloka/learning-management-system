@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\Users;
 use App\Actions\Users\ResetUserPassword;
 use App\Enums\Role;
 use App\Models\User;
+use App\Support\Audit;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
@@ -43,6 +44,8 @@ class Index extends Component
         Gate::authorize('resetPassword', $target);
 
         $this->revealed = ['name' => $target->name, 'password' => $reset->handle($target)];
+
+        Audit::record('user.password_reset', $target, ['name' => $target->name]);
     }
 
     public function dismiss(): void

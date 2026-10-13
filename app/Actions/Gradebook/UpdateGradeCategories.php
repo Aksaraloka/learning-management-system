@@ -6,6 +6,7 @@ use App\Models\Assignment;
 use App\Models\Course;
 use App\Models\GradeCategory;
 use App\Models\Quiz;
+use App\Support\Audit;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -54,6 +55,8 @@ class UpdateGradeCategories
             throw ValidationException::withMessages($errors);
         }
 
+        $before = $categories->mapWithKeys(fn ($c) => [$c->name => $c->weight])->all();
+
         DB::transaction(function () use ($categories, $entries) {
             foreach ($categories as $id => $category) {
                 $entry = $entries[$id] ?? null;
@@ -63,6 +66,12 @@ class UpdateGradeCategories
                 }
             }
         });
+
+        $after = $course->gradeCategories()->get()->mapWithKeys(fn ($c) => [$c->name => $c->weight])->all();
+
+        if ($before !== $after) {
+            Audit::record('gradebook.weights_updated', $course, ['from' => $before, 'to' => $after], $course->id);
+        }
     }
 
     /**

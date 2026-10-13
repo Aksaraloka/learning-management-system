@@ -7,6 +7,7 @@ use Database\Factories\AcademicTermFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -28,5 +29,13 @@ class AcademicTerm extends Model
             'ends_at' => 'date',
             'is_locked' => 'boolean',
         ];
+    }
+
+    /**
+     * @return HasMany<Course, $this>
+     */
+    public function courses(): HasMany
+    {
+        return $this->hasMany(Course::class);
     }
 }

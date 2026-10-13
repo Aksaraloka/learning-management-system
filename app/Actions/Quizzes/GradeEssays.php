@@ -7,6 +7,7 @@ use App\Enums\AttemptStatus;
 use App\Enums\QuestionType;
 use App\Models\Question;
 use App\Models\QuizAttempt;
+use App\Support\Audit;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -70,9 +71,15 @@ class GradeEssays
         $graded = DB::transaction(function () use ($attempt, $manual) {
             $fresh = QuizAttempt::query()->lockForUpdate()->findOrFail($attempt->id);
             $wasGraded = $fresh->status === AttemptStatus::Graded;
+            $before = $fresh->score;
             $fresh->manual_scores = $manual ?: null;
             app(FinishAttempt::class)->apply($fresh);
             $fresh->save();
+
+            Audit::record('quiz.essay_graded', $fresh, [
+                'quiz_id' => $fresh->quiz_id, 'student_id' => $fresh->user_id,
+                'from' => $before !== null ? (float) $before : null, 'to' => $fresh->score !== null ? (float) $fresh->score : null,
+            ], $attempt->quiz->course_id);
 
             return [$fresh, $wasGraded];
         });

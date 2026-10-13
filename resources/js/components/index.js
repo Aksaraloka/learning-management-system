@@ -586,6 +586,63 @@ export function registerLazyComponents(Alpine) {
         };
     });
 
+    // Simpan berkas materi untuk dibaca offline. Pengambilan lewat service worker (public/sw.js) otomatis menyimpannya
+    // di cache "aksaraloka-materials-v1"; tombol ini hanya memicu pengambilan penuh dan melaporkan statusnya.
+    Alpine.data('offlineSave', ({ url }) => {
+        const cacheName = 'aksaraloka-materials-v1';
+        const key = () => new URL(url, location.href).origin + new URL(url, location.href).pathname;
+
+        return {
+            supported: 'caches' in window && 'serviceWorker' in navigator,
+            saved: false,
+            busy: false,
+
+            async init() {
+                if (!this.supported) {
+                    return;
+                }
+
+                try {
+                    this.saved = !!(await (await caches.open(cacheName)).match(key()));
+                } catch {
+                    this.supported = false;
+                }
+            },
+
+            async save() {
+                this.busy = true;
+
+                try {
+                    const response = await fetch(url, { credentials: 'same-origin' });
+
+                    if (!response.ok) {
+                        throw new Error(String(response.status));
+                    }
+
+                    await response.arrayBuffer();
+                    // Bila service worker belum mengendalikan halaman ini, simpan langsung dari sini.
+                    const cache = await caches.open(cacheName);
+
+                    if (!(await cache.match(key()))) {
+                        await cache.put(key(), (await fetch(url, { credentials: 'same-origin' })).clone());
+                    }
+
+                    this.saved = true;
+                    this.$dispatch('toast', { message: this.$el.dataset.done ?? 'Tersimpan', type: 'success' });
+                } catch {
+                    this.$dispatch('toast', { message: this.$el.dataset.failed ?? 'Gagal menyimpan', type: 'error' });
+                } finally {
+                    this.busy = false;
+                }
+            },
+
+            async remove() {
+                await (await caches.open(cacheName)).delete(key());
+                this.saved = false;
+            },
+        };
+    });
+
     // Render rumus $...$ dan $$...$$ pada konten (soal, materi) dengan KaTeX.
     Alpine.data('mathContent', () => ({
         async init() {
@@ -641,7 +698,8 @@ export function registerLazyComponents(Alpine) {
                     data: {
                         ...data,
                         datasets: data.datasets.map((set, i) => ({
-                            backgroundColor: type === 'line' ? palette[i % 4] : palette,
+                            // `mono: true` = satu warna untuk seluruh batang (seri tunggal).
+                            backgroundColor: type === 'line' || set.mono ? palette[i % 4] : palette,
                             borderColor: palette[i % 4],
                             ...set,
                         })),

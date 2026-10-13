@@ -24,8 +24,7 @@
         "sortablejs": "^1.15.7",
         "tailwindcss": "^4.0.0",
         "tom-select": "^2.6.2",
-        "vite": "^8.0.0",
-        "vite-plugin-pwa": "^2.0.0"
+        "vite": "^8.0.0"
     },
     "optionalDependencies": {
         "@laravel/multiplex": "^0.4.1"

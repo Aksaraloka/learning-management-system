@@ -37,6 +37,10 @@
                     <div class="space-y-4">
                         <div class="flex flex-wrap items-center gap-3">
                             <x-button :href="$fileUrl.'?download=1'" icon="download">{{ __('courses.materials.download') }}</x-button>
+                            <span x-data="offlineSave({ url: @js($fileUrl) })" x-show="supported" x-cloak data-done="{{ __('offline.save_done') }}" data-failed="{{ __('offline.save_failed') }}">
+                                <x-button variant="secondary" icon="arrow-down-on-square" x-show="!saved" @click="save()" x-bind:disabled="busy">{{ __('offline.save') }}</x-button>
+                                <x-button variant="ghost" icon="check-circle" x-show="saved" x-cloak @click="remove()">{{ __('offline.saved_remove') }}</x-button>
+                            </span>
                             <span class="text-sm text-text-muted">{{ $material->file_name }} · {{ Upload::humanSize($material->file_size) }}</span>
                         </div>
 

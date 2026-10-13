@@ -53,16 +53,18 @@ class QuizSeeder extends Seeder
 
             $this->questions($questions, $evaluation);
 
-            // Mahasiswa kedua menjawab semua dengan benar, ketiga setengah salah; keduanya mengerjakan esai.
-            foreach ($students->slice(1, 2)->values() as $i => $student) {
+            // Semua mahasiswa kecuali yang pertama (akun demo yang bisa mencoba kuis) mengerjakan: dua dari tiga menjawab
+            // benar, sisanya salah; semuanya menulis esai (dinilai dosen kemudian, lihat EngagementSeeder).
+            foreach ($students->slice(1)->values() as $i => $student) {
+                $good = $i % 3 !== 2;
                 $attempt = $start->handle($evaluation, $student);
 
                 foreach ($evaluation->questions()->get() as $question) {
                     $key = $question->answer_key ?? [];
                     $value = match ($question->type) {
-                        QuestionType::MultipleChoice => $i === 0 ? $key['correct'] : collect($question->options)->firstWhere('id', '!=', $key['correct'])['id'],
-                        QuestionType::TrueFalse => ($i === 0) === (bool) $key['correct'] ? 'true' : 'false',
-                        QuestionType::ShortAnswer => $i === 0 ? $key['accepted'][0] : 'tidak tahu',
+                        QuestionType::MultipleChoice => $good ? $key['correct'] : collect($question->options)->firstWhere('id', '!=', $key['correct'])['id'],
+                        QuestionType::TrueFalse => $good === (bool) $key['correct'] ? 'true' : 'false',
+                        QuestionType::ShortAnswer => $good ? $key['accepted'][0] : 'tidak tahu',
                         QuestionType::Essay => 'Menurut saya konsep ini penting karena menjadi dasar pertemuan berikutnya, dan saya mencontohkannya pada kasus sehari-hari.',
                     };
 

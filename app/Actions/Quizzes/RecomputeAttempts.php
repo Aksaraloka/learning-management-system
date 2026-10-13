@@ -5,6 +5,7 @@ namespace App\Actions\Quizzes;
 use App\Enums\AttemptStatus;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
+use App\Support\Audit;
 
 class RecomputeAttempts
 {
@@ -25,6 +26,8 @@ class RecomputeAttempts
                     $count++;
                 }
             });
+
+        Audit::record('quiz.recomputed', $quiz, ['attempts' => $count], $quiz->course_id);
 
         return $count;
     }

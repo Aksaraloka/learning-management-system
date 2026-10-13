@@ -14,3 +14,8 @@ registerLazyComponents(Alpine);
 window.Alpine = Alpine;
 
 Livewire.start();
+
+// PWA: service worker hanya di production (aset hasil build); di dev (Vite) tidak didaftarkan agar tidak menyimpan aset lama.
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {}));
+}

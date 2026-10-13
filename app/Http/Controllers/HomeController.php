@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AcademicTerm;
 use App\Models\Course;
-use App\Models\User;
+use App\Support\Dashboard;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -18,14 +17,23 @@ class HomeController extends Controller
             return redirect()->route('login');
         }
 
-        $stats = $user->isAdmin()
-            ? ['users' => User::count(), 'terms' => AcademicTerm::count(), 'courses' => Course::count()]
-            : [];
+        $kind = Dashboard::viewFor($user);
+
+        $data = match ($kind) {
+            'admin' => Dashboard::admin(),
+            'principal' => Dashboard::principal(),
+            'teacher' => Dashboard::teacher($user),
+            'student' => Dashboard::student($user),
+            default => [],
+        };
 
         return view('dashboard', [
             'user' => $user->load('roles'),
-            'stats' => $stats,
-            'courses' => Course::query()->visibleTo($user)->with(['term', 'teachers'])->withCount('students')->orderBy('name')->limit(6)->get(),
+            'kind' => $kind,
+            'data' => $data,
+            'courses' => $kind === 'basic'
+                ? Course::query()->visibleTo($user)->with(['term', 'teachers'])->withCount('students')->orderBy('name')->limit(6)->get()
+                : collect(),
         ]);
     }
 }

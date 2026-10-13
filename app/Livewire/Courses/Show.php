@@ -10,6 +10,7 @@ use App\Enums\SubmissionStatus;
 use App\Models\Course;
 use App\Models\Material;
 use App\Models\Section;
+use App\Support\Audit;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -118,6 +119,8 @@ class Show extends Component
     public function deleteCourse(): void
     {
         Gate::authorize('delete', $this->course);
+
+        Audit::record('course.deleted', $this->course, ['name' => $this->course->name], $this->course->id);
 
         $this->course->delete();
 

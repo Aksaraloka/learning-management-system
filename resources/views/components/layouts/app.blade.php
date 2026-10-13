@@ -71,7 +71,8 @@
                         </x-slot:trigger>
 
                         <a href="{{ route('profile.edit') }}" role="menuitem" class="flex min-h-10 items-center gap-2 rounded-md px-3 text-sm hover:bg-surface-muted"><x-icon name="user" class="size-4" /> {{ __('ui.nav.profile') }}</a>
-                        <form method="POST" action="{{ route('logout') }}">
+                        {{-- Keluar: buang berkas materi yang disimpan offline agar tidak tertinggal di perangkat bersama. --}}
+                        <form method="POST" action="{{ route('logout') }}" @submit="window.caches && caches.delete('aksaraloka-materials-v1')">
                             @csrf
                             <button type="submit" role="menuitem" class="flex min-h-10 w-full items-center gap-2 rounded-md px-3 text-left text-sm hover:bg-surface-muted"><x-icon name="log-out" class="size-4" /> {{ __('ui.auth.logout') }}</button>
                         </form>
