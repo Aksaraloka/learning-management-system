@@ -40,8 +40,11 @@ class CourseSeeder extends Seeder
                 $course->gradeCategories()->create(['name' => $categoryName, 'weight' => $weight, 'position' => $n + 1]);
             }
 
-            $teacher = User::where('email', "dosen{$def['teacher']}@aksaraloka.test")->firstOrFail();
-            Enrollment::create(['course_id' => $course->id, 'user_id' => $teacher->id, 'role' => EnrollmentRole::Teacher]);
+            // Satu mata kuliah dapat diampu beberapa dosen (team teaching); dosen pertama dianggap pengampu utama.
+            foreach ($def['teachers'] as $number) {
+                $teacher = User::where('email', "dosen{$number}@aksaraloka.test")->firstOrFail();
+                Enrollment::create(['course_id' => $course->id, 'user_id' => $teacher->id, 'role' => EnrollmentRole::Teacher]);
+            }
 
             // Akun demo ber-email (mahasiswa 1-5) ikut semua mata kuliah agar semua fitur bisa dicoba. Sisanya:
             // mata kuliah 1-2 mahasiswa 6-15, ke-3 dan ke-4 mahasiswa 16-30, selebihnya 14 mahasiswa bergiliran.
@@ -103,34 +106,34 @@ class CourseSeeder extends Seeder
     }
 
     /**
-     * @return list<array{name: string, teacher: int, credits: int, description: string, sections: list<string>}>
+     * @return list<array{name: string, teachers: list<int>, credits: int, description: string, sections: list<string>}>
      */
     private function definitions(): array
     {
         return [
-            ['name' => 'Algoritma dan Pemrograman', 'teacher' => 1, 'credits' => 3, 'description' => 'Dasar berpikir algoritmik dan pemrograman terstruktur.',
+            ['name' => 'Algoritma dan Pemrograman', 'teachers' => [1, 2], 'credits' => 3, 'description' => 'Dasar berpikir algoritmik dan pemrograman terstruktur.',
                 'sections' => ['Pengantar Algoritma', 'Percabangan', 'Perulangan', 'Fungsi']],
-            ['name' => 'Basis Data', 'teacher' => 2, 'credits' => 3, 'description' => 'Perancangan dan penggunaan basis data relasional.',
+            ['name' => 'Basis Data', 'teachers' => [2, 3], 'credits' => 3, 'description' => 'Perancangan dan penggunaan basis data relasional.',
                 'sections' => ['Model Relasional', 'SQL Dasar', 'Normalisasi']],
-            ['name' => 'Jaringan Komputer', 'teacher' => 3, 'credits' => 3, 'description' => 'Konsep jaringan dan protokol internet.',
+            ['name' => 'Jaringan Komputer', 'teachers' => [3], 'credits' => 3, 'description' => 'Konsep jaringan dan protokol internet.',
                 'sections' => ['Model OSI', 'Pengalamatan IP', 'Routing']],
-            ['name' => 'Pemrograman Web', 'teacher' => 1, 'credits' => 4, 'description' => 'Membangun aplikasi web modern.',
+            ['name' => 'Pemrograman Web', 'teachers' => [1, 3], 'credits' => 4, 'description' => 'Membangun aplikasi web modern.',
                 'sections' => ['HTML dan CSS', 'JavaScript', 'Backend dengan PHP']],
-            ['name' => 'Struktur Data', 'teacher' => 2, 'credits' => 3, 'description' => 'Struktur data fundamental dan analisis kompleksitas.',
+            ['name' => 'Struktur Data', 'teachers' => [2, 1], 'credits' => 3, 'description' => 'Struktur data fundamental dan analisis kompleksitas.',
                 'sections' => ['Array dan Linked List', 'Stack dan Queue', 'Pohon', 'Graf']],
-            ['name' => 'Sistem Operasi', 'teacher' => 3, 'credits' => 3, 'description' => 'Konsep proses, memori, dan sistem berkas.',
+            ['name' => 'Sistem Operasi', 'teachers' => [3, 2], 'credits' => 3, 'description' => 'Konsep proses, memori, dan sistem berkas.',
                 'sections' => ['Proses dan Thread', 'Penjadwalan CPU', 'Manajemen Memori']],
-            ['name' => 'Rekayasa Perangkat Lunak', 'teacher' => 1, 'credits' => 3, 'description' => 'Siklus hidup pengembangan perangkat lunak dan praktik tim.',
+            ['name' => 'Rekayasa Perangkat Lunak', 'teachers' => [1, 2, 3], 'credits' => 3, 'description' => 'Siklus hidup pengembangan perangkat lunak dan praktik tim.',
                 'sections' => ['Model Proses', 'Analisis Kebutuhan', 'Pengujian Perangkat Lunak']],
-            ['name' => 'Kecerdasan Buatan', 'teacher' => 2, 'credits' => 3, 'description' => 'Pengantar pencarian, penalaran, dan pembelajaran mesin.',
+            ['name' => 'Kecerdasan Buatan', 'teachers' => [2, 3], 'credits' => 3, 'description' => 'Pengantar pencarian, penalaran, dan pembelajaran mesin.',
                 'sections' => ['Pencarian', 'Representasi Pengetahuan', 'Pembelajaran Mesin']],
-            ['name' => 'Interaksi Manusia dan Komputer', 'teacher' => 3, 'credits' => 2, 'description' => 'Prinsip perancangan antarmuka yang mudah digunakan.',
+            ['name' => 'Interaksi Manusia dan Komputer', 'teachers' => [3, 1], 'credits' => 2, 'description' => 'Prinsip perancangan antarmuka yang mudah digunakan.',
                 'sections' => ['Prinsip Desain', 'Evaluasi Usability']],
-            ['name' => 'Keamanan Informasi', 'teacher' => 1, 'credits' => 3, 'description' => 'Dasar kriptografi, keamanan jaringan, dan manajemen risiko.',
+            ['name' => 'Keamanan Informasi', 'teachers' => [1], 'credits' => 3, 'description' => 'Dasar kriptografi, keamanan jaringan, dan manajemen risiko.',
                 'sections' => ['Kriptografi Dasar', 'Keamanan Aplikasi Web', 'Manajemen Risiko']],
-            ['name' => 'Statistika dan Probabilitas', 'teacher' => 2, 'credits' => 3, 'description' => 'Peluang, sebaran, dan inferensi statistik dasar.',
+            ['name' => 'Statistika dan Probabilitas', 'teachers' => [2, 3], 'credits' => 3, 'description' => 'Peluang, sebaran, dan inferensi statistik dasar.',
                 'sections' => ['Peluang', 'Sebaran Peluang', 'Pengujian Hipotesis']],
-            ['name' => 'Pemrograman Mobile', 'teacher' => 3, 'credits' => 3, 'description' => 'Membangun aplikasi untuk perangkat bergerak.',
+            ['name' => 'Pemrograman Mobile', 'teachers' => [3, 1], 'credits' => 3, 'description' => 'Membangun aplikasi untuk perangkat bergerak.',
                 'sections' => ['Pengantar Aplikasi Mobile', 'Antarmuka dan Navigasi', 'Penyimpanan Data']],
         ];
     }

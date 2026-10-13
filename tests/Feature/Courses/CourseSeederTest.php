@@ -81,3 +81,19 @@ it('seeds demo assignments with a mix of statuses', function () {
     // Akun demo mahasiswa1 belum mengumpulkan tugas terbuka, jadi bisa langsung mencoba.
     expect(Submission::where('assignment_id', $open->id)->where('user_id', $demo->id)->exists())->toBeFalse();
 });
+
+it('lets one course have several lecturers and a lecturer teach several courses', function () {
+    $this->seed(CourseSeeder::class);
+
+    $rpl = Course::where('name', 'Rekayasa Perangkat Lunak')->firstOrFail();
+    $single = Course::where('name', 'Jaringan Komputer')->firstOrFail();
+
+    expect($rpl->teachers()->count())->toBe(3)
+        ->and($single->teachers()->count())->toBe(1)
+        ->and(Course::all()->filter(fn ($c) => $c->teachers()->count() > 1)->count())->toBeGreaterThan(6);
+
+    // Dosen yang bukan pengampu utama tetap dapat mengelola mata kuliahnya.
+    $coTeacher = User::where('email', 'dosen3@aksaraloka.test')->firstOrFail();
+
+    expect($coTeacher->can('update', $rpl))->toBeTrue();
+});
