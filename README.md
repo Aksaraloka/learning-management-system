@@ -108,6 +108,48 @@ npm run build                                      # build aset
 
 Galeri komponen UI: `/ui` (hanya `APP_ENV=local`).
 
-## Catatan produksi (akan dilengkapi di Fase 6)
+## Dashboard, audit, dan PWA
 
-PostgreSQL, Redis + Horizon (Linux), disk `s3`/R2, HTTPS, catatan uji beban kuis 1.000 mahasiswa serentak.
+- **Dashboard per peran** (halaman Beranda): *mahasiswa* melihat tenggat terdekat, nilai terbaru, dan nilai akhir/kehadiran per mata kuliah (grafik); *dosen* melihat yang perlu dinilai, tenggat 7 hari, dan statistik mata kuliahnya (rata-rata, kehadiran, pengumpulan); *ketua program studi* melihat semua mata kuliah, rata-rata, dan sebaran nilai A–E; *admin* melihat jumlah pengguna/mata kuliah/semester, grafik, dan aktivitas audit terbaru. Statistik mata kuliah di-cache 5 menit.
+- **Jejak audit** (`/admin/audit`, admin dan ketua program studi): mencatat siapa mengubah nilai tugas (nilai lama → baru), nilai esai, hitung ulang kuis, bobot nilai, presensi, penguncian/penghapusan semester, reset kata sandi, impor pengguna, dan penghapusan mata kuliah. Catatan hanya bisa ditambah; kata sandi dan isi jawaban tidak pernah dicatat.
+- **PWA**: aplikasi dapat dipasang di layar utama (Chrome/Android: *Instal aplikasi*). Service worker (`public/sw.js`, aktif di build production) menyimpan aset build, menampilkan halaman *Offline* saat tak ada koneksi, dan menyimpan **berkas materi/lampiran** yang dibuka lewat tombol *Simpan untuk offline* agar tetap bisa dibaca. Halaman (HTML) dan pembaruan Livewire tidak pernah di-cache; salinan materi dihapus saat keluar (logout) atau bila akses dicabut. Jawaban kuis yang tertunda tetap tersimpan di perangkat dan dikirim saat tersambung (lihat bagian Kuis). Ikon aplikasi ada di `public/icons` (sumber: `icon.svg`).
+- **Halaman error** (403, 404, 419, 429, 500, 503) berbahasa Indonesia.
+
+### Ukuran halaman
+
+Terukur di Chrome headless (HP 390 px, tanpa cache), ukuran transfer **setelah gzip**: halaman biasa ±120 KB (JS inti Livewire+Alpine 98 KB, CSS 11 KB, HTML ±10 KB); dashboard dengan grafik ±215 KB (Chart.js 67 KB dan GSAP 26 KB dimuat lazy); halaman dengan editor/pratinjau PDF memuat pustaka tambahan sesuai kebutuhan saja (PDF.js 125 KB hanya saat membuka PDF). Semua di bawah target 500 KB. Server dev (`artisan serve`) tidak mengompres, jadi aktifkan gzip/brotli di web server.
+
+## Catatan produksi
+
+Aplikasi ini monolit Laravel; berikut konfigurasi yang disarankan untuk universitas sungguhan.
+
+**Server**: Linux, PHP 8.3+ (OPcache aktif, `opcache.validate_timestamps=0`), PHP-FPM di belakang Nginx/Caddy dengan **HTTPS wajib** (service worker, cookie `Secure`) dan gzip/brotli. Setelah deploy: `composer install --no-dev -o`, `npm ci && npm run build`, `php artisan migrate --force`, `php artisan config:cache route:cache view:cache event:cache`.
+
+**`.env` production** (selain kredensial):
+
+```ini
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://lms.kampus.ac.id
+INSTITUTION_NAME="Universitas ..."
+DB_CONNECTION=pgsql          # PostgreSQL; pakai PgBouncer (mode transaction) bila koneksi menjadi batas
+SESSION_DRIVER=redis
+CACHE_STORE=redis
+QUEUE_CONNECTION=redis
+SESSION_SECURE_COOKIE=true
+COURSE_DISK=s3               # S3/Cloudflare R2 untuk berkas materi, tugas, dan gambar soal (privat)
+MAIL_MAILER=smtp             # untuk reset kata sandi
+```
+
+**Antrean dan scheduler** (wajib, jika tidak notifikasi dan penutupan kuis otomatis tidak berjalan):
+- Worker: **Horizon** (`php artisan horizon`, di bawah Supervisor/systemd; antrean `default` dan `imports`; butuh `ext-pcntl`/`ext-posix`, jadi hanya di Linux). Alternatif sederhana: `php artisan queue:work --queue=default,imports`.
+- Scheduler: cron `* * * * * cd /path && php artisan schedule:run >> /dev/null 2>&1` menjalankan `quizzes:finalize-expired` (tiap menit) dan `reminders:due` (tiap jam).
+- `php artisan horizon:terminate` setelah setiap deploy agar worker memuat kode baru.
+
+**Keamanan**: berkas materi/tugas/kiriman/gambar soal privat dan hanya disajikan controller yang memeriksa hak akses; rich text disanitasi (Purifier); kunci jawaban kuis tidak dikirim ke peserta; ekspor Excel dinetralkan dari injeksi rumus; unggahan divalidasi isi dan ekstensi. Batasi `upload_max_filesize`/`post_max_size` sesuai `config/courses.php`.
+
+**Cadangan**: jadwalkan dump database harian dan salinan bucket berkas; uji pemulihan. Jejak audit ada di database (`audit_logs`) sehingga ikut tercadangkan.
+
+**Kapasitas kuis**: rencana dan kriteria uji beban 1.000 mahasiswa serentak ada di [docs/load-testing.md](docs/load-testing.md) (belum diukur; butuh lingkungan Linux + PostgreSQL + Redis).
+
+**Pemantauan**: halaman `/horizon` (admin) untuk antrean; log aplikasi di `storage/logs`; pasang pelacak galat (mis. Sentry/Flare) bila diperlukan.
