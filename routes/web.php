@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AssignmentFileController;
+use App\Http\Controllers\AvatarController;
 use App\Http\Controllers\CourseBannerController;
 use App\Http\Controllers\GradebookExportController;
 use App\Http\Controllers\HomeController;
@@ -57,6 +58,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/kelas/{course}/materi/{material}/ubah', Materials\Form::class)->name('materials.edit');
     Route::get('/materi/{material}/berkas', MaterialFileController::class)->name('materials.file');
     Route::get('/kelas/{course}/banner', CourseBannerController::class)->name('courses.banner');
+    Route::get('/pengguna/{user}/foto', AvatarController::class)->name('users.avatar');
 
     // Tugas.
     Route::get('/tugas', Assignments\Index::class)->name('assignments.index');
