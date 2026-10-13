@@ -13,6 +13,6 @@
 @endphp
 
 <x-badge :variant="$variant" {{ $attributes }}>
-    <x-icon :name="$icon" class="size-3" />
+    <x-icon :name="$icon" class="size-3.5" solid />
     {{ __('ui.status.'.$status) }}
 </x-badge>
