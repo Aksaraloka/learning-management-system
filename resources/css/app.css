@@ -208,3 +208,95 @@
 .prose-content pre {
     @apply overflow-x-auto rounded-md bg-surface-muted p-3 text-sm;
 }
+
+/* SweetAlert2 (konfirmasi dan toast) mengikuti token tema, termasuk mode gelap. */
+.swal-aksara.swal2-popup {
+    background: var(--color-surface);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    font-family: var(--font-sans);
+}
+
+.swal-aksara .swal2-title {
+    color: var(--color-text);
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.swal-aksara .swal2-html-container {
+    color: var(--color-text-muted);
+}
+
+.swal-aksara.swal2-toast {
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.18);
+    padding: 0.75rem 1rem;
+}
+
+.swal-aksara.swal2-toast .swal2-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin: 0 0.5rem;
+}
+
+.swal-aksara .swal2-close {
+    color: var(--color-text-muted);
+}
+
+.swal-aksara .swal2-timer-progress-bar {
+    background: var(--color-primary);
+}
+
+.swal-aksara .swal2-actions {
+    gap: 0.5rem;
+}
+
+.swal-btn {
+    min-height: 2.75rem;
+    min-width: 6rem;
+    padding: 0 1.25rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    cursor: pointer;
+}
+
+.swal-btn-primary {
+    background: var(--color-primary);
+    color: var(--color-primary-fg);
+}
+
+.swal-btn-danger {
+    background: var(--color-danger);
+    color: #ffffff;
+}
+
+.dark .swal-btn-danger {
+    color: #000000;
+}
+
+.swal-btn-secondary {
+    background: var(--color-surface);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+}
+
+.swal-btn:hover {
+    opacity: 0.9;
+}
+
+.swal-btn:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* Warna ikon SweetAlert2 diselaraskan dengan token status. */
+.swal-aksara .swal2-icon.swal2-success { color: var(--color-success); border-color: var(--color-success); }
+.swal-aksara .swal2-icon.swal2-success [class^='swal2-success-line'] { background-color: var(--color-success); }
+.swal-aksara .swal2-icon.swal2-success .swal2-success-ring { border-color: color-mix(in srgb, var(--color-success) 30%, transparent); }
+.swal-aksara .swal2-icon.swal2-error { color: var(--color-danger); border-color: var(--color-danger); }
+.swal-aksara .swal2-icon.swal2-error [class^='swal2-x-mark-line'] { background-color: var(--color-danger); }
+.swal-aksara .swal2-icon.swal2-warning { color: var(--color-warning); border-color: var(--color-warning); }
+.swal-aksara .swal2-icon.swal2-info,
+.swal-aksara .swal2-icon.swal2-question { color: var(--color-info); border-color: var(--color-info); }

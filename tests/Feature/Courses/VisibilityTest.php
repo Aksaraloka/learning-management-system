@@ -113,3 +113,22 @@ it('shows the eye toggle only to managers', function () {
     $this->actingAs($this->teacher)->get(route('courses.show', $this->course))->assertSee('Sembunyikan dari mahasiswa');
     $this->actingAs($this->student)->get(route('courses.show', $this->course))->assertDontSee('Sembunyikan dari mahasiswa');
 });
+
+it('announces course page actions with toast events', function () {
+    $material = makeMaterial($this->section);
+    $page = fn () => Livewire::actingAs($this->teacher)->test(Show::class, ['course' => $this->course]);
+
+    $page()->call('toggleVisibility', 'material', $material->id)->assertDispatched('toast', message: 'Disembunyikan dari mahasiswa.', type: 'success');
+    $page()->call('toggleVisibility', 'material', $material->id)->assertDispatched('toast', message: 'Ditampilkan ke mahasiswa.', type: 'success');
+    $page()->set('newSectionTitle', 'Baru')->call('addSection')->assertDispatched('toast', message: 'Pertemuan ditambahkan.', type: 'success');
+    $page()->call('deleteMaterial', $material->id)->assertDispatched('toast', message: 'Materi dihapus.', type: 'success');
+});
+
+it('routes confirmations and toasts through SweetAlert2', function () {
+    $alert = file_get_contents(resource_path('js/lib/alert.js'));
+
+    expect($alert)->toContain("import('sweetalert2')")->toContain("closest('[wire")->toContain('registerConfirm')
+        ->and(file_get_contents(resource_path('js/lib/toast.js')))->toContain('showToast')
+        ->and(file_get_contents(resource_path('js/app.js')))->toContain('registerConfirm()')
+        ->and(json_decode(file_get_contents(base_path('package.json')), true)['devDependencies'])->toHaveKey('sweetalert2');
+});

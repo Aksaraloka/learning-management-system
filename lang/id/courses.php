@@ -25,6 +25,15 @@ return [
         'throttle' => 'Terlalu banyak percobaan. Coba lagi dalam :seconds detik.',
     ],
 
+    'toast' => [
+        'section_added' => 'Pertemuan ditambahkan.',
+        'section_renamed' => 'Nama pertemuan diubah.',
+        'section_deleted' => 'Pertemuan dihapus.',
+        'material_deleted' => 'Materi dihapus.',
+        'hidden' => 'Disembunyikan dari mahasiswa.',
+        'shown' => 'Ditampilkan ke mahasiswa.',
+    ],
+
     'visibility' => [
         'hidden' => 'Disembunyikan dari mahasiswa',
         'hide' => 'Sembunyikan dari mahasiswa',

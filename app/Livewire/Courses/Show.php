@@ -48,6 +48,7 @@ class Show extends Component
         $sections->add($this->course, $this->newSectionTitle);
 
         $this->reset('newSectionTitle');
+        $this->dispatch('toast', message: __('courses.toast.section_added'), type: 'success');
     }
 
     public function startRename(int $id): void
@@ -71,6 +72,7 @@ class Show extends Component
         $sections->rename($section, $this->renamingTitle);
 
         $this->reset('renamingId', 'renamingTitle');
+        $this->dispatch('toast', message: __('courses.toast.section_renamed'), type: 'success');
     }
 
     public function cancelRename(): void
@@ -85,6 +87,8 @@ class Show extends Component
         Gate::authorize('delete', $section);
 
         $sections->delete($section, $deleteMaterial);
+
+        $this->dispatch('toast', message: __('courses.toast.section_deleted'), type: 'success');
     }
 
     /**
@@ -118,6 +122,7 @@ class Show extends Component
         Gate::authorize('delete', $material);
 
         $deleteMaterial->handle($material);
+        $this->dispatch('toast', message: __('courses.toast.material_deleted'), type: 'success');
     }
 
     /**
@@ -140,11 +145,13 @@ class Show extends Component
         if ($item instanceof Quiz) {
             $item->update(['is_published' => ! $item->is_published]);
             $notifier->quizPublished($item->refresh());
+            $this->dispatch('toast', message: __($item->is_published ? 'courses.toast.shown' : 'courses.toast.hidden'), type: 'success');
 
             return;
         }
 
         $item->update(['is_hidden' => ! $item->is_hidden]);
+        $this->dispatch('toast', message: __($item->is_hidden ? 'courses.toast.hidden' : 'courses.toast.shown'), type: 'success');
     }
 
     public function deleteCourse(): void

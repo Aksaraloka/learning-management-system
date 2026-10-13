@@ -133,6 +133,7 @@ return [
 
     'actions' => [
         'save' => 'Simpan',
+        'confirm_yes' => 'Ya, lanjutkan',
         'cancel' => 'Batal',
         'close' => 'Tutup',
         'delete' => 'Hapus',

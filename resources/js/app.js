@@ -4,10 +4,12 @@ import { Alpine, Livewire } from '../../vendor/livewire/livewire/dist/livewire.e
 import { registerTheme } from './lib/theme';
 import { registerMotion } from './lib/motion';
 import { registerToast } from './lib/toast';
+import { registerConfirm } from './lib/alert';
 import { registerLazyComponents } from './components';
 
 registerTheme(Alpine);
-registerToast(Alpine);
+registerToast();
+registerConfirm();
 registerMotion(Alpine);
 registerLazyComponents(Alpine);
 
