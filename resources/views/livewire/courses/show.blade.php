@@ -53,7 +53,7 @@
         <div class="flex flex-wrap items-center justify-between gap-2">
             <h2 id="materials-heading" class="text-lg font-semibold">{{ __('courses.show.materials') }}</h2>
             @if ($sections->isNotEmpty())
-                <x-button variant="ghost" size="sm" icon="chevron-up-down" x-on:click="setAll(!allFolded)"><span x-show="!allFolded">{{ __('courses.show.fold_all') }}</span><span x-show="allFolded" x-cloak>{{ __('courses.show.unfold_all') }}</span></x-button>
+                <x-button variant="ghost" size="sm" icon="chevron-up-down" x-on:click="toggleAll()"><span data-fold-label="fold">{{ __('courses.show.fold_all') }}</span><span data-fold-label="unfold" hidden>{{ __('courses.show.unfold_all') }}</span></x-button>
             @endif
         </div>
 
@@ -75,7 +75,7 @@
                 @foreach ($sections as $section)
                     <li data-id="{{ $section->id }}" data-fold-id="{{ $section->id }}" wire:key="section-{{ $section->id }}">
                         <x-card :padding="false">
-                            <header class="flex items-center gap-2 px-3 py-2.5 sm:px-4" :class="folded({{ $section->id }}) ? '' : 'border-b border-border'">
+                            <header class="flex items-center gap-2 border-b border-border px-3 py-2.5 sm:px-4" data-fold-header>
                                 @if ($canManage)
                                     <span data-section-handle class="cursor-grab touch-none text-text-muted" title="{{ __('courses.sections.drag') }}">
                                         <x-icon name="grip-vertical" /><span class="sr-only">{{ __('courses.sections.drag') }}</span>
@@ -106,15 +106,15 @@
                                 @endif
 
                                 {{-- Jumlah isi tetap terlihat saat pertemuan dilipat. --}}
-                                <span class="shrink-0 text-xs text-text-muted" x-show="folded({{ $section->id }})" x-cloak>{{ __('courses.show.items_count', ['n' => $section->materials->count() + $section->assignments->count() + $section->quizzes->count()]) }}</span>
-                                <button type="button" x-on:click="toggle({{ $section->id }})" :aria-expanded="!folded({{ $section->id }})"
+                                <span class="shrink-0 text-xs text-text-muted" data-fold-count hidden>{{ __('courses.show.items_count', ['n' => $section->materials->count() + $section->assignments->count() + $section->quizzes->count()]) }}</span>
+                                <button type="button" x-on:click="toggle({{ $section->id }})" data-fold-toggle aria-expanded="true"
                                         aria-label="{{ __('courses.show.toggle_section') }}: {{ $section->title }}"
                                         class="group grid size-9 shrink-0 place-items-center rounded-lg text-text-muted hover:bg-surface-muted">
                                     <x-icon name="chevron-down" class="size-5 transition-transform group-aria-[expanded=false]:-rotate-90" />
                                 </button>
                             </header>
 
-                            <div x-show="!folded({{ $section->id }})">
+                            <div data-fold-body>
                             @if ($section->materials->isEmpty() && $section->assignments->isEmpty() && $section->quizzes->isEmpty())
                                 <p class="px-4 py-4 text-sm text-text-muted">{{ __('courses.show.empty_section') }}</p>
                             @elseif ($section->materials->isNotEmpty())

@@ -162,7 +162,7 @@ it('renders a fold toggle per section and a fold-all control on the course page'
         ->assertSee('Ciutkan semua')->assertSee('x-data="sectionFold', false)->assertSee('data-fold-id="'.$one->id.'"', false)
         ->assertSee('Lipat atau bentangkan: Pertemuan Satu')->assertSee('1 isi')->getContent();
 
-    expect(substr_count($html, 'folded('))->toBeGreaterThanOrEqual(2);
+    expect(substr_count($html, 'data-fold-body'))->toBeGreaterThanOrEqual(2);
 
     // Mahasiswa juga mendapat tombol lipat (hanya tampilan, bukan hak akses).
     $student = makeUser(Role::Student);

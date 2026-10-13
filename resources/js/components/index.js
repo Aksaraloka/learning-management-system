@@ -587,50 +587,88 @@ export function registerLazyComponents(Alpine) {
     });
 
     // Lipat/bentangkan isi tiap pertemuan (materi, tugas, kuis). Pilihan disimpan per mata kuliah di localStorage
-    // perangkat ini; bawaannya semua terbentang. Id pertemuan dibaca dari DOM (`data-fold-id`) agar pertemuan baru ikut.
-    Alpine.data('sectionFold', ({ key }) => ({
-        folds: {},
+    // perangkat ini; bawaannya semua terbentang. Sengaja TANPA binding reaktif Alpine (x-show, :class, x-text) di dalam
+    // daftar yang dirender ulang Livewire: kombinasi itu membuat morph gagal dan daftar menghilang. Keadaan diterapkan
+    // langsung ke DOM lewat atribut data-fold-* dan dipulihkan setelah Livewire mengganti elemen (MutationObserver).
+    Alpine.data('sectionFold', ({ key }) => {
+        let folds = {};
+        let observer = null;
+        let applying = false;
 
-        init() {
+        const save = () => {
             try {
-                this.folds = JSON.parse(localStorage.getItem(key) ?? '{}') ?? {};
-            } catch {
-                this.folds = {};
-            }
-        },
-
-        ids() {
-            return [...this.$root.querySelectorAll('[data-fold-id]')].map((el) => el.dataset.foldId);
-        },
-
-        folded(id) {
-            return !!this.folds[id];
-        },
-
-        toggle(id) {
-            this.folds[id] = !this.folds[id];
-            this.save();
-        },
-
-        get allFolded() {
-            const ids = this.ids();
-
-            return ids.length > 0 && ids.every((id) => this.folds[id]);
-        },
-
-        setAll(value) {
-            this.ids().forEach((id) => (this.folds[id] = value));
-            this.save();
-        },
-
-        save() {
-            try {
-                localStorage.setItem(key, JSON.stringify(this.folds));
+                localStorage.setItem(key, JSON.stringify(folds));
             } catch {
                 // Penyimpanan dinonaktifkan: pilihan tetap berlaku selama halaman terbuka.
             }
-        },
-    }));
+        };
+
+        return {
+            init() {
+                try {
+                    folds = JSON.parse(localStorage.getItem(key) ?? '{}') ?? {};
+                } catch {
+                    folds = {};
+                }
+
+                this.apply();
+
+                observer = new MutationObserver(() => {
+                    if (!applying) {
+                        this.apply();
+                    }
+                });
+                observer.observe(this.$root, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden', 'aria-expanded'] });
+            },
+
+            destroy() {
+                observer?.disconnect();
+            },
+
+            ids() {
+                return [...this.$root.querySelectorAll('[data-fold-id]')].map((el) => el.dataset.foldId);
+            },
+
+            apply() {
+                applying = true;
+
+                const ids = this.ids();
+
+                ids.forEach((id) => {
+                    const item = this.$root.querySelector(`[data-fold-id="${id}"]`);
+                    const folded = !!folds[id];
+
+                    item.querySelector('[data-fold-body]')?.toggleAttribute('hidden', folded);
+                    item.querySelector('[data-fold-count]')?.toggleAttribute('hidden', !folded);
+                    item.querySelector('[data-fold-header]')?.classList.toggle('border-b', !folded);
+                    item.querySelector('[data-fold-toggle]')?.setAttribute('aria-expanded', folded ? 'false' : 'true');
+                });
+
+                const all = ids.length > 0 && ids.every((id) => folds[id]);
+
+                this.$root.querySelector('[data-fold-label="fold"]')?.toggleAttribute('hidden', all);
+                this.$root.querySelector('[data-fold-label="unfold"]')?.toggleAttribute('hidden', !all);
+
+                // Atribut yang baru kita ubah memicu observer sekali lagi; lepas penjaga setelahnya.
+                queueMicrotask(() => setTimeout(() => (applying = false), 0));
+            },
+
+            toggle(id) {
+                folds[id] = !folds[id];
+                save();
+                this.apply();
+            },
+
+            toggleAll() {
+                const ids = this.ids();
+                const value = !(ids.length > 0 && ids.every((id) => folds[id]));
+
+                ids.forEach((id) => (folds[id] = value));
+                save();
+                this.apply();
+            },
+        };
+    });
 
     // Simpan berkas materi untuk dibaca offline. Pengambilan lewat service worker (public/sw.js) otomatis menyimpannya
     // di cache "aksaraloka-materials-v1"; tombol ini hanya memicu pengambilan penuh dan melaporkan statusnya.
