@@ -39,6 +39,7 @@ return [
     ],
 
     'show' => [
+        'tools' => 'Menu mata kuliah',
         'join_code' => 'Kode gabung',
         'copy' => 'Salin',
         'copied' => 'Kode disalin.',

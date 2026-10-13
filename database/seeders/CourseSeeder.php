@@ -8,6 +8,7 @@ use App\Enums\Role;
 use App\Models\AcademicTerm;
 use App\Models\Course;
 use App\Models\Enrollment;
+use App\Models\GradeCategory;
 use App\Models\Material;
 use App\Models\Section;
 use App\Models\User;
@@ -34,6 +35,10 @@ class CourseSeeder extends Seeder
                 'credits' => $def['credits'],
                 'description' => $def['description'],
             ]);
+
+            foreach (GradeCategory::DEFAULTS as $n => [$categoryName, $weight]) {
+                $course->gradeCategories()->create(['name' => $categoryName, 'weight' => $weight, 'position' => $n + 1]);
+            }
 
             $teacher = User::where('email', "dosen{$def['teacher']}@aksaraloka.test")->firstOrFail();
             Enrollment::create(['course_id' => $course->id, 'user_id' => $teacher->id, 'role' => EnrollmentRole::Teacher]);

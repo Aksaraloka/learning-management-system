@@ -8,6 +8,12 @@
         </div>
     </x-card>
 
+    <a href="{{ route('announcements.index') }}" wire:navigate class="mt-4 flex min-h-12 items-center gap-3 rounded-card border border-border bg-surface px-4 hover:border-primary">
+        <x-icon name="megaphone" class="text-primary" />
+        <span class="flex-1 text-sm font-medium">{{ __('announcements.title_page') }}</span>
+        <x-icon name="chevron-right" class="size-4 text-text-muted" />
+    </a>
+
     @if ($stats)
         <div class="mt-6 grid gap-4 sm:grid-cols-3" x-reveal>
             <x-card :title="__('ui.nav.users')"><p class="text-3xl font-bold" x-countup>{{ $stats['users'] }}</p></x-card>

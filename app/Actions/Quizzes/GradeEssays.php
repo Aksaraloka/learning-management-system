@@ -2,6 +2,8 @@
 
 namespace App\Actions\Quizzes;
 
+use App\Actions\Notifications\Notifier;
+use App\Enums\AttemptStatus;
 use App\Enums\QuestionType;
 use App\Models\Question;
 use App\Models\QuizAttempt;
@@ -65,13 +67,23 @@ class GradeEssays
             throw ValidationException::withMessages($errors);
         }
 
-        return DB::transaction(function () use ($attempt, $manual) {
+        $graded = DB::transaction(function () use ($attempt, $manual) {
             $fresh = QuizAttempt::query()->lockForUpdate()->findOrFail($attempt->id);
+            $wasGraded = $fresh->status === AttemptStatus::Graded;
             $fresh->manual_scores = $manual ?: null;
             app(FinishAttempt::class)->apply($fresh);
             $fresh->save();
 
-            return $fresh;
+            return [$fresh, $wasGraded];
         });
+
+        [$fresh, $wasGraded] = $graded;
+
+        // Mahasiswa diberi tahu sekali, saat nilai akhir pertama kali terbentuk.
+        if (! $wasGraded && $fresh->status === AttemptStatus::Graded) {
+            app(Notifier::class)->quizGraded($fresh);
+        }
+
+        return $fresh;
     }
 }

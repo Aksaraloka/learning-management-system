@@ -2,6 +2,7 @@
 
 namespace App\Actions\Quizzes;
 
+use App\Actions\Notifications\Notifier;
 use App\Models\Course;
 use App\Models\Quiz;
 use Carbon\CarbonInterface;
@@ -34,12 +35,14 @@ class SaveQuiz
 
         if ($quiz) {
             $quiz->update($attributes);
-
-            return $quiz;
+        } else {
+            $quiz = Quiz::create($attributes + [
+                'position' => (int) Quiz::query()->where('section_id', $data['section_id'])->max('position') + 1,
+            ]);
         }
 
-        return Quiz::create($attributes + [
-            'position' => (int) Quiz::query()->where('section_id', $data['section_id'])->max('position') + 1,
-        ]);
+        app(Notifier::class)->quizPublished($quiz);
+
+        return $quiz;
     }
 }

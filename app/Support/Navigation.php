@@ -11,7 +11,7 @@ class Navigation
      * Item navigasi (maks. 5, dipakai sidebar dan bottom nav) sesuai peran.
      * Rute yang belum ada dirender sebagai `#` oleh layout.
      *
-     * @return list<array{label: string, icon: string, route: string, match?: list<string>}>
+     * @return list<array{label: string, icon: string, route: string, match?: list<string>, badge?: int}>
      */
     public static function for(?User $user): array
     {
@@ -33,7 +33,7 @@ class Navigation
             $home,
             $classes,
             ['label' => __('ui.nav.tasks'), 'icon' => 'clipboard-list', 'route' => 'assignments.index', 'match' => ['assignments.*']],
-            ['label' => __('ui.nav.notifications'), 'icon' => 'bell', 'route' => 'notifications.index'],
+            ['label' => __('ui.nav.notifications'), 'icon' => 'bell', 'route' => 'notifications.index', 'badge' => $user?->unreadNotifications()->count() ?? 0],
             $profile,
         ];
     }

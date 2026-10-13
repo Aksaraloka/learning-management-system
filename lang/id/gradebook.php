@@ -1,0 +1,38 @@
+<?php
+
+return [
+    'title' => 'Buku nilai',
+    'my_grade' => 'Nilai saya',
+    'nim' => 'NIM',
+    'student' => 'Mahasiswa',
+    'final' => 'Nilai akhir',
+    'attendance' => 'Kehadiran',
+    'attendance_detail' => 'Rincian presensi',
+    'weights' => 'Bobot penilaian',
+    'weight_warning' => 'Jumlah bobot saat ini :n%, seharusnya 100%.',
+    'rules' => 'Nilai kategori = rata-rata tugas/kuis di kategori itu; nilai akhir = rata-rata berbobot kategori yang sudah punya nilai. Yang tidak dikerjakan setelah tenggat/penutupan dihitung 0; kuis memakai percobaan terbaik; yang menunggu penilaian dosen belum dihitung.',
+    'export' => 'Ekspor Excel',
+    'empty' => 'Belum ada tugas atau kuis',
+    'empty_hint' => 'Nilai muncul setelah tugas atau kuis dibuat dan dinilai.',
+    'no_items' => 'Belum ada tugas atau kuis di kategori ini.',
+    'pending' => 'Menunggu penilaian',
+    'pending_short' => 'Menunggu',
+    'category' => 'Kategori',
+    'weight' => 'Bobot (%)',
+    'weight_hint' => 'Jumlah semua bobot harus tepat 100%. Kategori tidak dapat dihapus selama masih dipakai tugas atau kuis.',
+    'new_category' => 'Kategori baru',
+    'add' => 'Tambah',
+    'remove' => 'Hapus kategori',
+    'confirm_remove' => 'Hapus kategori ini?',
+    'save' => 'Simpan bobot',
+    'saved' => 'Bobot penilaian tersimpan.',
+    'locked' => 'Semester ini dikunci sehingga bobot tidak dapat diubah.',
+
+    'errors' => [
+        'name' => 'Nama kategori wajib diisi (maksimal 100 karakter).',
+        'weight' => 'Bobot harus bilangan bulat 0–100.',
+        'total' => 'Jumlah bobot harus 100%, saat ini :n%.',
+        'duplicate' => 'Nama kategori sudah dipakai.',
+        'in_use' => 'Kategori ":name" masih dipakai tugas atau kuis.',
+    ],
+];

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AssignmentFileController;
+use App\Http\Controllers\GradebookExportController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MaterialFileController;
 use App\Http\Controllers\QuestionImageController;
@@ -9,12 +10,16 @@ use App\Http\Controllers\SubmissionFileController;
 use App\Http\Controllers\UserImportTemplateController;
 use App\Livewire\Admin\Terms;
 use App\Livewire\Admin\Users;
+use App\Livewire\Announcements;
 use App\Livewire\Assignments;
+use App\Livewire\Attendance;
 use App\Livewire\Auth\ForgotPassword;
 use App\Livewire\Auth\Login;
 use App\Livewire\Auth\ResetPassword;
 use App\Livewire\Courses;
+use App\Livewire\Gradebook;
 use App\Livewire\Materials;
+use App\Livewire\Notifications;
 use App\Livewire\Profile;
 use App\Livewire\Quizzes;
 use Illuminate\Support\Facades\Route;
@@ -66,6 +71,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/kelas/{course}/kuis/{quiz}/percobaan/{attempt}', Quizzes\Attempt::class)->name('quizzes.attempt');
     Route::get('/kelas/{course}/kuis/{quiz}/percobaan/{attempt}/tinjau', Quizzes\Review::class)->name('quizzes.review');
     Route::get('/soal/{question}/gambar', QuestionImageController::class)->name('questions.image');
+
+    // Buku nilai, presensi, pengumuman, notifikasi.
+    Route::get('/kelas/{course}/nilai', Gradebook\Index::class)->name('gradebook.index');
+    Route::get('/kelas/{course}/nilai/ekspor', GradebookExportController::class)->name('gradebook.export');
+    Route::get('/kelas/{course}/presensi', Attendance\Index::class)->name('attendance.index');
+    Route::get('/kelas/{course}/presensi/{session}', Attendance\Session::class)->name('attendance.session');
+    Route::get('/pengumuman', Announcements\Index::class)->name('announcements.index');
+    Route::get('/notifikasi', Notifications\Index::class)->name('notifications.index');
 });
 
 // Admin institusi.

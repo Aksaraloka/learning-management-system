@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Quizzes;
 
+use App\Actions\Notifications\Notifier;
 use App\Actions\Quizzes\StartAttempt;
 use App\Enums\AttemptStatus;
 use App\Models\Course;
@@ -45,6 +46,8 @@ class Show extends Component
         Gate::authorize('update', $this->quiz);
 
         $this->quiz->update(['is_published' => ! $this->quiz->is_published]);
+
+        app(Notifier::class)->quizPublished($this->quiz);
     }
 
     public function deleteQuiz(): void

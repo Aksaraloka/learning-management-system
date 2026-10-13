@@ -26,6 +26,12 @@
             @endif
         </div>
 
+        <nav class="mt-4 flex flex-wrap gap-2 border-t border-border pt-4" aria-label="{{ __('courses.show.tools') }}">
+            <x-button variant="secondary" size="sm" icon="table-cells" :href="route('gradebook.index', $course)" wire:navigate>{{ $canRoster ? __('gradebook.title') : __('gradebook.my_grade') }}</x-button>
+            <x-button variant="secondary" size="sm" icon="calendar-days" :href="route('attendance.index', $course)" wire:navigate>{{ __('attendance.title') }}</x-button>
+            <x-button variant="secondary" size="sm" icon="megaphone" :href="route('announcements.index', ['kelas' => $course->id])" wire:navigate>{{ __('announcements.title_page') }}</x-button>
+        </nav>
+
         @if ($canManage)
             <div class="mt-4 flex flex-wrap items-center gap-3 border-t border-border pt-4" x-data="{ copied: false }">
                 <span class="text-sm text-text-muted">{{ __('courses.show.join_code') }}</span>

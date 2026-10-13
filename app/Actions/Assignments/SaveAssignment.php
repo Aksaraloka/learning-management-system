@@ -2,6 +2,7 @@
 
 namespace App\Actions\Assignments;
 
+use App\Actions\Notifications\Notifier;
 use App\Models\Assignment;
 use App\Models\Course;
 use Carbon\CarbonInterface;
@@ -34,8 +35,12 @@ class SaveAssignment
             return $assignment;
         }
 
-        return Assignment::create($attributes + [
+        $created = Assignment::create($attributes + [
             'position' => (int) Assignment::query()->where('section_id', $data['section_id'])->max('position') + 1,
         ]);
+
+        app(Notifier::class)->assignmentPosted($created);
+
+        return $created;
     }
 }

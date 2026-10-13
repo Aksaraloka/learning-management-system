@@ -1,0 +1,35 @@
+<?php
+
+return [
+    'title' => 'Presensi',
+    'status' => [
+        'present' => 'Hadir',
+        'excused' => 'Izin',
+        'sick' => 'Sakit',
+        'absent' => 'Alpa',
+    ],
+    'short' => ['present' => 'H', 'excused' => 'I', 'sick' => 'S', 'absent' => 'A'],
+
+    'locked' => 'Semester ini dikunci sehingga presensi tidak dapat diubah.',
+    'view_only' => 'Anda hanya dapat melihat presensi ini.',
+    'new_session' => 'Sesi presensi baru',
+    'date' => 'Tanggal',
+    'session_title' => 'Keterangan (opsional)',
+    'no_section' => 'Tanpa pertemuan',
+    'create' => 'Buat sesi',
+    'empty' => 'Belum ada sesi presensi',
+    'empty_manager' => 'Buat sesi untuk setiap pertemuan tatap muka.',
+    'not_taken' => 'Belum diisi',
+    'present_of' => ':present dari :total hadir',
+    'fill' => 'Isi presensi',
+    'view' => 'Lihat',
+    'delete' => 'Hapus sesi',
+    'confirm_delete' => 'Hapus sesi ini beserta catatan kehadirannya?',
+    'my_summary' => 'Kehadiranmu',
+    'summary_line' => 'Hadir :present dari :total pertemuan yang sudah diabsen',
+    'all_present' => 'Semua hadir',
+    'all_absent' => 'Semua alpa',
+    'note' => 'Catatan (opsional)',
+    'save' => 'Simpan presensi',
+    'saved' => 'Presensi tersimpan (:n mahasiswa).',
+];

@@ -2,6 +2,7 @@
 
 namespace App\Actions\Assignments;
 
+use App\Actions\Notifications\Notifier;
 use App\Enums\SubmissionStatus;
 use App\Models\Assignment;
 use App\Models\Submission;
@@ -27,7 +28,7 @@ class GradeSubmission
             ]);
         }
 
-        return Submission::updateOrCreate(
+        $submission = Submission::updateOrCreate(
             ['assignment_id' => $assignment->id, 'user_id' => $student->id],
             [
                 'status' => SubmissionStatus::Graded,
@@ -37,6 +38,10 @@ class GradeSubmission
                 'graded_by' => $grader->id,
             ],
         );
+
+        app(Notifier::class)->assignmentGraded($assignment, $student, (float) $submission->score);
+
+        return $submission;
     }
 
     /**

@@ -32,7 +32,13 @@
                        'bg-primary/15 text-primary' => $active,
                        'text-text-muted hover:bg-surface-muted hover:text-text' => ! $active,
                    ])>
-                    <x-icon :name="$item['icon']" />
+                    <span class="relative">
+                        <x-icon :name="$item['icon']" />
+                        @if (($item['badge'] ?? 0) > 0)
+                            <span class="absolute -right-1.5 -top-1.5 grid min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold leading-4 text-primary-fg"
+                                  aria-label="{{ __('notifications.unread_count', ['n' => $item['badge']]) }}">{{ $item['badge'] > 99 ? '99+' : $item['badge'] }}</span>
+                        @endif
+                    </span>
                     <span x-show="!collapsed">{{ $item['label'] }}</span>
                 </a>
             @endforeach
@@ -92,7 +98,13 @@
                    'text-primary' => $active,
                    'text-text-muted' => ! $active,
                ])>
-                <x-icon :name="$item['icon']" />
+                <span class="relative">
+                    <x-icon :name="$item['icon']" />
+                    @if (($item['badge'] ?? 0) > 0)
+                        <span class="absolute -right-2 -top-1.5 grid min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold leading-4 text-primary-fg"
+                              aria-label="{{ __('notifications.unread_count', ['n' => $item['badge']]) }}">{{ $item['badge'] > 99 ? '99+' : $item['badge'] }}</span>
+                    @endif
+                </span>
                 {{ $item['label'] }}
             </a>
         @endforeach
