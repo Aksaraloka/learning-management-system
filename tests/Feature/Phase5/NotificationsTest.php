@@ -13,6 +13,7 @@ use App\Livewire\Notifications\Index;
 use App\Livewire\Quizzes\Show;
 use App\Models\Assignment;
 use App\Models\Submission;
+use App\Support\Navigation;
 use Illuminate\Console\Scheduling\Schedule;
 use Livewire\Livewire;
 
@@ -217,4 +218,36 @@ it('marks all as read and filters unread', function () {
 
 it('requires login for notifications', function () {
     $this->get(route('notifications.index'))->assertRedirect(route('login'));
+});
+
+it('shows the bell with unread count and recent items in the header, not in the navigation', function () {
+    newAssignment($this, ['title' => 'Tugas Lonceng']);
+
+    $html = $this->actingAs($this->student)->get(route('home'))->assertOk()->assertSee('Tugas Lonceng')->assertSee('Lihat semua notifikasi')->getContent();
+
+    expect($html)->toContain('Notifikasi (1 belum dibaca)');
+
+    // Item navigasi utama (sidebar/bottom nav) tidak lagi memuat Notifikasi.
+    expect(collect(Navigation::for($this->student))->pluck('route'))->not->toContain('notifications.index');
+});
+
+it('opens a notification from the bell: marks it read and redirects to its target', function () {
+    $assignment = newAssignment($this);
+    $note = $this->student->notifications()->first();
+
+    $this->actingAs($this->student)->get(route('notifications.open', $note->id))
+        ->assertRedirect(route('assignments.show', ['course' => $this->course, 'assignment' => $assignment], false));
+
+    expect($note->fresh()->read_at)->not->toBeNull();
+});
+
+it('does not open someone else\'s notification via the bell link', function () {
+    newAssignment($this);
+    $note = $this->student->notifications()->first();
+
+    $this->actingAs($this->outsider)->get(route('notifications.open', $note->id))->assertNotFound();
+    expect($note->fresh()->read_at)->toBeNull();
+
+    auth()->logout();
+    $this->get(route('notifications.open', $note->id))->assertRedirect(route('login'));
 });

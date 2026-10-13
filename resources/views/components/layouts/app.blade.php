@@ -64,6 +64,7 @@
                 <x-theme-toggle />
 
                 @if ($user)
+                    <x-notification-bell />
                     <x-dropdown :label="$user->name">
                         <x-slot:trigger>
                             <span class="grid size-8 place-items-center rounded-full bg-primary/15 text-sm font-semibold text-primary">{{ mb_strtoupper(mb_substr($user->name, 0, 1)) }}</span>

@@ -33,7 +33,6 @@ class Navigation
             $home,
             $classes,
             ['label' => __('ui.nav.tasks'), 'icon' => 'clipboard-list', 'route' => 'assignments.index', 'match' => ['assignments.*']],
-            ['label' => __('ui.nav.notifications'), 'icon' => 'bell', 'route' => 'notifications.index', 'badge' => $user?->unreadNotifications()->count() ?? 0],
             $profile,
         ];
     }

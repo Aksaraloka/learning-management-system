@@ -6,6 +6,7 @@ use App\Http\Controllers\GradebookExportController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ManifestController;
 use App\Http\Controllers\MaterialFileController;
+use App\Http\Controllers\NotificationOpenController;
 use App\Http\Controllers\QuestionImageController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\SubmissionFileController;
@@ -85,6 +86,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/kelas/{course}/presensi/{session}', Attendance\Session::class)->name('attendance.session');
     Route::get('/pengumuman', Announcements\Index::class)->name('announcements.index');
     Route::get('/notifikasi', Notifications\Index::class)->name('notifications.index');
+    Route::get('/notifikasi/{id}/buka', NotificationOpenController::class)->name('notifications.open');
 });
 
 // Admin institusi.

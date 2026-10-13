@@ -3,6 +3,7 @@
 return [
     'filter_all' => 'Semua',
     'filter_unread' => 'Belum dibaca',
+    'see_all' => 'Lihat semua notifikasi',
     'mark_all' => 'Tandai semua dibaca',
     'empty' => 'Belum ada notifikasi',
     'empty_hint' => 'Tugas baru, kuis, pengumuman, pengingat tenggat, dan nilai yang keluar akan muncul di sini.',
