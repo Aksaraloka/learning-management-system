@@ -133,12 +133,14 @@
                                                 </span>
                                             </a>
                                             @if ($canManage)
+                                                <div class="flex w-20 shrink-0 items-center">
                                                 <x-button variant="ghost" size="sm" :icon="$material->is_hidden ? 'eye-slash' : 'eye'" class="shrink-0" wire:click="toggleVisibility('material', {{ $material->id }})">
                                                     <span class="sr-only">{{ $material->is_hidden ? __('courses.visibility.show') : __('courses.visibility.hide') }}</span>
                                                 </x-button>
                                                 <x-button variant="ghost" size="sm" icon="trash-2" class="shrink-0" wire:click="deleteMaterial({{ $material->id }})" wire:confirm="{{ __('courses.materials.confirm_delete') }}">
                                                     <span class="sr-only">{{ __('courses.materials.delete') }}</span>
                                                 </x-button>
+                                                </div>
                                             @endif
                                         </li>
                                     @endforeach
@@ -152,7 +154,7 @@
                                             $due = $assignment->due_at?->timezone(config('app.timezone'));
                                             $mine = $isStudent ? $assignment->submissions->first() : null;
                                         @endphp
-                                        <li wire:key="assignment-{{ $assignment->id }}" class="flex items-center">
+                                        <li wire:key="assignment-{{ $assignment->id }}" @class(['flex items-center', 'pr-3 sm:pr-4' => $canManage])>
                                             <a href="{{ route('assignments.show', ['course' => $course, 'assignment' => $assignment]) }}" wire:navigate
                                                @class(['flex min-h-12 min-w-0 flex-1 items-center gap-3 px-3 py-2 hover:text-primary sm:px-4', 'opacity-60' => $assignment->is_hidden])>
                                                 <x-icon name="clipboard-list" class="text-primary" />
@@ -167,9 +169,11 @@
                                                 @endif
                                             </a>
                                             @if ($canManage)
-                                                <x-button variant="ghost" size="sm" :icon="$assignment->is_hidden ? 'eye-slash' : 'eye'" class="mr-2 shrink-0" wire:click="toggleVisibility('assignment', {{ $assignment->id }})">
+                                                <div class="flex w-20 shrink-0 items-center">
+                                                <x-button variant="ghost" size="sm" :icon="$assignment->is_hidden ? 'eye-slash' : 'eye'" class="shrink-0" wire:click="toggleVisibility('assignment', {{ $assignment->id }})">
                                                     <span class="sr-only">{{ $assignment->is_hidden ? __('courses.visibility.show') : __('courses.visibility.hide') }}</span>
                                                 </x-button>
+                                            </div>
                                             @endif
                                         </li>
                                     @endforeach
@@ -184,7 +188,7 @@
                                             $opens = $quiz->opens_at?->timezone(config('app.timezone'));
                                             $closes = $quiz->closes_at?->timezone(config('app.timezone'));
                                         @endphp
-                                        <li wire:key="quiz-{{ $quiz->id }}" class="flex items-center">
+                                        <li wire:key="quiz-{{ $quiz->id }}" @class(['flex items-center', 'pr-3 sm:pr-4' => $canManage])>
                                             <a href="{{ route('quizzes.show', ['course' => $course, 'quiz' => $quiz]) }}" wire:navigate
                                                @class(['flex min-h-12 min-w-0 flex-1 items-center gap-3 px-3 py-2 hover:text-primary sm:px-4', 'opacity-60' => ! $quiz->is_published])>
                                                 <x-icon name="academic-cap" class="text-primary" />
@@ -197,9 +201,11 @@
                                                 <x-badge :variant="match ($quizState) { 'open' => 'success', 'upcoming' => 'info', 'closed' => 'neutral', default => 'warning' }">{{ __('quizzes.state.'.$quizState) }}</x-badge>
                                             </a>
                                             @if ($canManage)
-                                                <x-button variant="ghost" size="sm" :icon="$quiz->is_published ? 'eye' : 'eye-slash'" class="mr-2 shrink-0" wire:click="toggleVisibility('quiz', {{ $quiz->id }})">
+                                                <div class="flex w-20 shrink-0 items-center">
+                                                <x-button variant="ghost" size="sm" :icon="$quiz->is_published ? 'eye' : 'eye-slash'" class="shrink-0" wire:click="toggleVisibility('quiz', {{ $quiz->id }})">
                                                     <span class="sr-only">{{ $quiz->is_published ? __('courses.visibility.hide') : __('courses.visibility.show') }}</span>
                                                 </x-button>
+                                            </div>
                                             @endif
                                         </li>
                                     @endforeach
