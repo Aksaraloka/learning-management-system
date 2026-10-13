@@ -2,7 +2,7 @@
 
 LMS web untuk **satu universitas** di Indonesia. Laravel 13, Livewire 4, Tailwind CSS v4, mobile-first.
 
-> Status: **Fase 0 (fondasi), Fase 1 (auth, peran, pengguna, semester), Fase 2 (mata kuliah & materi), Fase 3 (tugas), dan Fase 4 (kuis)** selesai.
+> Status: **Fase 0 (fondasi), Fase 1 (auth, peran, pengguna, semester), Fase 2 (mata kuliah & materi), Fase 3 (tugas), Fase 4 (kuis), dan Fase 5 (nilai, presensi, pengumuman, notifikasi)** selesai.
 > Aplikasi khusus **perguruan tinggi** dan melayani **satu universitas** (mode sekolah dan multi-tenant sudah dihapus; lihat
 > [docs/decisions.md](docs/decisions.md)). Rencana lengkap ada di prompt awal proyek.
 
@@ -70,6 +70,13 @@ mahasiswa1–5 mengikuti semuanya) lengkap dengan pertemuan, materi (teks, PDF, 
 - **Mahasiswa** mengerjakan semua soal dalam satu halaman: di HP satu soal per layar dengan nomor soal sebagai navigasi, penghitung waktu, dan tanda *ragu-ragu*. **Jawaban tersimpan otomatis** (dan dicadangkan di perangkat bila koneksi putus, dikirim saat tersambung). Waktu dihitung server: menutup halaman tidak menghentikan waktu, dan percobaan yang waktunya habis dikumpulkan otomatis (scheduler `quizzes:finalize-expired` tiap menit; di production jalankan `php artisan schedule:work` atau cron `schedule:run`).
 - Soal objektif **dinilai otomatis**; kuis dengan esai berstatus *Menunggu penilaian* sampai dosen menilai esai di halaman tinjauan. Kunci jawaban baru terlihat mahasiswa setelah kuis ditutup atau percobaan habis, dan hanya bila nilai sudah boleh ditampilkan.
 - **Hasil** (dosen, admin, ketua program studi): ringkasan (rata-rata, tertinggi, terendah), daftar percobaan yang bisa difilter, dan tinjauan jawaban per mahasiswa. Penilaian esai **terkunci** saat semester dikunci. Rencana uji beban: [docs/load-testing.md](docs/load-testing.md).
+
+## Buku nilai, presensi, pengumuman, notifikasi
+
+- **Buku nilai** (`Mata Kuliah → Buku nilai`): nilai tugas dan kuis digabung per kategori berbobot (bawaan Tugas 40 / Kuis 30 / Ujian 30; dosen dapat mengubah, menambah, atau menghapus kategori, total harus 100%). Yang tidak dikerjakan setelah tenggat dihitung 0, kuis memakai percobaan terbaik, dan yang menunggu penilaian dosen belum dihitung. Dosen dan ketua program studi melihat semua mahasiswa dan dapat **mengekspor Excel**; mahasiswa hanya melihat rincian nilainya sendiri.
+- **Presensi**: dosen membuat sesi per pertemuan dan mengisi Hadir/Izin/Sakit/Alpa (tombol *Semua hadir* untuk mempercepat); mahasiswa melihat rekap kehadirannya. Persentase kehadiran tampil di buku nilai.
+- **Pengumuman**: per mata kuliah (dosen) atau seluruh universitas (admin), bisa disematkan; anggota mendapat notifikasi.
+- **Notifikasi** (menu Notifikasi, dengan lencana belum dibaca): tugas baru, kuis dibuka, pengumuman, nilai keluar, dan **pengingat H-1** tenggat tugas/kuis bagi yang belum mengerjakan. Pengiriman lewat antrean sehingga **worker harus berjalan** (`composer dev`, atau `php artisan queue:work`); pengingat dikirim scheduler `reminders:due` tiap jam (`php artisan schedule:work` di dev, cron `schedule:run` di production). Untuk mengisi data demo tanpa worker: `QUEUE_CONNECTION=sync php artisan migrate:fresh --seed`.
 
 ### Batas unggah berkas
 
