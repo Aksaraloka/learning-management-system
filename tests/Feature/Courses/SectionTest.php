@@ -150,3 +150,29 @@ it('does not show management controls to students', function () {
     Livewire::actingAs($student)->test(Show::class, ['course' => $this->course])
         ->assertSee('Bab Rahasia')->assertDontSee('addSection', false)->assertDontSee('startRename', false)->assertDontSee('cursor-grab', false);
 });
+
+it('renders a fold toggle per section and a fold-all control on the course page', function () {
+    $teacher = makeUser(Role::Teacher);
+    $course = makeCourse($teacher);
+    $one = makeSection($course, 'Pertemuan Satu');
+    makeSection($course, 'Pertemuan Dua');
+    makeMaterial($one);
+
+    $html = $this->actingAs($teacher)->get(route('courses.show', $course))->assertOk()
+        ->assertSee('Ciutkan semua')->assertSee('x-data="sectionFold', false)->assertSee('data-fold-id="'.$one->id.'"', false)
+        ->assertSee('Lipat atau bentangkan: Pertemuan Satu')->assertSee('1 isi')->getContent();
+
+    expect(substr_count($html, 'x-collapse'))->toBeGreaterThanOrEqual(2);
+
+    // Mahasiswa juga mendapat tombol lipat (hanya tampilan, bukan hak akses).
+    $student = makeUser(Role::Student);
+    enroll($course, $student);
+    $this->actingAs($student)->get(route('courses.show', $course))->assertOk()->assertSee('Lipat atau bentangkan: Pertemuan Satu');
+});
+
+it('keeps the fold-all control away from courses without sections', function () {
+    $teacher = makeUser(Role::Teacher);
+    $course = makeCourse($teacher);
+
+    $this->actingAs($teacher)->get(route('courses.show', $course))->assertOk()->assertDontSee('Ciutkan semua');
+});

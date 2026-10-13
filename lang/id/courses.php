@@ -51,6 +51,10 @@ return [
 
     'show' => [
         'tools' => 'Menu mata kuliah',
+        'fold_all' => 'Ciutkan semua',
+        'unfold_all' => 'Bentangkan semua',
+        'toggle_section' => 'Lipat atau bentangkan',
+        'items_count' => ':n isi',
         'join_code' => 'Kode gabung',
         'copy' => 'Salin',
         'copied' => 'Kode disalin.',

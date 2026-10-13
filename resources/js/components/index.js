@@ -586,6 +586,52 @@ export function registerLazyComponents(Alpine) {
         };
     });
 
+    // Lipat/bentangkan isi tiap pertemuan (materi, tugas, kuis). Pilihan disimpan per mata kuliah di localStorage
+    // perangkat ini; bawaannya semua terbentang. Id pertemuan dibaca dari DOM (`data-fold-id`) agar pertemuan baru ikut.
+    Alpine.data('sectionFold', ({ key }) => ({
+        folds: {},
+
+        init() {
+            try {
+                this.folds = JSON.parse(localStorage.getItem(key) ?? '{}') ?? {};
+            } catch {
+                this.folds = {};
+            }
+        },
+
+        ids() {
+            return [...this.$root.querySelectorAll('[data-fold-id]')].map((el) => el.dataset.foldId);
+        },
+
+        folded(id) {
+            return !!this.folds[id];
+        },
+
+        toggle(id) {
+            this.folds[id] = !this.folds[id];
+            this.save();
+        },
+
+        get allFolded() {
+            const ids = this.ids();
+
+            return ids.length > 0 && ids.every((id) => this.folds[id]);
+        },
+
+        setAll(value) {
+            this.ids().forEach((id) => (this.folds[id] = value));
+            this.save();
+        },
+
+        save() {
+            try {
+                localStorage.setItem(key, JSON.stringify(this.folds));
+            } catch {
+                // Penyimpanan dinonaktifkan: pilihan tetap berlaku selama halaman terbuka.
+            }
+        },
+    }));
+
     // Simpan berkas materi untuk dibaca offline. Pengambilan lewat service worker (public/sw.js) otomatis menyimpannya
     // di cache "aksaraloka-materials-v1"; tombol ini hanya memicu pengambilan penuh dan melaporkan statusnya.
     Alpine.data('offlineSave', ({ url }) => {

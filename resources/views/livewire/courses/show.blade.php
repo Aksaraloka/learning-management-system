@@ -49,8 +49,13 @@
         </div>
     </x-card>
 
-    <section class="space-y-3" aria-labelledby="materials-heading">
-        <h2 id="materials-heading" class="text-lg font-semibold">{{ __('courses.show.materials') }}</h2>
+    <section class="space-y-3" aria-labelledby="materials-heading" x-data="sectionFold({ key: 'course-folds-{{ $course->id }}' })">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+            <h2 id="materials-heading" class="text-lg font-semibold">{{ __('courses.show.materials') }}</h2>
+            @if ($sections->isNotEmpty())
+                <x-button variant="ghost" size="sm" icon="chevron-up-down" x-on:click="setAll(!allFolded)"><span x-text="allFolded ? @js(__('courses.show.unfold_all')) : @js(__('courses.show.fold_all'))">{{ __('courses.show.fold_all') }}</span></x-button>
+            @endif
+        </div>
 
         @if ($canManage)
             <form wire:submit="addSection" class="flex flex-col gap-2 sm:flex-row sm:items-start">
@@ -68,9 +73,9 @@
         @else
             <x-sortable handle="[data-section-handle]" class="space-y-4" x-reveal @sorted="$wire.reorderSections($event.detail.ids)">
                 @foreach ($sections as $section)
-                    <li data-id="{{ $section->id }}" wire:key="section-{{ $section->id }}">
+                    <li data-id="{{ $section->id }}" data-fold-id="{{ $section->id }}" wire:key="section-{{ $section->id }}">
                         <x-card :padding="false">
-                            <header class="flex items-center gap-2 border-b border-border px-3 py-2.5 sm:px-4">
+                            <header class="flex items-center gap-2 px-3 py-2.5 sm:px-4" :class="folded({{ $section->id }}) ? '' : 'border-b border-border'">
                                 @if ($canManage)
                                     <span data-section-handle class="cursor-grab touch-none text-text-muted" title="{{ __('courses.sections.drag') }}">
                                         <x-icon name="grip-vertical" /><span class="sr-only">{{ __('courses.sections.drag') }}</span>
@@ -91,7 +96,7 @@
                                     @if ($canManage)
                                         <x-button variant="ghost" size="sm" icon="plus" :href="route('materials.create', ['course' => $course, 'pertemuan' => $section->id])" wire:navigate>{{ __('courses.materials.add') }}</x-button>
                                         <x-dropdown :label="__('ui.actions.more')">
-                                            <x-slot:trigger><x-icon name="chevron-down" class="size-4" /></x-slot:trigger>
+                                            <x-slot:trigger><x-icon name="ellipsis-horizontal" class="size-5" /></x-slot:trigger>
                                             <a href="{{ route('assignments.create', ['course' => $course, 'pertemuan' => $section->id]) }}" role="menuitem" wire:navigate class="flex min-h-10 w-full items-center gap-2 rounded-md px-3 text-sm hover:bg-surface-muted"><x-icon name="clipboard-list" class="size-4" /> {{ __('assignments.course.add') }}</a>
                                             <a href="{{ route('quizzes.create', ['course' => $course, 'pertemuan' => $section->id]) }}" role="menuitem" wire:navigate class="flex min-h-10 w-full items-center gap-2 rounded-md px-3 text-sm hover:bg-surface-muted"><x-icon name="academic-cap" class="size-4" /> {{ __('quizzes.course.add') }}</a>
                                             <button type="button" role="menuitem" wire:click="startRename({{ $section->id }})" class="flex min-h-10 w-full items-center gap-2 rounded-md px-3 text-sm hover:bg-surface-muted"><x-icon name="pencil" class="size-4" /> {{ __('courses.sections.rename') }}</button>
@@ -99,8 +104,17 @@
                                         </x-dropdown>
                                     @endif
                                 @endif
+
+                                {{-- Jumlah isi tetap terlihat saat pertemuan dilipat. --}}
+                                <span class="shrink-0 text-xs text-text-muted" x-show="folded({{ $section->id }})" x-cloak>{{ __('courses.show.items_count', ['n' => $section->materials->count() + $section->assignments->count() + $section->quizzes->count()]) }}</span>
+                                <button type="button" x-on:click="toggle({{ $section->id }})" :aria-expanded="!folded({{ $section->id }})"
+                                        aria-label="{{ __('courses.show.toggle_section') }}: {{ $section->title }}"
+                                        class="grid size-9 shrink-0 place-items-center rounded-lg text-text-muted hover:bg-surface-muted">
+                                    <x-icon name="chevron-down" class="size-5 transition-transform" ::class="folded({{ $section->id }}) ? '-rotate-90' : ''" />
+                                </button>
                             </header>
 
+                            <div x-show="!folded({{ $section->id }})" x-collapse>
                             @if ($section->materials->isEmpty() && $section->assignments->isEmpty() && $section->quizzes->isEmpty())
                                 <p class="px-4 py-4 text-sm text-text-muted">{{ __('courses.show.empty_section') }}</p>
                             @elseif ($section->materials->isNotEmpty())
@@ -178,6 +192,7 @@
                                     @endforeach
                                 </ul>
                             @endif
+                            </div>
                         </x-card>
                     </li>
                 @endforeach
