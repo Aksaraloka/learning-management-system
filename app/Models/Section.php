@@ -38,6 +38,14 @@ class Section extends Model
     }
 
     /**
+     * @return HasMany<Quiz, $this>
+     */
+    public function quizzes(): HasMany
+    {
+        return $this->hasMany(Quiz::class)->orderBy('position')->orderBy('opens_at');
+    }
+
+    /**
      * @return HasMany<Material, $this>
      */
     public function materials(): HasMany

@@ -1,11 +1,15 @@
 <?php
 
+use App\Actions\Quizzes\ManageQuestions;
 use App\Enums\EnrollmentRole;
+use App\Enums\QuestionType;
 use App\Enums\Role;
 use App\Models\Assignment;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Material;
+use App\Models\Question;
+use App\Models\Quiz;
 use App\Models\Section;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -69,6 +73,43 @@ function makeMaterial(Section $section, array $attributes = []): Material
 function pdfBytes(): string
 {
     return "%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 100 100]>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n";
+}
+
+/**
+ * Kuis terbit yang sudah dibuka (tanpa batas waktu) di kelas; topik dibuat bila belum ada.
+ *
+ * @param  array<string, mixed>  $attributes
+ */
+function makeQuiz(Course $course, array $attributes = []): Quiz
+{
+    $section = $course->sections()->first() ?? makeSection($course);
+
+    return Quiz::create($attributes + [
+        'course_id' => $course->id,
+        'section_id' => $section->id,
+        'title' => 'Kuis 1',
+        'is_published' => true,
+        'max_attempts' => 1,
+        'position' => 1,
+    ]);
+}
+
+/**
+ * Soal pada kuis lewat action yang sama dengan form. Bawaan per tipe: PG (kunci opsi ke-2), B/S (benar), isian
+ * (jawaban "jakarta"), esai.
+ *
+ * @param  array<string, mixed>  $data
+ */
+function addQuestion(Quiz $quiz, QuestionType $type = QuestionType::MultipleChoice, array $data = []): Question
+{
+    $defaults = match ($type) {
+        QuestionType::MultipleChoice => ['options' => ['A', 'B', 'C', 'D'], 'correct_index' => 1],
+        QuestionType::TrueFalse => ['true_false' => true],
+        QuestionType::ShortAnswer => ['accepted' => ['jakarta'], 'case_sensitive' => false],
+        QuestionType::Essay => ['rubric' => 'Rubrik rahasia'],
+    };
+
+    return app(ManageQuestions::class)->save($quiz, $data + $defaults + ['type' => $type, 'body' => '<p>Soal</p>', 'points' => 2]);
 }
 
 /**

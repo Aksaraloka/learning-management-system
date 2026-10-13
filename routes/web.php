@@ -3,6 +3,7 @@
 use App\Http\Controllers\AssignmentFileController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MaterialFileController;
+use App\Http\Controllers\QuestionImageController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\SubmissionFileController;
 use App\Http\Controllers\UserImportTemplateController;
@@ -15,6 +16,7 @@ use App\Livewire\Auth\ResetPassword;
 use App\Livewire\Courses;
 use App\Livewire\Materials;
 use App\Livewire\Profile;
+use App\Livewire\Quizzes;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -52,6 +54,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/kelas/{course}/tugas/{assignment}/nilai', Assignments\Grade::class)->name('assignments.grade');
     Route::get('/tugas/{assignment}/lampiran/{file}', AssignmentFileController::class)->name('assignments.attachment');
     Route::get('/pengumpulan/{submission}/berkas', SubmissionFileController::class)->name('submissions.file');
+
+    // Kuis.
+    Route::get('/kelas/{course}/kuis/buat', Quizzes\Form::class)->name('quizzes.create');
+    Route::get('/kelas/{course}/kuis/{quiz}', Quizzes\Show::class)->name('quizzes.show');
+    Route::get('/kelas/{course}/kuis/{quiz}/ubah', Quizzes\Form::class)->name('quizzes.edit');
+    Route::get('/kelas/{course}/kuis/{quiz}/soal', Quizzes\Questions::class)->name('quizzes.questions');
+    Route::get('/kelas/{course}/kuis/{quiz}/soal/buat', Quizzes\QuestionForm::class)->name('quizzes.question.create');
+    Route::get('/kelas/{course}/kuis/{quiz}/soal/{question}/ubah', Quizzes\QuestionForm::class)->name('quizzes.question.edit');
+    Route::get('/kelas/{course}/kuis/{quiz}/hasil', Quizzes\Results::class)->name('quizzes.results');
+    Route::get('/kelas/{course}/kuis/{quiz}/percobaan/{attempt}', Quizzes\Attempt::class)->name('quizzes.attempt');
+    Route::get('/kelas/{course}/kuis/{quiz}/percobaan/{attempt}/tinjau', Quizzes\Review::class)->name('quizzes.review');
+    Route::get('/soal/{question}/gambar', QuestionImageController::class)->name('questions.image');
 });
 
 // Admin institusi.

@@ -139,7 +139,7 @@ class Show extends Component
         $canRoster = Gate::allows('viewRoster', $this->course);
 
         // dosen/kepala melihat jumlah kiriman; mahasiswa melihat statusnya sendiri.
-        $sections = $this->course->sections()->with(['materials', 'assignments' => fn ($q) => $canRoster
+        $sections = $this->course->sections()->with(['materials', 'quizzes' => fn ($q) => $canManage ? $q->withCount('questions') : $q->where('is_published', true)->withCount('questions'), 'assignments' => fn ($q) => $canRoster
             ? $q->withCount(['submissions as submitted_count' => fn ($s) => $s->whereIn('status', ['submitted', 'late', 'graded']), 'submissions as pending_count' => fn ($s) => $s->whereIn('status', SubmissionStatus::awaitingGrading())])
             : $q->with(['submissions' => fn ($s) => $s->where('user_id', $user->id)])])->get();
 

@@ -302,6 +302,290 @@ export function registerLazyComponents(Alpine) {
         };
     });
 
+    // Pengerjaan kuis. Server adalah acuan waktu (`remaining` dari deadline_at); jawaban dikirim dengan debounce lewat
+    // method Livewire Renderless dan dicadangkan di localStorage agar tidak hilang saat koneksi putus atau halaman dimuat ulang.
+    Alpine.data('quizAttempt', ({ attemptId, ids, answers = {}, flags = [], remaining = null }) => {
+        const storageKey = `quiz-attempt-${attemptId}`;
+        let endAt = remaining === null ? null : Date.now() + remaining * 1000;
+        let ticker = null;
+        let saveTimer = null;
+        let retryTimer = null;
+        let flushing = false;
+        let finishing = false;
+        const dirty = new Set();
+        const textDelay = 700;
+
+        const readBackup = () => {
+            try {
+                return JSON.parse(localStorage.getItem(storageKey) ?? 'null');
+            } catch {
+                return null;
+            }
+        };
+
+        return {
+            index: 0,
+            answers: { ...answers },
+            flags: [...flags],
+            left: remaining,
+            state: 'saved', // saved | saving | offline | retrying
+            warned: false,
+            expired: false,
+
+            init() {
+                // Jawaban yang belum sempat terkirim (koneksi putus / tab ditutup) dipulihkan dari cadangan lokal.
+                const backup = readBackup();
+
+                if (backup) {
+                    for (const id of backup.dirty ?? []) {
+                        if (backup.answers && id in backup.answers) {
+                            this.answers[id] = backup.answers[id];
+                            dirty.add(String(id));
+                        }
+                    }
+                }
+
+                if (dirty.size) {
+                    this.flush();
+                }
+
+                if (endAt !== null) {
+                    this.tick();
+                    ticker = setInterval(() => this.tick(), 1000);
+                }
+
+            },
+
+            destroy() {
+                clearInterval(ticker);
+                clearTimeout(saveTimer);
+                clearTimeout(retryTimer);
+            },
+
+            // Dipanggil dari atribut @online.window / @offline.window pada templat.
+            online() {
+                this.flush();
+            },
+
+            offline() {
+                this.state = 'offline';
+            },
+
+            // Tab kembali aktif: selaraskan jam dengan server dan kirim yang tertunda.
+            visible() {
+                if (document.visibilityState === 'visible') {
+                    this.flush();
+                }
+            },
+
+            get current() {
+                return ids[this.index];
+            },
+
+            get total() {
+                return ids.length;
+            },
+
+            get answeredCount() {
+                return ids.filter((id) => this.isAnswered(id)).length;
+            },
+
+            get flaggedCount() {
+                return this.flags.length;
+            },
+
+            isAnswered(id) {
+                const value = this.answers[id];
+
+                return value !== undefined && value !== null && String(value).trim() !== '';
+            },
+
+            isFlagged(id) {
+                return this.flags.includes(id);
+            },
+
+            go(index) {
+                this.index = Math.min(Math.max(index, 0), ids.length - 1);
+                this.$nextTick(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
+            },
+
+            next() {
+                this.go(this.index + 1);
+            },
+
+            prev() {
+                this.go(this.index - 1);
+            },
+
+            // Pilihan langsung disimpan; ketikan menunggu jeda.
+            choose(id, value) {
+                this.answers[id] = value;
+                this.mark(id, 0);
+            },
+
+            type(id, value) {
+                this.answers[id] = value;
+                this.mark(id, textDelay);
+            },
+
+            mark(id, delay) {
+                dirty.add(String(id));
+                this.backup();
+                this.state = 'saving';
+                clearTimeout(saveTimer);
+                saveTimer = setTimeout(() => this.flush(), delay);
+            },
+
+            backup() {
+                try {
+                    localStorage.setItem(storageKey, JSON.stringify({ answers: this.answers, dirty: [...dirty], at: Date.now() }));
+                } catch {
+                    // Penyimpanan penuh/dinonaktifkan: tetap lanjut, server menjadi sumber utama.
+                }
+            },
+
+            async flush() {
+                if (flushing || finishing) {
+                    return;
+                }
+
+                flushing = true;
+                clearTimeout(retryTimer);
+                let failed = false;
+
+                try {
+                    while (dirty.size) {
+                        const id = [...dirty][0];
+                        const sent = this.answers[id] ?? '';
+                        const result = await this.$wire.saveAnswer(Number(id), sent);
+
+                        if (result?.closed) {
+                            this.onExpired();
+
+                            return;
+                        }
+
+                        if (result?.remaining != null) {
+                            this.sync(result.remaining);
+                        }
+
+                        // Jika jawaban berubah lagi selama pengiriman, biarkan tetap kotor agar terkirim ulang.
+                        if ((this.answers[id] ?? '') === sent) {
+                            dirty.delete(id);
+                        }
+
+                        this.backup();
+                    }
+
+                    this.state = 'saved';
+                } catch {
+                    failed = true;
+                    this.state = navigator.onLine ? 'retrying' : 'offline';
+                    retryTimer = setTimeout(() => this.flush(), 4000);
+                } finally {
+                    flushing = false;
+                }
+
+                // Jawaban yang berubah tepat saat loop selesai tidak boleh tertinggal.
+                if (!failed && dirty.size) {
+                    this.flush();
+                }
+            },
+
+            async toggleFlag(id) {
+                const flagged = !this.isFlagged(id);
+
+                this.flags = flagged ? [...this.flags, id] : this.flags.filter((f) => f !== id);
+
+                try {
+                    await this.$wire.toggleFlag(id, flagged);
+                } catch {
+                    // Tanda ragu-ragu bersifat bantuan; gagal kirim tidak menghalangi pengerjaan.
+                }
+            },
+
+            // Sinkronkan jam lokal dengan sisa waktu dari server (menghindari jam perangkat yang salah).
+            sync(seconds) {
+                if (seconds === null || seconds === undefined) {
+                    return;
+                }
+
+                endAt = Date.now() + seconds * 1000;
+            },
+
+            tick() {
+                if (endAt === null) {
+                    return;
+                }
+
+                this.left = Math.max(0, Math.ceil((endAt - Date.now()) / 1000));
+
+                if (this.left <= 60 && !this.warned) {
+                    this.warned = true;
+                }
+
+                if (this.left === 0 && !this.expired) {
+                    this.expired = true;
+                    this.finishNow(true);
+                }
+            },
+
+            get clock() {
+                if (this.left === null) {
+                    return '';
+                }
+
+                const h = Math.floor(this.left / 3600);
+                const m = Math.floor((this.left % 3600) / 60);
+                const s = this.left % 60;
+                const pad = (n) => String(n).padStart(2, '0');
+
+                return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
+            },
+
+            onExpired() {
+                this.expired = true;
+                finishing = true;
+                clearInterval(ticker);
+
+                try {
+                    localStorage.removeItem(storageKey);
+                } catch {
+                    // diabaikan
+                }
+
+                this.$wire.finish();
+            },
+
+            async finishNow(auto = false) {
+                if (finishing) {
+                    return;
+                }
+
+                // Kirim jawaban terakhir dulu; saat waktu habis server masih memberi masa tenggang singkat.
+                clearTimeout(saveTimer);
+                await this.flush();
+
+                if (dirty.size && !auto && !navigator.onLine) {
+                    this.state = 'offline';
+
+                    return;
+                }
+
+                finishing = true;
+                clearInterval(ticker);
+
+                try {
+                    localStorage.removeItem(storageKey);
+                } catch {
+                    // diabaikan
+                }
+
+                this.$wire.finish();
+            },
+        };
+    });
+
     // Render rumus $...$ dan $$...$$ pada konten (soal, materi) dengan KaTeX.
     Alpine.data('mathContent', () => ({
         async init() {

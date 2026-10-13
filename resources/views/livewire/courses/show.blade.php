@@ -80,6 +80,7 @@
                                         <x-dropdown :label="__('ui.actions.more')">
                                             <x-slot:trigger><x-icon name="chevron-down" class="size-4" /></x-slot:trigger>
                                             <a href="{{ route('assignments.create', ['course' => $course, 'pertemuan' => $section->id]) }}" role="menuitem" wire:navigate class="flex min-h-10 w-full items-center gap-2 rounded-md px-3 text-sm hover:bg-surface-muted"><x-icon name="clipboard-list" class="size-4" /> {{ __('assignments.course.add') }}</a>
+                                            <a href="{{ route('quizzes.create', ['course' => $course, 'pertemuan' => $section->id]) }}" role="menuitem" wire:navigate class="flex min-h-10 w-full items-center gap-2 rounded-md px-3 text-sm hover:bg-surface-muted"><x-icon name="academic-cap" class="size-4" /> {{ __('quizzes.course.add') }}</a>
                                             <button type="button" role="menuitem" wire:click="startRename({{ $section->id }})" class="flex min-h-10 w-full items-center gap-2 rounded-md px-3 text-sm hover:bg-surface-muted"><x-icon name="pencil" class="size-4" /> {{ __('courses.sections.rename') }}</button>
                                             <button type="button" role="menuitem" wire:click="deleteSection({{ $section->id }})" wire:confirm="{{ __('courses.sections.confirm_delete') }}" class="flex min-h-10 w-full items-center gap-2 rounded-md px-3 text-sm text-danger hover:bg-surface-muted"><x-icon name="trash-2" class="size-4" /> {{ __('courses.sections.delete') }}</button>
                                         </x-dropdown>
@@ -87,7 +88,7 @@
                                 @endif
                             </header>
 
-                            @if ($section->materials->isEmpty() && $section->assignments->isEmpty())
+                            @if ($section->materials->isEmpty() && $section->assignments->isEmpty() && $section->quizzes->isEmpty())
                                 <p class="px-4 py-4 text-sm text-text-muted">{{ __('courses.show.empty_section') }}</p>
                             @elseif ($section->materials->isNotEmpty())
                                 <x-sortable class="space-y-0 divide-y divide-border" @sorted="$wire.reorderMaterials({{ $section->id }}, $event.detail.ids)">
@@ -134,6 +135,31 @@
                                                 @elseif ($canRoster)
                                                     <span class="shrink-0 text-xs text-text-muted">{{ $assignment->submitted_count }}/{{ $studentCount }}@if ($assignment->pending_count) · <span class="font-semibold text-info">{{ __('assignments.index.pending', ['n' => $assignment->pending_count]) }}</span>@endif</span>
                                                 @endif
+                                            </a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @endif
+
+                            @if ($section->quizzes->isNotEmpty())
+                                <ul class="divide-y divide-border border-t border-border">
+                                    @foreach ($section->quizzes as $quiz)
+                                        @php
+                                            $quizState = $quiz->state();
+                                            $opens = $quiz->opens_at?->timezone(config('app.timezone'));
+                                            $closes = $quiz->closes_at?->timezone(config('app.timezone'));
+                                        @endphp
+                                        <li wire:key="quiz-{{ $quiz->id }}">
+                                            <a href="{{ route('quizzes.show', ['course' => $course, 'quiz' => $quiz]) }}" wire:navigate
+                                               class="flex min-h-12 items-center gap-3 px-3 py-2 hover:text-primary sm:px-4">
+                                                <x-icon name="academic-cap" class="text-primary" />
+                                                <span class="min-w-0 flex-1">
+                                                    <span class="block truncate text-sm font-medium">{{ $quiz->title }}</span>
+                                                    <span class="block text-xs text-text-muted">
+                                                        {{ __('quizzes.course.label') }} · {{ __('quizzes.course.questions', ['n' => $quiz->questions_count]) }}@if ($closes) · {{ __('quizzes.course.until') }} {{ $closes->translatedFormat('j M, H:i') }}@elseif ($opens && $quizState === 'upcoming') · {{ __('quizzes.course.from') }} {{ $opens->translatedFormat('j M, H:i') }}@endif
+                                                    </span>
+                                                </span>
+                                                <x-badge :variant="match ($quizState) { 'open' => 'success', 'upcoming' => 'info', 'closed' => 'neutral', default => 'warning' }">{{ __('quizzes.state.'.$quizState) }}</x-badge>
                                             </a>
                                         </li>
                                     @endforeach
