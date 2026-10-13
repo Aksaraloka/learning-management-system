@@ -53,7 +53,7 @@ class CourseStats
         }
 
         $students = $data['students']->count();
-        $assignmentIds = Assignment::query()->where('course_id', $course->id)->pluck('id');
+        $assignmentIds = Assignment::query()->where('course_id', $course->id)->where('is_hidden', false)->pluck('id');
         $expected = $students * $assignmentIds->count();
         $submitted = $expected > 0
             ? Submission::query()->whereIn('assignment_id', $assignmentIds)

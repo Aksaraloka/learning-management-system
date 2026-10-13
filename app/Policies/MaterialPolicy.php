@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\Role;
 use App\Models\Material;
 use App\Models\Section;
 use App\Models\User;
@@ -12,8 +13,15 @@ use Illuminate\Support\Facades\Gate;
  */
 class MaterialPolicy
 {
+    /**
+     * Materi yang disembunyikan hanya terlihat oleh pengelola kelas dan ketua program studi.
+     */
     public function view(User $user, Material $material): bool
     {
+        if ($material->is_hidden && ! $this->allows($user, 'update', $material) && ! $user->hasAppRole(Role::Principal)) {
+            return false;
+        }
+
         return $this->allows($user, 'view', $material);
     }
 

@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $max_score
  * @property bool $allow_late
  * @property int $position
+ * @property bool $is_hidden
  * @property-read Course $course
  * @property-read Section $section
  * @property-read GradeCategory|null $category
@@ -30,7 +31,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read int|null $pending_count
  * @property-read int|null $submitted_count
  */
-#[Fillable(['course_id', 'section_id', 'grade_category_id', 'title', 'instructions', 'due_at', 'max_score', 'allow_late', 'position'])]
+#[Fillable(['course_id', 'section_id', 'grade_category_id', 'title', 'instructions', 'due_at', 'max_score', 'allow_late', 'position', 'is_hidden'])]
 class Assignment extends Model
 {
     use SoftDeletes;
@@ -40,6 +41,7 @@ class Assignment extends Model
         return [
             'due_at' => 'datetime',
             'allow_late' => 'boolean',
+            'is_hidden' => 'boolean',
         ];
     }
 

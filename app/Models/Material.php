@@ -19,14 +19,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $file_size
  * @property string|null $mime_type
  * @property int $position
+ * @property bool $is_hidden
  * @property-read Section $section
  */
-#[Fillable(['section_id', 'type', 'title', 'body', 'url', 'file_path', 'file_name', 'file_size', 'mime_type', 'position'])]
+#[Fillable(['section_id', 'type', 'title', 'body', 'url', 'file_path', 'file_name', 'file_size', 'mime_type', 'position', 'is_hidden'])]
 class Material extends Model
 {
     protected function casts(): array
     {
-        return ['type' => MaterialType::class];
+        return ['type' => MaterialType::class, 'is_hidden' => 'boolean'];
     }
 
     /**

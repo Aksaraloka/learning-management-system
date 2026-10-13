@@ -30,12 +30,12 @@ class CourseProgress
             return [];
         }
 
-        $assignmentTotals = Assignment::query()->whereIn('course_id', $ids)->select('course_id', DB::raw('count(*) as n'))->groupBy('course_id')->pluck('n', 'course_id');
+        $assignmentTotals = Assignment::query()->whereIn('course_id', $ids)->where('is_hidden', false)->select('course_id', DB::raw('count(*) as n'))->groupBy('course_id')->pluck('n', 'course_id');
         $quizTotals = Quiz::query()->whereIn('course_id', $ids)->where('is_published', true)->select('course_id', DB::raw('count(*) as n'))->groupBy('course_id')->pluck('n', 'course_id');
 
         $assignmentDone = Submission::query()
             ->join('assignments', 'assignments.id', '=', 'submissions.assignment_id')
-            ->whereNull('assignments.deleted_at')
+            ->whereNull('assignments.deleted_at')->where('assignments.is_hidden', false)
             ->where('submissions.user_id', $student->id)
             ->whereIn('assignments.course_id', $ids)
             ->whereIn('submissions.status', [SubmissionStatus::Submitted->value, SubmissionStatus::Late->value, SubmissionStatus::Graded->value])

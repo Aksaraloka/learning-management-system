@@ -4,11 +4,14 @@ namespace App\Livewire\Courses;
 
 use App\Actions\Materials\DeleteMaterial;
 use App\Actions\Materials\SaveMaterial;
+use App\Actions\Notifications\Notifier;
 use App\Actions\Sections\ManageSections;
 use App\Enums\Role;
 use App\Enums\SubmissionStatus;
+use App\Models\Assignment;
 use App\Models\Course;
 use App\Models\Material;
+use App\Models\Quiz;
 use App\Models\Section;
 use App\Support\Audit;
 use App\Support\CourseProgress;
@@ -117,6 +120,33 @@ class Show extends Component
         $deleteMaterial->handle($material);
     }
 
+    /**
+     * Menyembunyikan/menampilkan materi, tugas, atau kuis bagi mahasiswa. Kuis memakai status terbit (draf = tersembunyi).
+     * Hanya pengelola kelas; id dari kelas lain menghasilkan 404.
+     */
+    public function toggleVisibility(string $type, int $id, Notifier $notifier): void
+    {
+        $sectionIds = $this->course->sections()->select('id');
+
+        $item = match ($type) {
+            'material' => Material::query()->whereIn('section_id', $sectionIds)->findOrFail($id),
+            'assignment' => Assignment::query()->where('course_id', $this->course->id)->findOrFail($id),
+            'quiz' => Quiz::query()->where('course_id', $this->course->id)->findOrFail($id),
+            default => abort(404),
+        };
+
+        Gate::authorize('update', $this->course);
+
+        if ($item instanceof Quiz) {
+            $item->update(['is_published' => ! $item->is_published]);
+            $notifier->quizPublished($item->refresh());
+
+            return;
+        }
+
+        $item->update(['is_hidden' => ! $item->is_hidden]);
+    }
+
     public function deleteCourse(): void
     {
         Gate::authorize('delete', $this->course);
@@ -143,9 +173,10 @@ class Show extends Component
         $canRoster = Gate::allows('viewRoster', $this->course);
 
         // dosen/kepala melihat jumlah kiriman; mahasiswa melihat statusnya sendiri.
-        $sections = $this->course->sections()->with(['materials', 'quizzes' => fn ($q) => $canManage ? $q->withCount('questions') : $q->where('is_published', true)->withCount('questions'), 'assignments' => fn ($q) => $canRoster
+        // Materi/tugas yang disembunyikan hanya terlihat oleh pengelola kelas dan ketua program studi.
+        $sections = $this->course->sections()->with(['materials' => fn ($q) => $canRoster ? $q : $q->where('is_hidden', false), 'quizzes' => fn ($q) => $canManage ? $q->withCount('questions') : $q->where('is_published', true)->withCount('questions'), 'assignments' => fn ($q) => $canRoster
             ? $q->withCount(['submissions as submitted_count' => fn ($s) => $s->whereIn('status', ['submitted', 'late', 'graded']), 'submissions as pending_count' => fn ($s) => $s->whereIn('status', SubmissionStatus::awaitingGrading())])
-            : $q->with(['submissions' => fn ($s) => $s->where('user_id', $user->id)])])->get();
+            : $q->where('is_hidden', false)->with(['submissions' => fn ($s) => $s->where('user_id', $user->id)])])->get();
 
         return view('livewire.courses.show', [
             'sections' => $sections,

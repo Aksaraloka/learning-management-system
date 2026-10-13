@@ -59,7 +59,7 @@ class Dashboard
         $submitted = Submission::query()->where('user_id', $user->id)
             ->whereIn('status', [SubmissionStatus::Submitted->value, SubmissionStatus::Late->value, SubmissionStatus::Graded->value])->pluck('assignment_id');
 
-        $deadlines = Assignment::query()->with('course')->whereIn('course_id', $courses->pluck('id'))
+        $deadlines = Assignment::query()->with('course')->whereIn('course_id', $courses->pluck('id'))->where('is_hidden', false)
             ->whereNotIn('id', $submitted)->where('due_at', '>', $now)->where('due_at', '<=', $now->copy()->addDays(14))->get()
             ->map(fn (Assignment $a) => ['type' => 'assignment', 'title' => $a->title, 'course' => $a->course->name, 'at' => $a->due_at, 'url' => route('assignments.show', ['course' => $a->course_id, 'assignment' => $a->id])]);
 

@@ -24,7 +24,7 @@ class SendDueRemindersCommand extends Command
         $sent = 0;
 
         // Tugas: hanya mahasiswa yang belum mengumpulkan (kiriman dikembalikan tetap diingatkan).
-        Assignment::query()->with('course')->whereNull('due_reminded_at')
+        Assignment::query()->with('course')->where('is_hidden', false)->whereNull('due_reminded_at')
             ->where('due_at', '>', now())->where('due_at', '<=', $limit)
             ->each(function (Assignment $assignment) use ($notifier, &$sent) {
                 $done = Submission::query()->where('assignment_id', $assignment->id)

@@ -40,6 +40,7 @@ class Index extends Component
             ->when($this->course !== '', fn ($q) => $q->where('course_id', (int) $this->course))
             ->when($this->search !== '', fn ($q) => $q->where('title', 'like', '%'.addcslashes($this->search, '%_\\').'%'))
             ->when($isStudent, fn ($q) => $q
+                ->where('is_hidden', false)
                 ->with(['submissions' => fn ($s) => $s->where('user_id', $user->id)])
                 ->when($this->filter === 'open', fn ($q) => $q->whereDoesntHave('submissions', fn ($s) => $s->where('user_id', $user->id)))
                 ->when($this->filter === 'done', fn ($q) => $q->whereHas('submissions', fn ($s) => $s->where('user_id', $user->id)->whereIn('status', ['submitted', 'late'])))

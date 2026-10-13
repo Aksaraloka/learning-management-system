@@ -25,6 +25,12 @@ return [
         'throttle' => 'Terlalu banyak percobaan. Coba lagi dalam :seconds detik.',
     ],
 
+    'visibility' => [
+        'hidden' => 'Disembunyikan dari mahasiswa',
+        'hide' => 'Sembunyikan dari mahasiswa',
+        'show' => 'Tampilkan ke mahasiswa',
+    ],
+
     'progress' => [
         'label' => 'Kemajuan',
         'none' => 'Belum ada tugas atau kuis',

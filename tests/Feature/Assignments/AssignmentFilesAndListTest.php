@@ -107,9 +107,9 @@ it('filters the student task list by status', function () {
 it('shows a student only their own status and score', function () {
     $classmate = makeUser(Role::Student);
     enroll($this->course, $classmate);
-    Submission::create(['assignment_id' => $this->assignment->id, 'user_id' => $classmate->id, 'status' => 'graded', 'score' => 99]);
+    Submission::create(['assignment_id' => $this->assignment->id, 'user_id' => $classmate->id, 'status' => 'graded', 'score' => 97.25]);
 
-    Livewire::actingAs($this->student)->test(Index::class)->assertSee(__('ui.status.not_submitted'))->assertDontSee('99');
+    Livewire::actingAs($this->student)->test(Index::class)->assertSee(__('ui.status.not_submitted'))->assertDontSee('97,25');
 });
 
 it('shows teachers how many submissions need grading', function () {

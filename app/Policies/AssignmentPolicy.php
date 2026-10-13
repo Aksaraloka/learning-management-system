@@ -19,8 +19,15 @@ class AssignmentPolicy
         return true;
     }
 
+    /**
+     * Tugas yang disembunyikan hanya terlihat oleh pengelola kelas dan ketua program studi.
+     */
     public function view(User $user, Assignment $assignment): bool
     {
+        if ($assignment->is_hidden && ! $this->viewSubmissions($user, $assignment)) {
+            return false;
+        }
+
         return $this->onCourse($user, 'view', $assignment);
     }
 

@@ -53,7 +53,7 @@
         <div class="flex flex-wrap items-center justify-between gap-2">
             <h2 id="materials-heading" class="text-lg font-semibold">{{ __('courses.show.materials') }}</h2>
             @if ($sections->isNotEmpty())
-                <x-button variant="ghost" size="sm" icon="chevron-up-down" x-on:click="setAll(!allFolded)"><span x-text="allFolded ? @js(__('courses.show.unfold_all')) : @js(__('courses.show.fold_all'))">{{ __('courses.show.fold_all') }}</span></x-button>
+                <x-button variant="ghost" size="sm" icon="chevron-up-down" x-on:click="setAll(!allFolded)"><span x-show="!allFolded">{{ __('courses.show.fold_all') }}</span><span x-show="allFolded" x-cloak>{{ __('courses.show.unfold_all') }}</span></x-button>
             @endif
         </div>
 
@@ -109,12 +109,12 @@
                                 <span class="shrink-0 text-xs text-text-muted" x-show="folded({{ $section->id }})" x-cloak>{{ __('courses.show.items_count', ['n' => $section->materials->count() + $section->assignments->count() + $section->quizzes->count()]) }}</span>
                                 <button type="button" x-on:click="toggle({{ $section->id }})" :aria-expanded="!folded({{ $section->id }})"
                                         aria-label="{{ __('courses.show.toggle_section') }}: {{ $section->title }}"
-                                        class="grid size-9 shrink-0 place-items-center rounded-lg text-text-muted hover:bg-surface-muted">
-                                    <x-icon name="chevron-down" class="size-5 transition-transform" ::class="folded({{ $section->id }}) ? '-rotate-90' : ''" />
+                                        class="group grid size-9 shrink-0 place-items-center rounded-lg text-text-muted hover:bg-surface-muted">
+                                    <x-icon name="chevron-down" class="size-5 transition-transform group-aria-[expanded=false]:-rotate-90" />
                                 </button>
                             </header>
 
-                            <div x-show="!folded({{ $section->id }})" x-collapse>
+                            <div x-show="!folded({{ $section->id }})">
                             @if ($section->materials->isEmpty() && $section->assignments->isEmpty() && $section->quizzes->isEmpty())
                                 <p class="px-4 py-4 text-sm text-text-muted">{{ __('courses.show.empty_section') }}</p>
                             @elseif ($section->materials->isNotEmpty())
@@ -125,14 +125,17 @@
                                                 <span data-handle class="cursor-grab touch-none text-text-muted"><x-icon name="grip-vertical" class="size-4" /><span class="sr-only">{{ __('courses.sections.drag') }}</span></span>
                                             @endif
                                             <a href="{{ route('materials.show', ['course' => $course, 'material' => $material]) }}" wire:navigate
-                                               class="flex min-h-12 min-w-0 flex-1 items-center gap-3 py-2 hover:text-primary">
+                                               @class(['flex min-h-12 min-w-0 flex-1 items-center gap-3 py-2 hover:text-primary', 'opacity-60' => $material->is_hidden])>
                                                 <x-icon :name="$material->type->icon()" class="text-text-muted" />
                                                 <span class="min-w-0 flex-1">
                                                     <span class="block truncate text-sm font-medium">{{ $material->title }}</span>
-                                                    <span class="block text-xs text-text-muted">{{ $material->type->label() }}@if ($material->file_size) · {{ \App\Support\Upload::humanSize($material->file_size) }}@endif</span>
+                                                    <span class="block text-xs text-text-muted">{{ $material->type->label() }}@if ($material->file_size) · {{ \App\Support\Upload::humanSize($material->file_size) }}@endif@if ($material->is_hidden) · <span class="font-semibold text-warning">{{ __('courses.visibility.hidden') }}</span>@endif</span>
                                                 </span>
                                             </a>
                                             @if ($canManage)
+                                                <x-button variant="ghost" size="sm" :icon="$material->is_hidden ? 'eye-slash' : 'eye'" class="shrink-0" wire:click="toggleVisibility('material', {{ $material->id }})">
+                                                    <span class="sr-only">{{ $material->is_hidden ? __('courses.visibility.show') : __('courses.visibility.hide') }}</span>
+                                                </x-button>
                                                 <x-button variant="ghost" size="sm" icon="trash-2" class="shrink-0" wire:click="deleteMaterial({{ $material->id }})" wire:confirm="{{ __('courses.materials.confirm_delete') }}">
                                                     <span class="sr-only">{{ __('courses.materials.delete') }}</span>
                                                 </x-button>
@@ -149,13 +152,13 @@
                                             $due = $assignment->due_at?->timezone(config('app.timezone'));
                                             $mine = $isStudent ? $assignment->submissions->first() : null;
                                         @endphp
-                                        <li wire:key="assignment-{{ $assignment->id }}">
+                                        <li wire:key="assignment-{{ $assignment->id }}" class="flex items-center">
                                             <a href="{{ route('assignments.show', ['course' => $course, 'assignment' => $assignment]) }}" wire:navigate
-                                               class="flex min-h-12 items-center gap-3 px-3 py-2 hover:text-primary sm:px-4">
+                                               @class(['flex min-h-12 min-w-0 flex-1 items-center gap-3 px-3 py-2 hover:text-primary sm:px-4', 'opacity-60' => $assignment->is_hidden])>
                                                 <x-icon name="clipboard-list" class="text-primary" />
                                                 <span class="min-w-0 flex-1">
                                                     <span class="block truncate text-sm font-medium">{{ $assignment->title }}</span>
-                                                    <span class="block text-xs text-text-muted">{{ __('assignments.course.assignments') }} · {{ $due ? $due->translatedFormat('j M, H:i') : __('assignments.index.no_due') }}</span>
+                                                    <span class="block text-xs text-text-muted">{{ __('assignments.course.assignments') }} · {{ $due ? $due->translatedFormat('j M, H:i') : __('assignments.index.no_due') }}@if ($assignment->is_hidden) · <span class="font-semibold text-warning">{{ __('courses.visibility.hidden') }}</span>@endif</span>
                                                 </span>
                                                 @if ($isStudent)
                                                     <x-status-badge :status="\App\Models\Assignment::statusOf($mine)->value" />
@@ -163,6 +166,11 @@
                                                     <span class="shrink-0 text-xs text-text-muted">{{ $assignment->submitted_count }}/{{ $studentCount }}@if ($assignment->pending_count) · <span class="font-semibold text-info">{{ __('assignments.index.pending', ['n' => $assignment->pending_count]) }}</span>@endif</span>
                                                 @endif
                                             </a>
+                                            @if ($canManage)
+                                                <x-button variant="ghost" size="sm" :icon="$assignment->is_hidden ? 'eye-slash' : 'eye'" class="mr-2 shrink-0" wire:click="toggleVisibility('assignment', {{ $assignment->id }})">
+                                                    <span class="sr-only">{{ $assignment->is_hidden ? __('courses.visibility.show') : __('courses.visibility.hide') }}</span>
+                                                </x-button>
+                                            @endif
                                         </li>
                                     @endforeach
                                 </ul>
@@ -176,9 +184,9 @@
                                             $opens = $quiz->opens_at?->timezone(config('app.timezone'));
                                             $closes = $quiz->closes_at?->timezone(config('app.timezone'));
                                         @endphp
-                                        <li wire:key="quiz-{{ $quiz->id }}">
+                                        <li wire:key="quiz-{{ $quiz->id }}" class="flex items-center">
                                             <a href="{{ route('quizzes.show', ['course' => $course, 'quiz' => $quiz]) }}" wire:navigate
-                                               class="flex min-h-12 items-center gap-3 px-3 py-2 hover:text-primary sm:px-4">
+                                               @class(['flex min-h-12 min-w-0 flex-1 items-center gap-3 px-3 py-2 hover:text-primary sm:px-4', 'opacity-60' => ! $quiz->is_published])>
                                                 <x-icon name="academic-cap" class="text-primary" />
                                                 <span class="min-w-0 flex-1">
                                                     <span class="block truncate text-sm font-medium">{{ $quiz->title }}</span>
@@ -188,6 +196,11 @@
                                                 </span>
                                                 <x-badge :variant="match ($quizState) { 'open' => 'success', 'upcoming' => 'info', 'closed' => 'neutral', default => 'warning' }">{{ __('quizzes.state.'.$quizState) }}</x-badge>
                                             </a>
+                                            @if ($canManage)
+                                                <x-button variant="ghost" size="sm" :icon="$quiz->is_published ? 'eye' : 'eye-slash'" class="mr-2 shrink-0" wire:click="toggleVisibility('quiz', {{ $quiz->id }})">
+                                                    <span class="sr-only">{{ $quiz->is_published ? __('courses.visibility.hide') : __('courses.visibility.show') }}</span>
+                                                </x-button>
+                                            @endif
                                         </li>
                                     @endforeach
                                 </ul>

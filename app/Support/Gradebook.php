@@ -39,7 +39,7 @@ class Gradebook
         $categories = $course->gradeCategories()->get();
         $students = $course->students()->reorder('users.name')->when($only, fn ($q) => $q->where('users.id', $only->id))->get();
 
-        $assignments = Assignment::query()->where('course_id', $course->id)->with('submissions')->orderBy('section_id')->orderBy('position')->get();
+        $assignments = Assignment::query()->where('course_id', $course->id)->where('is_hidden', false)->with('submissions')->orderBy('section_id')->orderBy('position')->get();
         $quizzes = Quiz::query()->where('course_id', $course->id)->where('is_published', true)->orderBy('section_id')->orderBy('position')->get();
         $attempts = QuizAttempt::query()->whereIn('quiz_id', $quizzes->pluck('id'))
             ->where('status', '!=', AttemptStatus::InProgress->value)->get()->groupBy('quiz_id');
