@@ -24,6 +24,10 @@
     --color-primary: #c62828;
     --color-primary-fg: #ffffff;
 
+    /* Panel merek (halaman masuk): merah tua dengan teks putih, sama di kedua tema. */
+    --color-brand: #9f1f1f;
+    --color-brand-fg: #ffffff;
+
     --color-success: #166534;
     --color-warning: #92400e;
     --color-danger: #991b1b;
@@ -45,6 +49,9 @@
 
     --color-primary: #ef4444;
     --color-primary-fg: #000000;
+
+    --color-brand: #7f1d1d;
+    --color-brand-fg: #ffffff;
 
     --color-success: #4ade80;
     --color-warning: #fbbf24;

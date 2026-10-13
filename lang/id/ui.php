@@ -20,7 +20,16 @@ return [
     'auth' => [
         'login' => 'Masuk',
         'logout' => 'Keluar',
-        'login_title' => 'Masuk ke akun Anda',
+        'login_title' => 'Masuk ke LMS',
+        'login_hint' => 'Gunakan email atau NIM/NIDN dan kata sandi akun Anda.',
+        'panel_subtitle' => 'Sistem Manajemen Pembelajaran',
+        'panel_welcome' => 'Selamat datang kembali!',
+        'panel_points' => [
+            'Akses khusus dosen dan mahasiswa :institution.',
+            'Masuk dengan email atau NIM/NIDN beserta kata sandi akun Anda.',
+            'Jika gagal masuk atau lupa kata sandi, gunakan tautan "Lupa kata sandi?" atau minta admin akademik mengatur ulang.',
+        ],
+        'no_account' => 'Belum punya akun? Hubungi administrator institusi Anda.',
         'identifier' => 'Email atau NIM/NIDN',
         'password' => 'Kata sandi',
         'remember' => 'Ingat saya di perangkat ini',
