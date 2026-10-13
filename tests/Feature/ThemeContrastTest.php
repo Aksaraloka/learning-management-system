@@ -63,3 +63,9 @@ it('meets WCAG AA text contrast in both themes', function (string $selector) {
 
     expect(contrast($t['primary-fg'], $t['primary']))->toBeGreaterThanOrEqual(4.5, "primary-fg on primary ({$selector})");
 })->with([':root', '.dark']);
+
+it('reapplies the saved theme after wire:navigate swaps the page', function () {
+    $theme = file_get_contents(resource_path('js/lib/theme.js'));
+
+    expect($theme)->toContain("addEventListener('livewire:navigated'")->toContain('applyTheme(choice)');
+});

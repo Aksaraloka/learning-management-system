@@ -37,6 +37,14 @@ function write(choice) {
  * ke `users.theme` di server.
  */
 export function registerTheme(Alpine) {
+    // wire:navigate mengganti dokumen dengan HTML dari server yang tidak membawa class `dark` pada <html>, sedangkan skrip
+    // anti-kedip di <head> tidak dijalankan ulang. Terapkan lagi tema yang tersimpan setiap selesai pindah halaman.
+    document.addEventListener('livewire:navigated', () => {
+        const choice = Alpine.store('theme').choice;
+
+        Alpine.store('theme').dark = applyTheme(choice);
+    });
+
     Alpine.store('theme', {
         choice: read(),
         dark: document.documentElement.classList.contains('dark'),
