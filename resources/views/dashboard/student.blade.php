@@ -93,6 +93,7 @@
                                 <span class="block truncate font-semibold leading-snug">{{ $row['course']->name }}</span>
                                 <span class="block truncate text-xs text-text-muted">{{ $row['course']->term->name }}</span>
                             </div>
+                            <x-progress :done="$row['progress']['done']" :total="$row['progress']['total']" :percent="$row['progress']['percent']" />
                             <dl class="mt-auto grid grid-cols-2 gap-3 text-xs">
                                 <div>
                                     <dt class="text-text-muted">{{ __('dashboard.final') }}</dt>

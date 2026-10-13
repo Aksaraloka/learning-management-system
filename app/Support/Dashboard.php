@@ -42,12 +42,15 @@ class Dashboard
         $courses = Course::query()->visibleTo($user)->with('term')->orderBy('name')->get();
         $now = now();
 
-        $rows = $courses->map(function (Course $course) use ($user) {
+        $progress = CourseProgress::forStudent($user, $courses->pluck('id'));
+
+        $rows = $courses->map(function (Course $course) use ($user, $progress) {
             $final = Gradebook::compute($course, $user)['rows'][$user->id]['final'] ?? null;
 
             return [
                 'course' => $course,
                 'final' => $final,
+                'progress' => $progress[$course->id] ?? ['done' => 0, 'total' => 0, 'percent' => 0],
                 'attendance' => AttendanceSummary::forCourse($course)[$user->id]['percent'] ?? null,
             ];
         });

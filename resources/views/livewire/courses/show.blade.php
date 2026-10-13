@@ -28,6 +28,10 @@
             @endif
         </div>
 
+        @if ($progress)
+            <x-progress class="mt-4 border-t border-border pt-4" :done="$progress['done']" :total="$progress['total']" :percent="$progress['percent']" />
+        @endif
+
         <nav class="mt-4 flex flex-wrap gap-2 border-t border-border pt-4" aria-label="{{ __('courses.show.tools') }}">
             <x-button variant="secondary" size="sm" icon="table-cells" :href="route('gradebook.index', $course)" wire:navigate>{{ $canRoster ? __('gradebook.title') : __('gradebook.my_grade') }}</x-button>
             <x-button variant="secondary" size="sm" icon="calendar-days" :href="route('attendance.index', $course)" wire:navigate>{{ __('attendance.title') }}</x-button>

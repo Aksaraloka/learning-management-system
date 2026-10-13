@@ -3,8 +3,10 @@
 namespace App\Livewire\Courses;
 
 use App\Actions\Courses\JoinCourse;
+use App\Enums\Role;
 use App\Models\AcademicTerm;
 use App\Models\Course;
+use App\Support\CourseProgress;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -53,8 +55,11 @@ class Index extends Component
             ->orderBy('name')
             ->simplePaginate(12);
 
+        $user = Auth::user();
+
         return view('livewire.courses.index', [
             'courses' => $courses,
+            'progress' => $user->hasAppRole(Role::Student) ? CourseProgress::forStudent($user, $courses->pluck('id')) : [],
             'terms' => AcademicTerm::query()->orderByDesc('starts_at')->pluck('name', 'id')->all(),
         ])->title(__('ui.nav.classes'));
     }

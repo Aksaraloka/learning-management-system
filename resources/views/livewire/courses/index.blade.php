@@ -41,6 +41,9 @@
                             <x-badge>{{ $course->term->name }}</x-badge>
                             @if ($course->credits) <x-badge variant="primary">{{ __('courses.index.credits', ['n' => $course->credits]) }}</x-badge> @endif
                         </div>
+                        @if (isset($progress[$course->id]))
+                            <x-progress :done="$progress[$course->id]['done']" :total="$progress[$course->id]['total']" :percent="$progress[$course->id]['percent']" class="px-4" />
+                        @endif
                         <p class="mt-auto px-4 text-sm text-text-muted">
                             {{ $course->teachers->pluck('name')->join(', ') ?: __('courses.index.no_teacher') }}
                             · {{ __('courses.index.members_count', ['n' => $course->students_count]) }}

@@ -25,6 +25,13 @@ return [
         'throttle' => 'Terlalu banyak percobaan. Coba lagi dalam :seconds detik.',
     ],
 
+    'progress' => [
+        'label' => 'Kemajuan',
+        'none' => 'Belum ada tugas atau kuis',
+        'aria' => ':done dari :total tugas dan kuis selesai',
+        'hint' => 'Tugas yang dikumpulkan dan kuis yang sudah dikerjakan dibanding seluruh tugas dan kuis terbit.',
+    ],
+
     'form' => [
         'banner' => 'Banner mata kuliah',
         'banner_preview' => 'Banner mata kuliah',

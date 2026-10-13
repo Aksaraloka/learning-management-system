@@ -11,6 +11,7 @@ use App\Models\Course;
 use App\Models\Material;
 use App\Models\Section;
 use App\Support\Audit;
+use App\Support\CourseProgress;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -152,6 +153,7 @@ class Show extends Component
             'canManage' => $canManage,
             'canRoster' => $canRoster,
             'studentCount' => $this->course->students()->count(),
+            'progress' => ! $canRoster && $user->hasAppRole(Role::Student) ? (CourseProgress::forStudent($user, [$this->course->id])[$this->course->id] ?? null) : null,
         ])->title($this->course->name);
     }
 }
