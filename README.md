@@ -2,7 +2,7 @@
 
 LMS web untuk **satu universitas** di Indonesia. Laravel 13, Livewire 4, Tailwind CSS v4, mobile-first.
 
-> Status: **Fase 0 (fondasi), Fase 1 (auth, peran, pengguna, semester), Fase 2 (mata kuliah & materi), dan Fase 3 (tugas)** selesai.
+> Status: **Fase 0 (fondasi), Fase 1 (auth, peran, pengguna, semester), Fase 2 (mata kuliah & materi), Fase 3 (tugas), dan Fase 4 (kuis)** selesai.
 > Aplikasi khusus **perguruan tinggi** dan melayani **satu universitas** (mode sekolah dan multi-tenant sudah dihapus; lihat
 > [docs/decisions.md](docs/decisions.md)). Rencana lengkap ada di prompt awal proyek.
 
@@ -48,7 +48,7 @@ Semua kata sandi: `password`. Hasil `php artisan db:seed` (DemoSeeder).
 | Mahasiswa (NIM saja) | `2260006` … `2260030` |
 
 Login menerima email **atau** NIM/NIDN. Data demo berisi 4 mata kuliah (dosen1 mengampu Algoritma dan Pemrograman serta Pemrograman Web;
-mahasiswa1–5 mengikuti semuanya) lengkap dengan pertemuan, materi (teks, PDF, tautan, video), dan tugas.
+mahasiswa1–5 mengikuti semuanya) lengkap dengan pertemuan, materi (teks, PDF, tautan, video), tugas, dan kuis (*Kuis Harian* yang masih dibuka dan *Kuis Evaluasi* yang sudah ditutup dengan beberapa percobaan).
 
 ## Mata kuliah & materi
 
@@ -64,9 +64,16 @@ mahasiswa1–5 mengikuti semuanya) lengkap dengan pertemuan, materi (teks, PDF, 
 - **Komentar** per tugas: publik (seluruh mata kuliah) atau pribadi mahasiswa↔dosen (dosen membalas dari layar penilaian).
 - Penilaian **terkunci** saat admin mengunci semester (menu Semester); ketua program studi hanya dapat melihat.
 
+## Kuis
+
+- **Dosen/admin** membuat kuis di pertemuan (menu ⌄ pada pertemuan → *Tambah kuis*): jadwal buka/tutup, durasi, jumlah percobaan, acak urutan soal/pilihan, kategori nilai, dan kapan nilai ditampilkan. Soal ada 4 jenis: **pilihan ganda, benar/salah, isian singkat** (beberapa jawaban diterima, huruf besar/kecil diabaikan) dan **esai** (dinilai manual). Soal bisa bergambar, memakai rumus KaTeX, dan diurutkan dengan drag & drop. Kuis baru berstatus draf sampai diterbitkan.
+- **Mahasiswa** mengerjakan semua soal dalam satu halaman: di HP satu soal per layar dengan nomor soal sebagai navigasi, penghitung waktu, dan tanda *ragu-ragu*. **Jawaban tersimpan otomatis** (dan dicadangkan di perangkat bila koneksi putus, dikirim saat tersambung). Waktu dihitung server: menutup halaman tidak menghentikan waktu, dan percobaan yang waktunya habis dikumpulkan otomatis (scheduler `quizzes:finalize-expired` tiap menit; di production jalankan `php artisan schedule:work` atau cron `schedule:run`).
+- Soal objektif **dinilai otomatis**; kuis dengan esai berstatus *Menunggu penilaian* sampai dosen menilai esai di halaman tinjauan. Kunci jawaban baru terlihat mahasiswa setelah kuis ditutup atau percobaan habis, dan hanya bila nilai sudah boleh ditampilkan.
+- **Hasil** (dosen, admin, ketua program studi): ringkasan (rata-rata, tertinggi, terendah), daftar percobaan yang bisa difilter, dan tinjauan jawaban per mahasiswa. Penilaian esai **terkunci** saat semester dikunci. Rencana uji beban: [docs/load-testing.md](docs/load-testing.md).
+
 ### Batas unggah berkas
 
-Maksimal 50 MB per berkas (`config/courses.php`), tetapi tidak pernah melebihi batas PHP. Halaman unggah menampilkan batas yang sebenarnya berlaku.
+Berlaku untuk materi, tugas, dan gambar soal kuis (gambar soal maks. 2 MB). Maksimal 50 MB per berkas (`config/courses.php`), tetapi tidak pernah melebihi batas PHP. Halaman unggah menampilkan batas yang sebenarnya berlaku.
 Bawaan PHP hanya 2 MB, jadi untuk 50 MB ubah `php.ini` (Herd: `%USERPROFILE%\.config\herd\bin\php84\php.ini`) lalu restart server:
 
 ```ini
