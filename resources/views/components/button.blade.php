@@ -8,7 +8,7 @@
         'danger' => 'bg-danger text-white hover:opacity-90 dark:text-bg',
     ];
     $sizes = ['sm' => 'min-h-9 px-3 text-sm', 'md' => 'min-h-11 px-4 text-base', 'lg' => 'min-h-12 px-6 text-base'];
-    $class = 'inline-flex items-center justify-center gap-2 rounded-lg font-medium transition disabled:cursor-not-allowed disabled:opacity-60 '.$variants[$variant].' '.$sizes[$size];
+    $class = 'inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg font-medium transition disabled:cursor-not-allowed disabled:opacity-60 '.$variants[$variant].' '.$sizes[$size];
 @endphp
 
 @if ($href)

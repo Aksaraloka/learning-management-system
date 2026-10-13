@@ -71,3 +71,10 @@ it('keeps design tokens declared for both themes', function () {
         expect(substr_count($css, "--color-{$token}:"))->toBeGreaterThanOrEqual(2, "token {$token} must exist in light and dark");
     }
 });
+
+it('gives every clickable control a pointer cursor and disabled ones not-allowed', function () {
+    $css = file_get_contents(resource_path('css/app.css'));
+
+    expect($css)->toContain('button:not(:disabled)')->toContain('cursor: pointer;')->toContain('button:disabled')->toContain('cursor: not-allowed;');
+    expect(file_get_contents(resource_path('views/components/button.blade.php')))->toContain('cursor-pointer');
+});
