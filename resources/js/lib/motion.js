@@ -11,6 +11,14 @@ const MAX_ITEMS = 12;
 
 let gsapPromise = null;
 
+// Elemen yang sudah dianimasikan. Disimpan di WeakSet (bukan atribut data-*) karena morph Livewire membuang atribut
+// yang tidak ada di HTML server; tanpa ini animasi berjalan ulang di tiap render dan bisa menyisakan opacity 0.
+const revealed = new WeakSet();
+
+// Setelah Livewire pertama kali memperbarui halaman, animasi muncul tidak dijalankan lagi: morph dapat mengganti elemen
+// yang sudah tampil, dan elemen pengganti yang disetel opacity 0 bisa tertinggal tak terlihat. Navigasi halaman mereset ini.
+let livewireUpdated = false;
+
 export const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export function loadGsap() {
@@ -24,11 +32,11 @@ export function loadGsap() {
  * Pakai: <ul x-reveal> atau <ul x-reveal.self> (animasikan elemen itu sendiri).
  */
 function reveal(el, { modifiers }) {
-    if (prefersReducedMotion() || el.dataset.revealed) {
+    if (prefersReducedMotion() || livewireUpdated || revealed.has(el)) {
         return;
     }
 
-    el.dataset.revealed = '1';
+    revealed.add(el);
 
     const targets = (modifiers.includes('self') ? [el] : [...el.children]).slice(0, MAX_ITEMS);
 
@@ -57,7 +65,7 @@ function reveal(el, { modifiers }) {
             gsap.fromTo(
                 targets,
                 { opacity: 0, y: 12 },
-                { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out', stagger: 0.05, clearProps: 'opacity,transform' },
+                { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out', stagger: 0.05, clearProps: 'opacity,transform', onComplete: showNow },
             );
         })
         .catch(() => {
@@ -105,6 +113,10 @@ export function pulse(el) {
 }
 
 export function registerMotion(Alpine) {
+    document.addEventListener('livewire:init', () => window.Livewire?.hook('commit', () => (livewireUpdated = true)));
+    document.addEventListener('livewire:navigate', () => (livewireUpdated = false));
+
+
     Alpine.directive('reveal', (el, binding) => reveal(el, binding));
     Alpine.directive('countup', (el) => countup(el));
 }
