@@ -17,7 +17,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * 4 mata kuliah demo lengkap dengan pertemuan, materi teks/berkas/tautan/video, dan peserta.
+ * 12 mata kuliah demo lengkap dengan pertemuan, materi teks/berkas/tautan/video, dan peserta.
  * Dijalankan setelah DemoSeeder.
  */
 class CourseSeeder extends Seeder
@@ -43,8 +43,14 @@ class CourseSeeder extends Seeder
             $teacher = User::where('email', "dosen{$def['teacher']}@aksaraloka.test")->firstOrFail();
             Enrollment::create(['course_id' => $course->id, 'user_id' => $teacher->id, 'role' => EnrollmentRole::Teacher]);
 
-            // Mata kuliah 1-2: mahasiswa 1-15. Mata kuliah 3-4: mahasiswa 1-5 (akun demo ber-email) dan 16-30.
-            $members = $i < 2 ? $students->slice(0, 15) : $students->slice(0, 5)->merge($students->slice(15));
+            // Akun demo ber-email (mahasiswa 1-5) ikut semua mata kuliah agar semua fitur bisa dicoba. Sisanya:
+            // mata kuliah 1-2 mahasiswa 6-15, ke-3 dan ke-4 mahasiswa 16-30, selebihnya 14 mahasiswa bergiliran.
+            $others = $students->slice(5)->values();
+            $members = match (true) {
+                $i < 2 => $students->slice(0, 15),
+                $i < 4 => $students->slice(0, 5)->merge($students->slice(15)),
+                default => $students->slice(0, 5)->merge($others->slice(($i * 7) % $others->count())->concat($others)->take(14)),
+            };
             Enrollment::insert($members->map(fn (User $s) => [
                 'course_id' => $course->id, 'user_id' => $s->id, 'role' => EnrollmentRole::Student->value,
                 'created_at' => now(), 'updated_at' => now(),
@@ -110,6 +116,22 @@ class CourseSeeder extends Seeder
                 'sections' => ['Model OSI', 'Pengalamatan IP', 'Routing']],
             ['name' => 'Pemrograman Web', 'teacher' => 1, 'credits' => 4, 'description' => 'Membangun aplikasi web modern.',
                 'sections' => ['HTML dan CSS', 'JavaScript', 'Backend dengan PHP']],
+            ['name' => 'Struktur Data', 'teacher' => 2, 'credits' => 3, 'description' => 'Struktur data fundamental dan analisis kompleksitas.',
+                'sections' => ['Array dan Linked List', 'Stack dan Queue', 'Pohon', 'Graf']],
+            ['name' => 'Sistem Operasi', 'teacher' => 3, 'credits' => 3, 'description' => 'Konsep proses, memori, dan sistem berkas.',
+                'sections' => ['Proses dan Thread', 'Penjadwalan CPU', 'Manajemen Memori']],
+            ['name' => 'Rekayasa Perangkat Lunak', 'teacher' => 1, 'credits' => 3, 'description' => 'Siklus hidup pengembangan perangkat lunak dan praktik tim.',
+                'sections' => ['Model Proses', 'Analisis Kebutuhan', 'Pengujian Perangkat Lunak']],
+            ['name' => 'Kecerdasan Buatan', 'teacher' => 2, 'credits' => 3, 'description' => 'Pengantar pencarian, penalaran, dan pembelajaran mesin.',
+                'sections' => ['Pencarian', 'Representasi Pengetahuan', 'Pembelajaran Mesin']],
+            ['name' => 'Interaksi Manusia dan Komputer', 'teacher' => 3, 'credits' => 2, 'description' => 'Prinsip perancangan antarmuka yang mudah digunakan.',
+                'sections' => ['Prinsip Desain', 'Evaluasi Usability']],
+            ['name' => 'Keamanan Informasi', 'teacher' => 1, 'credits' => 3, 'description' => 'Dasar kriptografi, keamanan jaringan, dan manajemen risiko.',
+                'sections' => ['Kriptografi Dasar', 'Keamanan Aplikasi Web', 'Manajemen Risiko']],
+            ['name' => 'Statistika dan Probabilitas', 'teacher' => 2, 'credits' => 3, 'description' => 'Peluang, sebaran, dan inferensi statistik dasar.',
+                'sections' => ['Peluang', 'Sebaran Peluang', 'Pengujian Hipotesis']],
+            ['name' => 'Pemrograman Mobile', 'teacher' => 3, 'credits' => 3, 'description' => 'Membangun aplikasi untuk perangkat bergerak.',
+                'sections' => ['Pengantar Aplikasi Mobile', 'Antarmuka dan Navigasi', 'Penyimpanan Data']],
         ];
     }
 }

@@ -28,22 +28,22 @@ it('seeds one university with a lecturer, a head of study program and 30 student
         ->and(User::where('identity_number', '2260001')->exists())->toBeTrue();
 });
 
-it('seeds four courses with credits, meetings and materials', function () {
+it('seeds twelve courses with credits, meetings and materials', function () {
     $this->seed(CourseSeeder::class);
 
-    expect(Course::count())->toBe(4)
+    expect(Course::count())->toBe(12)
         ->and(Course::whereNull('credits')->count())->toBe(0)
         ->and(Course::where('name', 'Pemrograman Web')->firstOrFail()->credits)->toBe(4)
-        ->and(Section::count())->toBe(13)
-        ->and(Section::where('title', 'like', 'Pertemuan 1:%')->count())->toBe(4)
-        ->and(Material::where('type', 'file')->count())->toBe(13)
-        ->and(Material::where('type', 'video')->count())->toBe(4);
+        ->and(Section::count())->toBe(37)
+        ->and(Section::where('title', 'like', 'Pertemuan 1:%')->count())->toBe(12)
+        ->and(Material::where('type', 'file')->count())->toBe(37)
+        ->and(Material::where('type', 'video')->count())->toBe(12);
 
     Material::where('type', 'file')->each(fn ($m) => Storage::disk('local')->assertExists($m->file_path));
 
     $demo = User::where('email', 'mahasiswa1@aksaraloka.test')->firstOrFail();
 
-    expect(Course::visibleTo($demo)->count())->toBe(4);
+    expect(Course::visibleTo($demo)->count())->toBe(12);
 });
 
 it('lets the demo lecturer manage and the demo student read the seeded courses', function () {
@@ -69,7 +69,7 @@ it('seeds demo assignments with a mix of statuses', function () {
     $this->seed(CourseSeeder::class);
     $this->seed(AssignmentSeeder::class);
 
-    expect(Assignment::count())->toBe(8);
+    expect(Assignment::count())->toBe(24);
 
     $statuses = Submission::query()->pluck('status')->map->value->unique()->sort()->values()->all();
 

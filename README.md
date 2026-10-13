@@ -47,7 +47,7 @@ Semua kata sandi: `password`. Hasil `php artisan db:seed` (DemoSeeder).
 | Mahasiswa (email) | `mahasiswa1@aksaraloka.test` … `mahasiswa5@aksaraloka.test` |
 | Mahasiswa (NIM saja) | `2260006` … `2260030` |
 
-Login menerima email **atau** NIM/NIDN. Data demo berisi 4 mata kuliah (dosen1 mengampu Algoritma dan Pemrograman serta Pemrograman Web;
+Login menerima email **atau** NIM/NIDN. Data demo berisi 12 mata kuliah (mis. Algoritma dan Pemrograman, Basis Data, Struktur Data, Kecerdasan Buatan; tiap dosen mengampu 4 mata kuliah;
 mahasiswa1–5 mengikuti semuanya) lengkap dengan pertemuan, materi (teks, PDF, tautan, video), tugas, dan kuis (*Kuis Harian* yang masih dibuka dan *Kuis Evaluasi* yang sudah ditutup dengan beberapa percobaan).
 
 ## Mata kuliah & materi
