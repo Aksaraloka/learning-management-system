@@ -31,16 +31,17 @@
             @foreach ($courses as $course)
                 <li wire:key="course-{{ $course->id }}">
                     <a href="{{ route('courses.show', $course) }}" wire:navigate
-                       class="flex h-full flex-col gap-3 rounded-card border border-border bg-surface p-4 transition hover:border-primary">
-                        <div class="flex items-start justify-between gap-2">
+                       class="flex h-full flex-col gap-3 overflow-hidden rounded-card border border-border bg-surface pb-4 transition hover:border-primary">
+                        <img src="{{ $course->bannerUrl() }}" alt="" loading="lazy" referrerpolicy="no-referrer" class="aspect-[3/1] w-full object-cover">
+                        <div class="flex items-start justify-between gap-2 px-4">
                             <h2 class="font-semibold leading-snug">{{ $course->name }}</h2>
                             <x-icon name="chevron-right" class="mt-0.5 text-text-muted" />
                         </div>
-                        <div class="flex flex-wrap gap-1.5">
+                        <div class="flex flex-wrap gap-1.5 px-4">
                             <x-badge>{{ $course->term->name }}</x-badge>
                             @if ($course->credits) <x-badge variant="primary">{{ __('courses.index.credits', ['n' => $course->credits]) }}</x-badge> @endif
                         </div>
-                        <p class="mt-auto text-sm text-text-muted">
+                        <p class="mt-auto px-4 text-sm text-text-muted">
                             {{ $course->teachers->pluck('name')->join(', ') ?: __('courses.index.no_teacher') }}
                             · {{ __('courses.index.members_count', ['n' => $course->students_count]) }}
                         </p>

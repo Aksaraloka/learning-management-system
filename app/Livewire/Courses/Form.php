@@ -3,19 +3,29 @@
 namespace App\Livewire\Courses;
 
 use App\Actions\Courses\CreateCourse;
+use App\Actions\Courses\UpdateCourseBanner;
 use App\Enums\Role;
 use App\Models\AcademicTerm;
 use App\Models\Course;
 use App\Models\User;
+use App\Support\Upload;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Livewire\WithFileUploads;
 
 class Form extends Component
 {
+    use WithFileUploads;
+
     public ?Course $course = null;
+
+    public ?TemporaryUploadedFile $banner = null;
+
+    public bool $removeBanner = false;
 
     public string $academic_term_id = '';
 
@@ -44,7 +54,7 @@ class Form extends Component
         Gate::authorize('create', Course::class);
     }
 
-    public function save(CreateCourse $createCourse): void
+    public function save(CreateCourse $createCourse, UpdateCourseBanner $updateBanner): void
     {
         $user = Auth::user();
         $needsTeacher = ! $this->course && $user->isAdmin();
@@ -55,7 +65,9 @@ class Form extends Component
             'credits' => ['required', 'integer', 'between:1,24'],
             'description' => ['nullable', 'string', 'max:5000'],
             'teacher_id' => $needsTeacher ? ['required', 'integer', 'exists:users,id'] : ['nullable'],
+            'banner' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:'.min(2048, Upload::maxKb())],
         ], [], [
+            'banner' => __('courses.form.banner'),
             'academic_term_id' => __('courses.form.term'),
             'name' => __('courses.form.name'),
             'credits' => __('courses.form.credits'),
@@ -78,6 +90,8 @@ class Form extends Component
 
             $course = $createCourse->handle($attributes, $teacher);
         }
+
+        $updateBanner->handle($course, $this->banner, $this->removeBanner);
 
         $this->redirectRoute('courses.show', $course);
     }

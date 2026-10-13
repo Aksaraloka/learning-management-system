@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AssignmentFileController;
+use App\Http\Controllers\CourseBannerController;
 use App\Http\Controllers\GradebookExportController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ManifestController;
@@ -54,6 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/kelas/{course}/materi/{material}', Materials\Show::class)->name('materials.show');
     Route::get('/kelas/{course}/materi/{material}/ubah', Materials\Form::class)->name('materials.edit');
     Route::get('/materi/{material}/berkas', MaterialFileController::class)->name('materials.file');
+    Route::get('/kelas/{course}/banner', CourseBannerController::class)->name('courses.banner');
 
     // Tugas.
     Route::get('/tugas', Assignments\Index::class)->name('assignments.index');

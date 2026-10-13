@@ -24,17 +24,42 @@ use Illuminate\Support\Str;
  * @property string $code
  * @property int|null $credits
  * @property string|null $description
+ * @property string|null $banner_path
+ * @property string|null $banner_mime
+ * @property Carbon|null $updated_at
  * @property Carbon $created_at
  * @property-read AcademicTerm $term
  * @property-read Collection<int, User> $teachers
  * @property-read Collection<int, Section> $sections
  * @property-read int|null $students_count
  */
-#[Fillable(['academic_term_id', 'name', 'code', 'credits', 'description'])]
+#[Fillable(['academic_term_id', 'name', 'code', 'credits', 'description', 'banner_path', 'banner_mime'])]
 class Course extends Model
 {
     /** @use HasFactory<CourseFactory> */
     use HasFactory, SoftDeletes;
+
+    /** Warna latar placeholder (hex tanpa #), dipilih menurut id agar tiap mata kuliah berbeda. */
+    private const PLACEHOLDER_COLORS = ['9f1f1f', '1e3a8a', '14532d', '581c87', '9a3412', '134e4a'];
+
+    public function hasBanner(): bool
+    {
+        return $this->banner_path !== null && $this->banner_path !== '';
+    }
+
+    /**
+     * URL banner: gambar unggahan (disajikan controller privat) atau placeholder placehold.co bernama mata kuliah.
+     */
+    public function bannerUrl(): string
+    {
+        if ($this->hasBanner()) {
+            return route('courses.banner', $this).'?v='.($this->updated_at->timestamp ?? 0);
+        }
+
+        $color = self::PLACEHOLDER_COLORS[$this->id % count(self::PLACEHOLDER_COLORS)];
+
+        return "https://placehold.co/1200x400/{$color}/ffffff/png?text=".rawurlencode(Str::limit($this->name, 40, '…'));
+    }
 
     /** Tanpa 0/O/1/I/L agar kode mudah dibaca dan diketik di HP. */
     private const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';

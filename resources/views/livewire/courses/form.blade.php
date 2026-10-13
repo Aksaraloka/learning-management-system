@@ -16,6 +16,19 @@
 
                 <x-textarea name="description" wire:model="description" :label="__('courses.form.description')" />
 
+                <div class="space-y-2">
+                    <p class="text-sm font-medium">{{ __('courses.form.banner') }}</p>
+                    <img src="{{ $course ? $course->bannerUrl() : 'https://placehold.co/1200x400/9f1f1f/ffffff/png?text='.rawurlencode(__('courses.form.banner_preview')) }}"
+                         alt="" referrerpolicy="no-referrer" class="aspect-[3/1] w-full rounded-card border border-border object-cover">
+                    @if ($course?->hasBanner())
+                        <label class="flex min-h-11 items-center gap-3 text-sm">
+                            <input type="checkbox" wire:model="removeBanner" class="size-5 rounded border-border accent-[var(--color-primary)]">
+                            {{ __('courses.form.banner_remove') }}
+                        </label>
+                    @endif
+                    <x-input.file name="banner" livewire-prop="banner" max-size="2MB" :accept="['image/jpeg', 'image/png', 'image/webp']" :hint="__('courses.form.banner_hint')" />
+                </div>
+
                 <div class="flex flex-wrap gap-2">
                     <x-button type="submit" icon="check" wire:loading.attr="disabled" wire:target="save">{{ __('ui.actions.save') }}</x-button>
                     <x-button variant="secondary" :href="$course ? route('courses.show', $course) : route('courses.index')" wire:navigate>{{ __('ui.actions.cancel') }}</x-button>

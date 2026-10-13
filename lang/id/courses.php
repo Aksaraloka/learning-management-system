@@ -26,6 +26,10 @@ return [
     ],
 
     'form' => [
+        'banner' => 'Banner mata kuliah',
+        'banner_preview' => 'Banner mata kuliah',
+        'banner_hint' => 'Opsional. JPG, PNG, atau WebP, maksimal 2 MB, rasio 3:1 (mis. 1200×400). Tanpa gambar, dipakai placeholder.',
+        'banner_remove' => 'Hapus banner (kembali ke placeholder)',
         'create' => 'Buat mata kuliah',
         'edit' => 'Ubah mata kuliah',
         'term' => 'Semester',

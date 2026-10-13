@@ -1,5 +1,7 @@
 <div class="space-y-6">
-    <x-card>
+    <x-card :padding="false" class="overflow-hidden">
+        <img src="{{ $course->bannerUrl() }}" alt="{{ $course->name }}" referrerpolicy="no-referrer" class="aspect-[3/1] max-h-56 w-full object-cover">
+        <div class="p-4 sm:p-5">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div class="min-w-0 space-y-2">
                 <div class="flex flex-wrap gap-1.5">
@@ -40,6 +42,7 @@
                           @click="navigator.clipboard?.writeText('{{ $course->code }}'); $dispatch('toast', { message: '{{ __('courses.show.copied') }}', type: 'success' })">{{ __('courses.show.copy') }}</x-button>
             </div>
         @endif
+        </div>
     </x-card>
 
     <section class="space-y-3" aria-labelledby="materials-heading">

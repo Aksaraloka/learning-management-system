@@ -62,7 +62,8 @@
                         $s = $data['stats'][$course->id];
                     @endphp
                     <li>
-                        <a href="{{ route('courses.show', $course) }}" wire:navigate class="flex h-full flex-col gap-2 rounded-card border border-border bg-surface p-4 hover:border-primary">
+                        <a href="{{ route('courses.show', $course) }}" wire:navigate class="flex h-full flex-col gap-2 overflow-hidden rounded-card border border-border bg-surface p-4 hover:border-primary">
+                            <img src="{{ $course->bannerUrl() }}" alt="" loading="lazy" referrerpolicy="no-referrer" class="-mx-4 -mt-4 mb-1 aspect-[3/1] w-[calc(100%+2rem)] max-w-none object-cover">
                             <span class="font-semibold leading-snug">{{ $course->name }}</span>
                             <span class="text-xs text-text-muted">{{ $course->term->name }} · {{ __('courses.index.members_count', ['n' => $s['students']]) }}</span>
                             <span class="mt-auto flex flex-wrap gap-1.5 pt-1">
