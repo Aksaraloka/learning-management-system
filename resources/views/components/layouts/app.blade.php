@@ -75,7 +75,7 @@
                             <span class="hidden max-w-32 truncate text-sm sm:block">{{ $user->name }}</span>
                         </x-slot:trigger>
 
-                        <a href="{{ route('profile.edit') }}" role="menuitem" class="flex min-h-10 items-center gap-2 rounded-md px-3 text-sm hover:bg-surface-muted"><x-icon name="user" class="size-4" /> {{ __('ui.nav.profile') }}</a>
+                        <a href="{{ route('profile.show') }}" role="menuitem" class="flex min-h-10 items-center gap-2 rounded-md px-3 text-sm hover:bg-surface-muted"><x-icon name="user" class="size-4" /> {{ __('ui.nav.profile') }}</a>
                         {{-- Keluar: buang berkas materi yang disimpan offline agar tidak tertinggal di perangkat bersama. --}}
                         <form method="POST" action="{{ route('logout') }}" @submit="window.caches && caches.delete('aksaraloka-materials-v1')">
                             @csrf

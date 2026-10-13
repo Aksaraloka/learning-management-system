@@ -1,7 +1,7 @@
 <?php
 
 use App\Enums\Role;
-use App\Livewire\Profile;
+use App\Support\Navigation;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
@@ -13,11 +13,11 @@ beforeEach(function () {
 
 it('shows editable profile fields', function () {
     $this->actingAs($this->user)->get(route('profile.edit'))->assertOk()
-        ->assertSee('Nomor telepon')->assertSee('Tentang saya')->assertSee('Foto profil')->assertSee('2260001');
+        ->assertSee('Nomor telepon')->assertSee('Tentang saya')->assertSee('Foto profil')->assertSee('dikelola admin akademik');
 });
 
 it('updates name, email, phone and bio', function () {
-    Livewire::actingAs($this->user)->test(Profile::class)
+    Livewire::actingAs($this->user)->test(ProfileEdit::class)
         ->set('name', 'Ani Lestari')->set('email', 'ani.baru@kampus.test')->set('phone', '+62 812-3456-7890')->set('bio', 'Mahasiswa Informatika')
         ->call('saveInfo')->assertHasNoErrors();
 
@@ -30,28 +30,28 @@ it('updates name, email, phone and bio', function () {
 it('validates the profile fields', function () {
     makeUser(Role::Teacher, ['email' => 'dipakai@kampus.test']);
 
-    Livewire::actingAs($this->user)->test(Profile::class)
+    Livewire::actingAs($this->user)->test(ProfileEdit::class)
         ->set('name', '')->set('email', 'bukan-email')->set('phone', 'abc')->set('bio', str_repeat('x', 501))
         ->call('saveInfo')->assertHasErrors(['name', 'email', 'phone', 'bio']);
 
-    Livewire::actingAs($this->user)->test(Profile::class)->set('email', 'dipakai@kampus.test')->call('saveInfo')->assertHasErrors(['email']);
+    Livewire::actingAs($this->user)->test(ProfileEdit::class)->set('email', 'dipakai@kampus.test')->call('saveInfo')->assertHasErrors(['email']);
 });
 
 it('keeps the own email without a uniqueness error', function () {
-    Livewire::actingAs($this->user)->test(Profile::class)->set('name', 'Ani B')->call('saveInfo')->assertHasNoErrors();
+    Livewire::actingAs($this->user)->test(ProfileEdit::class)->set('name', 'Ani B')->call('saveInfo')->assertHasNoErrors();
 });
 
 it('lets an account with an identity number clear the email, but not one without', function () {
-    Livewire::actingAs($this->user)->test(Profile::class)->set('email', '')->call('saveInfo')->assertHasNoErrors();
+    Livewire::actingAs($this->user)->test(ProfileEdit::class)->set('email', '')->call('saveInfo')->assertHasNoErrors();
     expect($this->user->fresh()->email)->toBeNull();
 
     $noId = makeUser(Role::Teacher, ['email' => 'dosen@kampus.test', 'identity_number' => null]);
 
-    Livewire::actingAs($noId)->test(Profile::class)->set('email', '')->call('saveInfo')->assertHasErrors(['email']);
+    Livewire::actingAs($noId)->test(ProfileEdit::class)->set('email', '')->call('saveInfo')->assertHasErrors(['email']);
 });
 
 it('uploads, serves, replaces and removes a profile photo', function () {
-    $page = fn () => Livewire::actingAs($this->user->fresh())->test(Profile::class);
+    $page = fn () => Livewire::actingAs($this->user->fresh())->test(ProfileEdit::class);
 
     $page()->set('avatar', UploadedFile::fake()->image('a.png'))->call('saveInfo')->assertHasNoErrors();
     $first = $this->user->fresh();
@@ -71,21 +71,21 @@ it('uploads, serves, replaces and removes a profile photo', function () {
 });
 
 it('keeps the photo when other fields are saved', function () {
-    Livewire::actingAs($this->user)->test(Profile::class)->set('avatar', UploadedFile::fake()->image('a.png'))->call('saveInfo');
+    Livewire::actingAs($this->user)->test(ProfileEdit::class)->set('avatar', UploadedFile::fake()->image('a.png'))->call('saveInfo');
     $path = $this->user->fresh()->avatar_path;
 
-    Livewire::actingAs($this->user->fresh())->test(Profile::class)->set('bio', 'Baru')->call('saveInfo')->assertHasNoErrors();
+    Livewire::actingAs($this->user->fresh())->test(ProfileEdit::class)->set('bio', 'Baru')->call('saveInfo')->assertHasNoErrors();
 
     expect($this->user->fresh()->avatar_path)->toBe($path);
 });
 
 it('rejects non-image photos', function () {
-    Livewire::actingAs($this->user)->test(Profile::class)
+    Livewire::actingAs($this->user)->test(ProfileEdit::class)
         ->set('avatar', UploadedFile::fake()->create('x.pdf', 10, 'application/pdf'))->call('saveInfo')->assertHasErrors(['avatar']);
 });
 
 it('shows the photo in the header and requires login to fetch it', function () {
-    Livewire::actingAs($this->user)->test(Profile::class)->set('avatar', UploadedFile::fake()->image('a.png'))->call('saveInfo');
+    Livewire::actingAs($this->user)->test(ProfileEdit::class)->set('avatar', UploadedFile::fake()->image('a.png'))->call('saveInfo');
     $user = $this->user->fresh();
 
     $this->actingAs($user)->get(route('home'))->assertSee("/pengguna/{$user->id}/foto", false);
@@ -101,9 +101,30 @@ it('returns 404 for a user without a photo', function () {
 it('still changes the password with the current one', function () {
     $this->user->update(['password' => 'lama-sandi-1']);
 
-    Livewire::actingAs($this->user)->test(Profile::class)
+    Livewire::actingAs($this->user)->test(ProfileEdit::class)
         ->set('current_password', 'lama-sandi-1')->set('password', 'baru-sandi-2')->set('password_confirmation', 'baru-sandi-2')
         ->call('savePassword')->assertHasNoErrors();
 
     expect(Hash::check('baru-sandi-2', $this->user->fresh()->password))->toBeTrue();
+});
+
+it('shows the profile page as read-only data with a link to edit', function () {
+    $this->user->update(['phone' => '0812-3456', 'bio' => 'Suka algoritma']);
+
+    $html = $this->actingAs($this->user)->get(route('profile.show'))->assertOk()
+        ->assertSee('Ani')->assertSee('2260001')->assertSee('ani@kampus.test')->assertSee('0812-3456')->assertSee('Suka algoritma')
+        ->assertSee('Ubah profil')->assertSee(route('profile.edit'), false)->getContent();
+
+    // Halaman profil hanya menampilkan data: tidak ada kolom isian atau tombol simpan.
+    expect($html)->not->toContain('name="name"')->not->toContain('name="phone"')->not->toContain('wire:submit');
+});
+
+it('redirects to the profile page after saving', function () {
+    Livewire::actingAs($this->user)->test(ProfileEdit::class)->set('bio', 'Baru')->call('saveInfo')->assertRedirect(route('profile.show'));
+});
+
+it('links the navigation and header to the read-only profile', function () {
+    expect(collect(Navigation::for($this->user))->pluck('route'))->toContain('profile.show')->not->toContain('profile.edit');
+
+    $this->actingAs($this->user)->get(route('home'))->assertSee(route('profile.show'), false);
 });

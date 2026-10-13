@@ -26,6 +26,7 @@ use App\Livewire\Gradebook;
 use App\Livewire\Materials;
 use App\Livewire\Notifications;
 use App\Livewire\Profile;
+use App\Livewire\ProfileEdit;
 use App\Livewire\Quizzes;
 use Illuminate\Support\Facades\Route;
 
@@ -43,7 +44,8 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
     Route::put('/theme', [SessionController::class, 'theme'])->name('theme.update');
-    Route::get('/profil', Profile::class)->name('profile.edit');
+    Route::get('/profil', Profile::class)->name('profile.show');
+    Route::get('/profil/ubah', ProfileEdit::class)->name('profile.edit');
 });
 
 // Kelas, topik/pertemuan, dan materi. Rute dengan segmen tetap (buat) sebelum rute berparameter.

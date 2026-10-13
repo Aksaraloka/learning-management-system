@@ -15,7 +15,7 @@ class Navigation
      */
     public static function for(?User $user): array
     {
-        $profile = ['label' => __('ui.nav.profile'), 'icon' => 'user', 'route' => 'profile.edit'];
+        $profile = ['label' => __('ui.nav.profile'), 'icon' => 'user', 'route' => 'profile.show', 'match' => ['profile.*']];
         $home = ['label' => __('ui.nav.home'), 'icon' => 'home', 'route' => 'home'];
         $classes = ['label' => __('ui.nav.classes'), 'icon' => 'book-open', 'route' => 'courses.index', 'match' => ['courses.*', 'materials.*']];
 
