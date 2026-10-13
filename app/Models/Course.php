@@ -58,7 +58,11 @@ class Course extends Model
 
         $color = self::PLACEHOLDER_COLORS[$this->id % count(self::PLACEHOLDER_COLORS)];
 
-        return "https://placehold.co/1200x400/{$color}/ffffff/png?text=".rawurlencode(Str::limit($this->name, 40, '…'));
+        // placehold.co menyesuaikan ukuran huruf dengan lebar teks; SKS ditambahkan agar nama pendek tidak
+        // tampil jauh lebih besar daripada nama panjang.
+        $text = Str::limit($this->name, 40, '…').($this->credits ? ' · '.$this->credits.' SKS' : '');
+
+        return "https://placehold.co/1200x400/{$color}/ffffff/png?text=".rawurlencode($text);
     }
 
     /** Tanpa 0/O/1/I/L agar kode mudah dibaca dan diketik di HP. */

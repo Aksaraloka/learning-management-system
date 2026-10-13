@@ -1,6 +1,9 @@
 <?php
 
 return [
+    'summary' => 'Ringkasan',
+    'avg_final' => 'Rata-rata nilai akhir',
+    'urgent' => ':n dalam 24 jam',
     'deadlines' => 'Tenggat terdekat',
     'no_deadlines' => 'Tidak ada tenggat dalam 14 hari ke depan',
     'recent_grades' => 'Nilai terbaru',
@@ -9,7 +12,7 @@ return [
     'grade_per_course' => 'Nilai akhir per mata kuliah',
     'avg' => 'Rata-rata',
     'avg_per_course' => 'Rata-rata nilai per mata kuliah',
-    'submission_rate' => 'Pengumpulan tugas',
+    'submission_rate' => 'Tugas masuk',
     'needs_grading' => 'Perlu dinilai',
     'all_graded' => 'Semua sudah dinilai',
     'n_pending' => ':n menunggu',

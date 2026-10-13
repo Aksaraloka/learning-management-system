@@ -6,7 +6,7 @@
     <x-card :title="__('dashboard.avg_per_course')">
         @if ($data['chart']['values'])
             <x-chart type="bar" :label="__('dashboard.avg_per_course')"
-                     :data="['labels' => $data['chart']['labels'], 'datasets' => [['label' => __('dashboard.avg'), 'data' => $data['chart']['values'], 'mono' => true]]]"
+                     :data="['labels' => array_map(fn ($l) => str($l)->limit(20)->toString(), $data['chart']['labels']), 'datasets' => [['label' => __('dashboard.avg'), 'data' => $data['chart']['values'], 'mono' => true]]]"
                      :options="['indexAxis' => 'y', 'scales' => ['x' => ['min' => 0, 'max' => 100]], 'plugins' => ['legend' => ['display' => false]]]" />
         @else
             <x-empty-state icon="chart-bar" :title="__('dashboard.no_data')" />

@@ -1,18 +1,17 @@
 <x-layouts.app :title="__('ui.nav.home')">
-    <x-card>
-        <h2 class="text-lg font-semibold">{{ __('ui.dashboard.welcome', ['name' => $user->name]) }}</h2>
-        <div class="mt-2 flex flex-wrap gap-1">
-            @foreach ($user->roles as $role)
-                <x-badge variant="primary">{{ \App\Enums\Role::tryFrom($role->name)?->label() ?? $role->name }}</x-badge>
-            @endforeach
+    <header class="flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
+        <div class="min-w-0">
+            <p class="text-sm text-text-muted">{{ now()->timezone(config('app.timezone'))->translatedFormat('l, j F Y') }}</p>
+            <h2 class="mt-0.5 text-2xl font-bold leading-tight sm:text-3xl">{{ __('ui.dashboard.welcome', ['name' => $user->name]) }}</h2>
+            <div class="mt-2 flex flex-wrap gap-1.5">
+                @foreach ($user->roles as $role)
+                    <x-badge variant="primary">{{ \App\Enums\Role::tryFrom($role->name)?->label() ?? $role->name }}</x-badge>
+                @endforeach
+            </div>
         </div>
-    </x-card>
 
-    <a href="{{ route('announcements.index') }}" wire:navigate class="mt-4 flex min-h-12 items-center gap-3 rounded-card border border-border bg-surface px-4 hover:border-primary">
-        <x-icon name="megaphone" class="text-primary" />
-        <span class="flex-1 text-sm font-medium">{{ __('announcements.title_page') }}</span>
-        <x-icon name="chevron-right" class="size-4 text-text-muted" />
-    </a>
+        <x-button variant="secondary" size="sm" icon="megaphone" :href="route('announcements.index')" wire:navigate>{{ __('announcements.title_page') }}</x-button>
+    </header>
 
     @if ($kind === 'basic')
         <section class="mt-6 space-y-3" aria-labelledby="my-courses">
