@@ -25,6 +25,7 @@ return [
         'user_password_reset' => 'Mengatur ulang kata sandi',
         'users_imported' => 'Impor pengguna',
         'course_deleted' => 'Menghapus mata kuliah',
+        'auth_sso_login' => 'Masuk lewat akun kampus (SSO)',
     ],
 
     'keys' => [
@@ -35,6 +36,7 @@ return [
         'students' => 'Mahasiswa',
         'date' => 'Tanggal',
         'name' => 'Nama',
+        'roles' => 'Peran',
         'success' => 'Berhasil',
         'failed' => 'Gagal',
     ],

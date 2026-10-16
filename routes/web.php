@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AcademicAuthController;
 use App\Http\Controllers\AssignmentFileController;
 use App\Http\Controllers\AvatarController;
 use App\Http\Controllers\CourseBannerController;
@@ -37,6 +38,8 @@ Route::view('/offline', 'offline')->name('offline');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', Login::class)->name('login');
+    Route::get('/auth/academic', [AcademicAuthController::class, 'redirect'])->name('academic.redirect');
+    Route::get('/auth/academic/callback', [AcademicAuthController::class, 'callback'])->name('academic.callback');
     Route::get('/lupa-kata-sandi', ForgotPassword::class)->name('password.request');
     Route::get('/reset-kata-sandi/{token}', ResetPassword::class)->name('password.reset');
 });

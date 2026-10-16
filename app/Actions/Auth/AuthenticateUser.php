@@ -41,6 +41,11 @@ class AuthenticateUser
             throw ValidationException::withMessages(['identifier' => __('auth.failed')]);
         }
 
+        // Saat integrasi aktif, form kata sandi hanya untuk admin (jalur darurat bila SSO gagal).
+        if (config('academic.enabled') && ! $user->isAdmin()) {
+            throw ValidationException::withMessages(['identifier' => __('auth.sso_only')]);
+        }
+
         RateLimiter::clear($key);
         Auth::login($user, $remember);
 

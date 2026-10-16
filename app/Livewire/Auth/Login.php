@@ -30,7 +30,7 @@ class Login extends Component
 
     public function render(): View
     {
-        return view('livewire.auth.login')
+        return view('livewire.auth.login', ['ssoEnabled' => (bool) config('academic.enabled')])
             ->layout('components.layouts.auth')
             ->title(__('ui.auth.login'));
     }

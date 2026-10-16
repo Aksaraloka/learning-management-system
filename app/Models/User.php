@@ -12,6 +12,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
+/**
+ * @property int|null $academic_user_id
+ */
 #[Fillable(['name', 'email', 'identity_number', 'password', 'theme', 'locale', 'phone', 'bio', 'avatar_path', 'avatar_mime'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
@@ -24,6 +27,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'academic_user_id' => 'integer',
         ];
     }
 
