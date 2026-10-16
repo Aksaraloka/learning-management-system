@@ -58,11 +58,16 @@ class Form extends Component
     {
         $user = Auth::user();
         $needsTeacher = ! $this->course && $user->isAdmin();
+        $managed = $this->isManaged();
 
-        $data = $this->validate([
+        // Kelas hasil sinkron Academic: nama, SKS, dan semester milik Academic; hanya deskripsi dan banner yang boleh diubah.
+        $identityRules = $managed ? [] : [
             'academic_term_id' => ['required', Rule::exists('academic_terms', 'id')->whereNull('deleted_at')],
             'name' => ['required', 'string', 'max:255'],
             'credits' => ['required', 'integer', 'between:1,24'],
+        ];
+
+        $data = $this->validate($identityRules + [
             'description' => ['nullable', 'string', 'max:5000'],
             'teacher_id' => $needsTeacher ? ['required', 'integer', 'exists:users,id'] : ['nullable'],
             'banner' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:'.min(2048, Upload::maxKb())],
@@ -74,12 +79,15 @@ class Form extends Component
             'teacher_id' => term('teacher'),
         ]);
 
-        $attributes = [
-            'academic_term_id' => (int) $data['academic_term_id'],
-            'name' => trim($data['name']),
-            'credits' => (int) $data['credits'],
-            'description' => trim((string) $data['description']) ?: null,
-        ];
+        $attributes = ['description' => trim((string) $data['description']) ?: null];
+
+        if (! $managed) {
+            $attributes += [
+                'academic_term_id' => (int) $data['academic_term_id'],
+                'name' => trim($data['name']),
+                'credits' => (int) $data['credits'],
+            ];
+        }
 
         if ($this->course) {
             $this->course->update($attributes);
@@ -96,11 +104,17 @@ class Form extends Component
         $this->redirectRoute('courses.show', $course);
     }
 
+    private function isManaged(): bool
+    {
+        return (bool) $this->course?->isManagedByAcademic();
+    }
+
     public function render(): View
     {
         $user = Auth::user();
 
         return view('livewire.courses.form', [
+            'managed' => $this->isManaged(),
             'terms' => AcademicTerm::query()
                 ->where(fn ($q) => $q->where('is_locked', false)->orWhere('id', $this->course?->academic_term_id))
                 ->orderByDesc('starts_at')->pluck('name', 'id')->all(),

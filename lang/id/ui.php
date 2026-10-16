@@ -82,6 +82,7 @@ return [
     ],
 
     'terms' => [
+        'managed' => 'Dikelola Academic',
         'add' => 'Tambah semester',
         'edit' => 'Ubah semester',
         'name' => 'Nama',

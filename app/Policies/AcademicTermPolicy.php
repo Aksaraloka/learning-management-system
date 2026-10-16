@@ -24,12 +24,12 @@ class AcademicTermPolicy
 
     public function update(User $user, AcademicTerm $term): bool
     {
-        return $this->create($user) && ! $term->is_locked;
+        return $this->create($user) && ! $term->is_locked && ! $term->isManagedByAcademic();
     }
 
     public function lock(User $user, AcademicTerm $term): bool
     {
-        return $this->create($user);
+        return $this->create($user) && ! $term->isManagedByAcademic();
     }
 
     public function delete(User $user, AcademicTerm $term): bool

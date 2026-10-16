@@ -27,6 +27,9 @@
                     </td>
                     <td data-label="{{ __('ui.users.actions') }}" class="sm:text-right">
                         <div class="flex flex-wrap justify-end gap-2">
+                            @if ($term->isManagedByAcademic())
+                                <x-badge variant="neutral">{{ __('ui.terms.managed') }}</x-badge>
+                            @endif
                             @can('lock', $term)
                                 <x-button variant="secondary" size="sm" wire:click="toggleLock({{ $term->id }})" :icon="$term->is_locked ? 'eye' : 'lock'">
                                     {{ $term->is_locked ? __('ui.terms.unlock') : __('ui.terms.lock') }}

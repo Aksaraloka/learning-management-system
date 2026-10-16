@@ -37,6 +37,10 @@ class JoinCourse
             throw ValidationException::withMessages(['code' => __('courses.join.invalid')]);
         }
 
+        if ($course->isManagedByAcademic()) {
+            throw ValidationException::withMessages(['code' => __('courses.join.managed')]);
+        }
+
         if ($course->hasMember($user)) {
             throw ValidationException::withMessages(['code' => __('courses.join.already')]);
         }

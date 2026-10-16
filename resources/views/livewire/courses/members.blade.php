@@ -3,6 +3,10 @@
         <x-icon name="arrow-left" class="size-4" /> {{ __('courses.members.back') }}
     </a>
 
+    @if ($course->isManagedByAcademic())
+        <p class="rounded-lg bg-surface-muted p-3 text-sm text-text-muted" role="note">{{ __('courses.members.managed') }}</p>
+    @endif
+
     @if ($canManage)
         <x-card :title="__('courses.members.join_code')">
             <div class="flex flex-wrap items-center gap-3">

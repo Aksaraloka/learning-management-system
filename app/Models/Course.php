@@ -26,6 +26,8 @@ use Illuminate\Support\Str;
  * @property string|null $description
  * @property string|null $banner_path
  * @property string|null $banner_mime
+ * @property int|null $academic_class_id
+ * @property bool $grades_locked
  * @property Carbon|null $updated_at
  * @property Carbon $created_at
  * @property-read AcademicTerm $term
@@ -33,7 +35,7 @@ use Illuminate\Support\Str;
  * @property-read Collection<int, Section> $sections
  * @property-read int|null $students_count
  */
-#[Fillable(['academic_term_id', 'name', 'code', 'credits', 'description', 'banner_path', 'banner_mime'])]
+#[Fillable(['academic_term_id', 'name', 'code', 'credits', 'description', 'banner_path', 'banner_mime', 'academic_class_id', 'grades_locked'])]
 class Course extends Model
 {
     /** @use HasFactory<CourseFactory> */
@@ -41,6 +43,39 @@ class Course extends Model
 
     /** Warna latar placeholder (hex tanpa #), dipilih menurut id agar tiap mata kuliah berbeda. */
     private const PLACEHOLDER_COLORS = ['9f1f1f', '1e3a8a', '14532d', '581c87', '9a3412', '134e4a'];
+
+    protected function casts(): array
+    {
+        return ['academic_class_id' => 'integer', 'grades_locked' => 'boolean'];
+    }
+
+    /** Hasil sinkron dari Academic (punya `academic_class_id`). */
+    public function isFromAcademic(): bool
+    {
+        return $this->academic_class_id !== null;
+    }
+
+    /**
+     * Nama, SKS, semester, dan peserta dimiliki Academic: hanya berlaku saat integrasi aktif dan kelas hasil sinkron.
+     */
+    public function isManagedByAcademic(): bool
+    {
+        return config('academic.enabled') && $this->isFromAcademic();
+    }
+
+    /** Nilai terkunci: semester dikunci, atau Academic mengunci nilai kelas ini (`grades.locked`). */
+    public function isGradesLocked(): bool
+    {
+        return $this->grades_locked || (bool) $this->term()->first()?->is_locked;
+    }
+
+    /** Kategori nilai bawaan (Tugas, Kuis, Ujian) untuk kelas baru. */
+    public function createDefaultGradeCategories(): void
+    {
+        foreach (GradeCategory::DEFAULTS as $i => [$name, $weight]) {
+            $this->gradeCategories()->create(['name' => $name, 'weight' => $weight, 'position' => $i + 1]);
+        }
+    }
 
     public function hasBanner(): bool
     {

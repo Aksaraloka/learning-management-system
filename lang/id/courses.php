@@ -22,6 +22,7 @@ return [
         'button' => 'Gabung',
         'invalid' => 'Kode mata kuliah tidak ditemukan.',
         'already' => 'Kamu sudah terdaftar di mata kuliah ini.',
+        'managed' => 'Peserta mata kuliah ini diatur dari KRS di Academic, tidak bisa bergabung dengan kode.',
         'throttle' => 'Terlalu banyak percobaan. Coba lagi dalam :seconds detik.',
     ],
 
@@ -61,6 +62,7 @@ return [
         'credits' => 'SKS',
         'description' => 'Deskripsi',
         'teacher_placeholder' => 'Pilih dosen',
+        'managed' => 'Nama, SKS, dan semester diatur dari Academic. Anda tetap bisa mengubah deskripsi dan banner.',
         'teacher_hint' => 'Dosen utama mata kuliah ini. Dosen lain bisa ditambahkan di Anggota.',
     ],
 
@@ -139,6 +141,7 @@ return [
         'teachers' => 'Dosen',
         'students' => 'Peserta',
         'empty' => 'Belum ada.',
+        'managed' => 'Peserta diatur dari KRS di Academic',
     ],
 
     'dashboard' => ['my_courses' => 'Mata kuliah saya', 'all' => 'Lihat semua'],

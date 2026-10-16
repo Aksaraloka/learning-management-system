@@ -4,10 +4,14 @@
             <p class="rounded-lg bg-surface-muted p-3 text-sm text-text-muted" role="alert">{{ __('courses.form.no_terms') }}</p>
         @else
             <form wire:submit="save" class="space-y-4">
-                <x-select name="academic_term_id" wire:model="academic_term_id" :label="__('courses.form.term')" :placeholder="__('courses.form.term_placeholder')" :options="$terms" required />
-                <x-input name="name" wire:model="name" :label="__('courses.form.name')" placeholder="Algoritma dan Pemrograman" required />
+                @if ($managed)
+                    <p class="rounded-lg bg-surface-muted p-3 text-sm text-text-muted" role="note">{{ __('courses.form.managed') }}</p>
+                @endif
 
-                <x-input name="credits" type="number" min="1" max="24" wire:model="credits" :label="__('courses.form.credits')" required />
+                <x-select name="academic_term_id" wire:model="academic_term_id" :label="__('courses.form.term')" :placeholder="__('courses.form.term_placeholder')" :options="$terms" :disabled="$managed" required />
+                <x-input name="name" wire:model="name" :label="__('courses.form.name')" placeholder="Algoritma dan Pemrograman" :disabled="$managed" required />
+
+                <x-input name="credits" type="number" min="1" max="24" wire:model="credits" :label="__('courses.form.credits')" :disabled="$managed" required />
 
                 @if ($teachers)
                     <x-select name="teacher_id" wire:model="teacher_id" :label="term('teacher')" :hint="__('courses.form.teacher_hint')"

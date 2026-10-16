@@ -18,8 +18,15 @@ class CoursePolicy
         return $user->hasAppRole(Role::Admin, Role::Principal) || $course->hasMember($user);
     }
 
+    /**
+     * Saat integrasi Academic aktif, kelas berasal dari Academic; membuat manual hanya untuk admin.
+     */
     public function create(User $user): bool
     {
+        if (config('academic.enabled')) {
+            return $user->isAdmin();
+        }
+
         return $user->hasAppRole(Role::Admin, Role::Teacher);
     }
 
@@ -31,14 +38,20 @@ class CoursePolicy
         return $user->isAdmin() || $course->isTaughtBy($user);
     }
 
+    /**
+     * Kelas hasil sinkron Academic hanya boleh dihapus (disembunyikan) admin.
+     */
     public function delete(User $user, Course $course): bool
     {
-        return $this->update($user, $course);
+        return $course->isManagedByAcademic() ? $user->isAdmin() : $this->update($user, $course);
     }
 
+    /**
+     * Peserta kelas hasil sinkron diatur dari KRS di Academic, bukan dari Learn.
+     */
     public function manageMembers(User $user, Course $course): bool
     {
-        return $this->update($user, $course);
+        return ! $course->isManagedByAcademic() && $this->update($user, $course);
     }
 
     /**

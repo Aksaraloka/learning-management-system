@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AcademicAuthController;
+use App\Http\Controllers\AcademicClassLinkController;
 use App\Http\Controllers\AssignmentFileController;
 use App\Http\Controllers\AvatarController;
 use App\Http\Controllers\CourseBannerController;
@@ -55,6 +56,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/kelas', Courses\Index::class)->name('courses.index');
     Route::get('/kelas/buat', Courses\Form::class)->name('courses.create');
+    Route::get('/kelas/academic/{classId}', AcademicClassLinkController::class)->whereNumber('classId')->middleware('throttle:30,1')->name('courses.academic');
     Route::get('/kelas/{course}', Courses\Show::class)->name('courses.show');
     Route::get('/kelas/{course}/ubah', Courses\Form::class)->name('courses.edit');
     Route::get('/kelas/{course}/anggota', Courses\Members::class)->name('courses.members');

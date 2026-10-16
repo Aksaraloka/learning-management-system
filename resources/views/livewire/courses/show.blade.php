@@ -21,7 +21,9 @@
                 <div class="flex flex-wrap gap-2 sm:justify-end">
                     <x-button variant="secondary" size="sm" icon="pencil" :href="route('courses.edit', $course)" wire:navigate>{{ __('courses.show.edit') }}</x-button>
                     <x-button variant="secondary" size="sm" icon="users" :href="route('courses.members', $course)" wire:navigate>{{ __('courses.show.members') }}</x-button>
-                    <x-button variant="ghost" size="sm" icon="trash-2" wire:click="deleteCourse" wire:confirm="{{ __('courses.show.confirm_delete') }}">{{ __('courses.show.delete') }}</x-button>
+                    @can('delete', $course)
+                        <x-button variant="ghost" size="sm" icon="trash-2" wire:click="deleteCourse" wire:confirm="{{ __('courses.show.confirm_delete') }}">{{ __('courses.show.delete') }}</x-button>
+                    @endcan
                 </div>
             @elseif ($canRoster)
                 <x-button variant="secondary" size="sm" icon="users" :href="route('courses.members', $course)" wire:navigate>{{ __('courses.show.members') }}</x-button>
@@ -38,7 +40,7 @@
             <x-button variant="secondary" size="sm" icon="megaphone" :href="route('announcements.index', ['kelas' => $course->id])" wire:navigate>{{ __('announcements.title_page') }}</x-button>
         </nav>
 
-        @if ($canManage)
+        @if ($canManage && ! $course->isManagedByAcademic())
             <div class="mt-4 flex flex-wrap items-center gap-3 border-t border-border pt-4" x-data="{ copied: false }">
                 <span class="text-sm text-text-muted">{{ __('courses.show.join_code') }}</span>
                 <code class="rounded-lg bg-surface-muted px-3 py-1.5 text-lg font-semibold tracking-widest select-all">{{ $course->code }}</code>

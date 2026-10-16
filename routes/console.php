@@ -13,3 +13,6 @@ Schedule::command('quizzes:finalize-expired')->everyMinute()->withoutOverlapping
 
 // Pengingat H-1 tugas dan kuis (dedup lewat kolom due_reminded_at).
 Schedule::command('reminders:due')->hourly()->withoutOverlapping();
+
+// Sinkron ulang harian dari Academic sebagai pengaman bila webhook terlewat (hanya saat integrasi aktif).
+Schedule::command('academic:sync --queue')->dailyAt('02:30')->withoutOverlapping()->when(fn () => (bool) config('academic.enabled'));
