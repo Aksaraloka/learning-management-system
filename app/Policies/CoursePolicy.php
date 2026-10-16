@@ -55,6 +55,14 @@ class CoursePolicy
     }
 
     /**
+     * Membuat dan mengisi sesi presensi di Learn. Presensi resmi kelas hasil sinkron ada di Academic (read-only).
+     */
+    public function manageAttendance(User $user, Course $course): bool
+    {
+        return ! $course->isManagedByAcademic() && $this->update($user, $course);
+    }
+
+    /**
      * Daftar peserta lengkap: pengelola kelas dan kepala. mahasiswa hanya melihat dosen.
      */
     public function viewRoster(User $user, Course $course): bool

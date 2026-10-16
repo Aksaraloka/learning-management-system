@@ -7,6 +7,7 @@ use App\Enums\Role;
 use App\Models\AttendanceRecord;
 use App\Models\AttendanceSession;
 use App\Models\Course;
+use App\Models\User;
 use App\Support\AttendanceSummary;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
@@ -40,7 +41,7 @@ class Index extends Component
 
     public function createSession(): void
     {
-        Gate::authorize('update', $this->course);
+        Gate::authorize('manageAttendance', $this->course);
 
         $this->validate([
             'held_on' => ['required', 'date_format:Y-m-d'],
@@ -60,7 +61,7 @@ class Index extends Component
 
     public function deleteSession(int $id): void
     {
-        Gate::authorize('update', $this->course);
+        Gate::authorize('manageAttendance', $this->course);
 
         abort_if((bool) $this->course->term->is_locked, 403);
 
@@ -70,15 +71,21 @@ class Index extends Component
     public function render(): View
     {
         $user = Auth::user();
-        $canManage = Gate::allows('update', $this->course);
-        $isStudent = ! Gate::allows('viewRoster', $this->course) && $user->hasAppRole(Role::Student);
+        $canManage = Gate::allows('manageAttendance', $this->course);
+        $canRoster = Gate::allows('viewRoster', $this->course);
+        $isStudent = ! $canRoster && $user->hasAppRole(Role::Student);
 
-        $sessions = AttendanceSession::query()->where('course_id', $this->course->id)->with('section')
-            ->withCount([
-                'records',
-                'records as present_count' => fn ($q) => $q->where('status', AttendanceStatus::Present->value),
-            ])
-            ->orderByDesc('held_on')->orderByDesc('id')->get();
+        // Presensi resmi dari Academic: rekap read-only; sesi lokal tidak ditampilkan (datanya tidak dihapus).
+        $official = AttendanceSummary::fetch($this->course);
+
+        $sessions = $official['official']
+            ? collect()
+            : AttendanceSession::query()->where('course_id', $this->course->id)->with('section')
+                ->withCount([
+                    'records',
+                    'records as present_count' => fn ($q) => $q->where('status', AttendanceStatus::Present->value),
+                ])
+                ->orderByDesc('held_on')->orderByDesc('id')->get();
 
         $mine = $isStudent
             ? AttendanceRecord::query()->where('user_id', $user->id)->whereIn('attendance_session_id', $sessions->pluck('id'))->get()->keyBy('attendance_session_id')
@@ -89,7 +96,12 @@ class Index extends Component
             'canManage' => $canManage,
             'isStudent' => $isStudent,
             'mine' => $mine,
-            'summary' => $isStudent ? (AttendanceSummary::forCourse($this->course)[$user->id] ?? null) : null,
+            'summary' => $isStudent ? ($official['rows'][$user->id] ?? null) : null,
+            'official' => $official['official'],
+            'available' => $official['available'],
+            'recap' => $official['official'] && $canRoster
+                ? $this->course->students()->reorder('users.name')->get()->map(fn (User $student) => ['student' => $student, 'row' => $official['rows'][$student->id] ?? null])
+                : null,
             'studentCount' => $this->course->students()->count(),
             'sections' => $this->course->sections()->pluck('title', 'id')->all(),
             'locked' => (bool) $this->course->term->is_locked,

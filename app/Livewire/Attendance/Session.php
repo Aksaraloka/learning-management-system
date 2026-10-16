@@ -45,7 +45,7 @@ class Session extends Component
 
     public function setStatus(int $userId, string $status): void
     {
-        Gate::authorize('update', $this->course);
+        Gate::authorize('manageAttendance', $this->course);
 
         if (AttendanceStatus::tryFrom($status)) {
             $this->statuses[$userId] = $status;
@@ -54,7 +54,7 @@ class Session extends Component
 
     public function markAll(string $status): void
     {
-        Gate::authorize('update', $this->course);
+        Gate::authorize('manageAttendance', $this->course);
 
         if (! AttendanceStatus::tryFrom($status)) {
             return;
@@ -67,7 +67,7 @@ class Session extends Component
 
     public function save(SaveAttendance $save): void
     {
-        Gate::authorize('update', $this->course);
+        Gate::authorize('manageAttendance', $this->course);
 
         $entries = [];
 
@@ -87,7 +87,7 @@ class Session extends Component
 
         return view('livewire.attendance.session', [
             'students' => $students,
-            'canManage' => Gate::allows('update', $this->course),
+            'canManage' => Gate::allows('manageAttendance', $this->course),
             'locked' => (bool) $this->course->term()->first()?->is_locked,
             'counts' => $counts,
             'statusCases' => AttendanceStatus::cases(),

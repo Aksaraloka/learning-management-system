@@ -11,6 +11,47 @@
         <p class="rounded-lg border border-warning bg-warning/10 p-3 text-sm" role="status"><x-icon name="lock-closed" class="mr-1 inline size-4" /> {{ __('attendance.locked') }}</p>
     @endif
 
+    @if ($official)
+        <p class="rounded-lg bg-surface-muted p-3 text-sm text-text-muted" role="note">{{ __('attendance.official') }}</p>
+
+        @if (! $available)
+            <x-card>
+                <x-empty-state icon="exclamation-triangle" :title="__('attendance.unavailable')" :description="__('attendance.unavailable_hint')" />
+            </x-card>
+        @elseif ($recap !== null)
+            <x-table>
+                <thead>
+                    <tr>
+                        <th>{{ __('attendance.recap_student') }}</th>
+                        <th>{{ __('attendance.recap_sessions') }}</th>
+                        @foreach (\App\Enums\AttendanceStatus::cases() as $case)
+                            <th>{{ $case->label() }}</th>
+                        @endforeach
+                        <th>{{ __('attendance.recap_percent') }}</th>
+                        <th>{{ __('attendance.standing') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($recap as $line)
+                        <tr wire:key="recap-{{ $line['student']->id }}">
+                            <td data-label="{{ __('attendance.recap_student') }}" class="font-medium">{{ $line['student']->name }}</td>
+                            <td data-label="{{ __('attendance.recap_sessions') }}" class="tabular-nums">{{ $line['row']['total'] ?? '–' }}</td>
+                            @foreach (\App\Enums\AttendanceStatus::cases() as $case)
+                                <td data-label="{{ $case->label() }}" class="tabular-nums">{{ $line['row'][$case->value] ?? '–' }}</td>
+                            @endforeach
+                            <td data-label="{{ __('attendance.recap_percent') }}" class="tabular-nums">{{ isset($line['row']['percent']) ? $fmtPercent($line['row']['percent']) : '–' }}</td>
+                            <td data-label="{{ __('attendance.standing') }}">{{ $line['row']['standing'] ?? '–' }}</td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="8"><x-empty-state icon="calendar-days" :title="__('attendance.no_data')" /></td></tr>
+                    @endforelse
+                </tbody>
+            </x-table>
+        @elseif ($isStudent && ! $summary)
+            <x-card><x-empty-state icon="calendar-days" :title="__('attendance.no_data')" /></x-card>
+        @endif
+    @endif
+
     @if ($isStudent && $summary)
         <x-card :title="__('attendance.my_summary')">
             <p class="text-3xl font-bold">{{ $fmtPercent($summary['percent']) }}</p>
@@ -23,7 +64,7 @@
         </x-card>
     @endif
 
-    @if ($canManage && ! $locked)
+    @if (! $official && $canManage && ! $locked)
         <x-card :title="__('attendance.new_session')">
             <form wire:submit="createSession" class="grid gap-4 sm:grid-cols-2">
                 <x-input.date name="held_on" wire:model="held_on" :value="$held_on" :label="__('attendance.date')" required />
@@ -34,6 +75,7 @@
         </x-card>
     @endif
 
+    @if (! $official)
     <x-card :title="__('attendance.title')" :padding="false">
         @if ($sessions->isEmpty())
             <x-empty-state icon="calendar-days" :title="__('attendance.empty')" :description="$canManage ? __('attendance.empty_manager') : ''" />
@@ -66,4 +108,5 @@
             </ul>
         @endif
     </x-card>
+    @endif
 </div>

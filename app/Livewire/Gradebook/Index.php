@@ -81,11 +81,13 @@ class Index extends Component
             $data['rows'] = array_intersect_key($data['rows'], [$user->id => true]);
         }
 
-        $attendance = AttendanceSummary::forCourse($this->course);
+        $attendanceSource = AttendanceSummary::fetch($this->course);
+        $attendance = $attendanceSource['rows'];
 
         return view('livewire.gradebook.index', [
             'data' => $data,
             'attendance' => $canRoster ? $attendance : array_intersect_key($attendance, [$user->id => true]),
+            'attendanceUnavailable' => $attendanceSource['official'] && ! $attendanceSource['available'],
             'canRoster' => $canRoster,
             'canManage' => Gate::allows('update', $this->course),
             'locked' => $this->course->isGradesLocked(),

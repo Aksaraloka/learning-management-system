@@ -20,6 +20,10 @@
         @endif
     </div>
 
+    @if ($attendanceUnavailable)
+        <p class="rounded-lg border border-warning bg-warning/10 p-3 text-sm" role="status">{{ __('attendance.unavailable') }}</p>
+    @endif
+
     <x-card :title="__('gradebook.weights')">
         <ul class="flex flex-wrap gap-2 text-sm">
             @foreach ($categories as $category)

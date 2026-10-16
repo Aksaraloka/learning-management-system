@@ -23,6 +23,10 @@ class SaveAttendance
     {
         $session->loadMissing('course.term');
 
+        if ($session->course->isManagedByAcademic()) {
+            throw new AuthorizationException(__('attendance.managed'));
+        }
+
         if ($session->course->term->is_locked) {
             throw new AuthorizationException(__('attendance.locked'));
         }
