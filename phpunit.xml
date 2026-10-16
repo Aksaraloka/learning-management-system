@@ -30,6 +30,12 @@
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
+        <env name="ACADEMIC_URL" value=""/>
+        <env name="ACADEMIC_SSO_CLIENT_ID" value=""/>
+        <env name="ACADEMIC_SSO_CLIENT_SECRET" value=""/>
+        <env name="ACADEMIC_SERVER_CLIENT_ID" value=""/>
+        <env name="ACADEMIC_SERVER_CLIENT_SECRET" value=""/>
+        <env name="ACADEMIC_WEBHOOK_SECRET" value=""/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>

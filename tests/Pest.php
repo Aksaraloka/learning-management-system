@@ -132,3 +132,20 @@ function makeAssignment(Course $course, array $attributes = []): Assignment
         'position' => 1,
     ]);
 }
+
+/**
+ * Nyalakan mode integrasi Academic untuk satu test (bawaan test: nonaktif).
+ */
+function enableAcademic(): void
+{
+    config([
+        'academic.enabled' => true,
+        'academic.url' => 'https://academic.test',
+        'academic.sso.client_id' => 'sso-id',
+        'academic.sso.client_secret' => 'sso-secret',
+        'academic.server.client_id' => 'server-id',
+        'academic.server.client_secret' => 'server-secret',
+        'academic.webhook_secret' => 'whsec',
+        'academic.http.retry_delay_ms' => 0,
+    ]);
+}
