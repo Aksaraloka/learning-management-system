@@ -88,7 +88,7 @@ class Index extends Component
             'attendance' => $canRoster ? $attendance : array_intersect_key($attendance, [$user->id => true]),
             'canRoster' => $canRoster,
             'canManage' => Gate::allows('update', $this->course),
-            'locked' => (bool) $this->course->term()->first()?->is_locked,
+            'locked' => $this->course->isGradesLocked(),
         ])->title(__('gradebook.title').' · '.$this->course->name);
     }
 }

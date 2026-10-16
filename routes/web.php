@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AcademicAuthController;
 use App\Http\Controllers\AcademicClassLinkController;
+use App\Http\Controllers\AcademicWebhookController;
 use App\Http\Controllers\AssignmentFileController;
 use App\Http\Controllers\AvatarController;
 use App\Http\Controllers\CourseBannerController;
@@ -36,6 +37,7 @@ Route::get('/', HomeController::class)->name('home');
 Route::view('/kebijakan-privasi', 'privacy')->name('privacy');
 Route::get('/manifest.webmanifest', ManifestController::class)->name('manifest');
 Route::view('/offline', 'offline')->name('offline');
+Route::post('/webhooks/academic', AcademicWebhookController::class)->middleware('throttle:300,1')->name('webhooks.academic');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', Login::class)->name('login');

@@ -26,6 +26,7 @@ return [
         'users_imported' => 'Impor pengguna',
         'course_deleted' => 'Menghapus mata kuliah',
         'auth_sso_login' => 'Masuk lewat akun kampus (SSO)',
+        'auth_sessions_revoked' => 'Mencabut sesi (status mahasiswa tidak aktif)',
     ],
 
     'keys' => [
@@ -37,6 +38,7 @@ return [
         'date' => 'Tanggal',
         'name' => 'Nama',
         'roles' => 'Peran',
+        'status' => 'Status',
         'success' => 'Berhasil',
         'failed' => 'Gagal',
     ],

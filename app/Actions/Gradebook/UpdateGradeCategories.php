@@ -122,9 +122,7 @@ class UpdateGradeCategories
      */
     private function ensureOpen(Course $course): void
     {
-        $course->loadMissing('term');
-
-        if ($course->term->is_locked) {
+        if ($course->isGradesLocked()) {
             throw new AuthorizationException(__('gradebook.locked'));
         }
     }

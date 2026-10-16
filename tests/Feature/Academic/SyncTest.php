@@ -10,7 +10,6 @@ use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Submission;
 use App\Models\User;
-use Illuminate\Http\Client\Factory;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
@@ -19,51 +18,6 @@ beforeEach(function () {
     enableAcademic();
     Cache::flush();
 });
-
-/**
- * @param  array<string, mixed>  $overrides
- * @return array<string, mixed>
- */
-function academicClass(int $id = 10, array $overrides = []): array
-{
-    return $overrides + [
-        'id' => $id, 'term_id' => 1,
-        'subject' => ['code' => 'IF101', 'name' => 'Basis Data', 'credits' => 3],
-        'section' => 'A', 'class_label' => 'A', 'capacity' => 40, 'grades_locked' => false,
-        'teachers' => [['user_id' => 900, 'name' => 'Dr. Dewi', 'email' => 'dewi@kampus.test', 'identity_number' => '0011']],
-    ];
-}
-
-/**
- * @param  array<string, mixed>  $overrides
- * @return array<string, mixed>
- */
-function academicStudent(int $id, array $overrides = []): array
-{
-    return $overrides + ['user_id' => $id, 'name' => "Mahasiswa {$id}", 'email' => "mhs{$id}@kampus.test", 'identity_number' => "22600{$id}", 'status' => 'aktif'];
-}
-
-/**
- * @param  list<array<string, mixed>>  $classes
- * @param  array<int, list<array<string, mixed>>>  $rosters  class id => roster
- * @param  array<string, mixed>  $term
- */
-function fakeAcademicSync(array $classes, array $rosters, array $term = []): void
-{
-    Http::swap(new Factory);
-    Http::fake([
-        'academic.test/oauth/token' => Http::response(['access_token' => 'tok', 'expires_in' => 3600]),
-        'academic.test/api/integration/v1/terms/*/classes*' => Http::response(['data' => $classes]),
-        'academic.test/api/integration/v1/terms*' => Http::response(['data' => [$term + [
-            'id' => 1, 'name' => '2026/2027', 'semester' => 'Ganjil', 'starts_at' => '2026-08-17', 'ends_at' => '2027-01-31', 'is_active' => true, 'is_locked' => false,
-        ]]]),
-        'academic.test/api/integration/v1/classes/*/roster*' => function ($request) use ($rosters) {
-            preg_match('#classes/(\d+)/roster#', $request->url(), $m);
-
-            return Http::response(['data' => $rosters[(int) $m[1]] ?? []]);
-        },
-    ]);
-}
 
 it('syncs term, class, teachers, and students and is idempotent', function () {
     fakeAcademicSync([academicClass()], [10 => [academicStudent(1), academicStudent(2)]]);
