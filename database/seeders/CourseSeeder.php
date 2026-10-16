@@ -36,8 +36,8 @@ class CourseSeeder extends Seeder
                 'description' => $def['description'],
             ]);
 
-            foreach (GradeCategory::DEFAULTS as $n => [$categoryName, $weight]) {
-                $course->gradeCategories()->create(['name' => $categoryName, 'weight' => $weight, 'position' => $n + 1]);
+            foreach (GradeCategory::DEFAULTS as $n => [$categoryName, $weight, $component]) {
+                $course->gradeCategories()->create(['name' => $categoryName, 'weight' => $weight, 'academic_component' => $component, 'position' => $n + 1]);
             }
 
             // Satu mata kuliah dapat diampu beberapa dosen (team teaching); dosen pertama dianggap pengampu utama.

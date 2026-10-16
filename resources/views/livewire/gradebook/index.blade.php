@@ -36,6 +36,51 @@
         <p class="mt-2 text-xs text-text-muted">{{ __('gradebook.rules') }}</p>
     </x-card>
 
+    @if ($academicComponents)
+        <x-card :title="__('gradebook.academic.title')">
+            <p class="text-sm text-text-muted">{{ __('gradebook.academic.intro') }}</p>
+
+            @if ($locked)
+                <p class="mt-2 text-sm text-warning" role="status">{{ __('gradebook.academic.locked_note') }}</p>
+            @endif
+
+            <ul class="mt-3 divide-y divide-border">
+                @foreach ($academicComponents as $entry)
+                    <li class="flex flex-wrap items-center gap-3 py-3" wire:key="push-{{ $entry['component']->value }}">
+                        <div class="min-w-0 flex-1">
+                            <p class="text-sm font-semibold">{{ $entry['component']->label() }}</p>
+                            <p class="text-xs text-text-muted">{{ __('gradebook.academic.categories', ['list' => implode(', ', $entry['categories'])]) }}</p>
+                            <p class="mt-1 text-xs text-text-muted">{{ __('gradebook.academic.ready', ['n' => $entry['ready']]) }}</p>
+                            @if ($entry['waiting'] > 0)
+                                <p class="text-xs text-warning" role="status">{{ __('gradebook.academic.waiting', ['n' => $entry['waiting']]) }}</p>
+                            @endif
+                        </div>
+                        <x-button variant="secondary" size="sm" icon="arrow-up-tray" wire:click="pushGrades('{{ $entry['component']->value }}')" wire:loading.attr="disabled" wire:target="pushGrades"
+                                  wire:confirm="{{ __('gradebook.academic.confirm', ['component' => $entry['component']->label(), 'ready' => $entry['ready'], 'waiting' => $entry['waiting']]) }}">{{ __('gradebook.academic.send') }}</x-button>
+                    </li>
+                @endforeach
+            </ul>
+
+            @if ($pushError !== '')
+                <p class="mt-2 rounded-lg border border-danger/40 bg-danger/10 px-3 py-2 text-sm text-danger" role="alert">{{ $pushError }}</p>
+            @endif
+
+            @if ($pushResult)
+                <div class="mt-2 space-y-1 text-sm" role="status">
+                    <p class="text-success">{{ $pushResult['sent'] === 0 ? __('gradebook.academic.nothing', ['component' => $pushResult['component']]) : __('gradebook.academic.sent', ['updated' => $pushResult['updated'], 'component' => $pushResult['component']]) }}</p>
+                    @if ($pushResult['skipped'])
+                        <p class="text-warning">{{ __('gradebook.academic.skipped_title', ['n' => count($pushResult['skipped'])]) }}</p>
+                        <ul class="list-disc pl-5 text-text-muted">
+                            @foreach ($pushResult['skipped'] as $skip)
+                                <li>{{ $skip['name'] ?? $skip['user_id'] }}: {{ $skip['reason'] }}</li>
+                            @endforeach
+                        </ul>
+                    @endif
+                </div>
+            @endif
+        </x-card>
+    @endif
+
     @if ($items->isEmpty())
         <x-card><x-empty-state icon="table-cells" :title="__('gradebook.empty')" :description="__('gradebook.empty_hint')" /></x-card>
     @elseif (! $canRoster)
@@ -133,6 +178,12 @@
                             <x-input name="entries.{{ $id }}.name" wire:model="entries.{{ $id }}.name" :label="__('gradebook.category')" class="[&>label]:sr-only" maxlength="100" />
                             <x-input name="entries.{{ $id }}.weight" type="number" min="0" max="100" inputmode="numeric" wire:model="entries.{{ $id }}.weight" :label="__('gradebook.weight')" class="[&>label]:sr-only" />
                             <x-button variant="ghost" size="sm" icon="trash" class="mt-1.5" wire:click="removeCategory({{ $id }})" wire:confirm="{{ __('gradebook.confirm_remove') }}"><span class="sr-only">{{ __('gradebook.remove') }}</span></x-button>
+                            @if ($course->isManagedByAcademic())
+                                <div class="col-span-3">
+                                    <x-select name="entries.{{ $id }}.component" wire:model="entries.{{ $id }}.component" :label="__('gradebook.component')" :placeholder="__('gradebook.component_none')"
+                                              :options="collect(\App\Enums\AcademicGradeComponent::cases())->mapWithKeys(fn ($c) => [$c->value => $c->label()])->all()" />
+                                </div>
+                            @endif
                         </div>
                     @endforeach
                     @error('weights') <p class="text-sm text-danger" role="alert">{{ $message }}</p> @enderror

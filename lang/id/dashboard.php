@@ -20,6 +20,8 @@ return [
     'no_due_soon' => 'Tidak ada tenggat dalam 7 hari ke depan',
     'submitted_count' => ':n dari :total terkumpul',
     'distribution' => 'Sebaran nilai akhir',
+    'distribution_estimate' => 'Sebaran nilai akhir (perkiraan)',
+    'estimate_note' => 'Perkiraan dari nilai di Learn. Nilai resmi ada di Academic.',
     'letters_hint' => 'A ≥ 85, B ≥ 70, C ≥ 55, D ≥ 40, E < 40.',
     'students' => 'Mahasiswa',
     'all_courses' => 'Seluruh mata kuliah',

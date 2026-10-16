@@ -72,8 +72,8 @@ class Course extends Model
     /** Kategori nilai bawaan (Tugas, Kuis, Ujian) untuk kelas baru. */
     public function createDefaultGradeCategories(): void
     {
-        foreach (GradeCategory::DEFAULTS as $i => [$name, $weight]) {
-            $this->gradeCategories()->create(['name' => $name, 'weight' => $weight, 'position' => $i + 1]);
+        foreach (GradeCategory::DEFAULTS as $i => [$name, $weight, $component]) {
+            $this->gradeCategories()->create(['name' => $name, 'weight' => $weight, 'academic_component' => $component, 'position' => $i + 1]);
         }
     }
 

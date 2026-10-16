@@ -13,11 +13,11 @@
         @endif
     </x-card>
 
-    <x-card :title="__('dashboard.distribution')">
+    <x-card :title="config('academic.enabled') ? __('dashboard.distribution_estimate') : __('dashboard.distribution')">
         @if (array_sum($data['buckets']) > 0)
             <x-chart type="doughnut" :label="__('dashboard.distribution')"
                      :data="['labels' => array_keys($data['buckets']), 'datasets' => [['label' => __('dashboard.students'), 'data' => array_values($data['buckets'])]]]" />
-            <p class="mt-2 text-xs text-text-muted">{{ __('dashboard.letters_hint') }}</p>
+            <p class="mt-2 text-xs text-text-muted">{{ __('dashboard.letters_hint') }}@if (config('academic.enabled')) {{ __('dashboard.estimate_note') }}@endif</p>
         @else
             <x-empty-state icon="chart-pie" :title="__('dashboard.no_data')" />
         @endif

@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Enums\AcademicGradeComponent;
 use App\Enums\AttemptStatus;
 use App\Enums\SubmissionStatus;
 use App\Models\Assignment;
@@ -93,6 +94,44 @@ class Gradebook
             'rows' => $rows,
             'weightTotal' => (int) $categories->sum('weight'),
         ];
+    }
+
+    /**
+     * Skor 0–100 per mahasiswa untuk satu komponen Academic: rata-rata berbobot kategori yang dipetakan ke komponen
+     * itu, dengan aturan normalisasi yang sama dengan nilai akhir (#78; satu-satunya rumus, lewat `finalGrade`).
+     * `waiting` = mahasiswa belum punya nilai lengkap di komponen itu (belum ada nilai sama sekali, atau ada
+     * tugas/kuis yang masih menunggu penilaian). Skor null tidak dikirim ke Academic.
+     *
+     * @param  array<string, mixed>|null  $data  hasil `compute()` bila sudah ada (hindari hitung ulang)
+     * @return array<int, array{score: float|null, waiting: bool}> dikunci id mahasiswa
+     */
+    public static function componentScores(Course $course, AcademicGradeComponent $component, ?array $data = null): array
+    {
+        $data ??= self::compute($course);
+
+        /** @var Collection<int, GradeCategory> $mapped */
+        $mapped = $data['categories']->filter(fn (GradeCategory $c) => $c->academic_component === $component);
+        $mappedIds = array_flip($mapped->pluck('id')->all());
+        $mappedItems = array_filter($data['items'], fn (array $item) => isset($mappedIds[$item['category_id']]));
+
+        $scores = [];
+
+        foreach ($data['students'] as $student) {
+            $row = $data['rows'][$student->id];
+            $score = self::finalGrade($mapped, array_intersect_key($row['categories'], $mappedIds));
+
+            $waiting = $score === null;
+
+            foreach ($mappedItems as $item) {
+                if ($row['items'][$item['key']]['pending']) {
+                    $waiting = true;
+                }
+            }
+
+            $scores[$student->id] = ['score' => $score, 'waiting' => $waiting];
+        }
+
+        return $scores;
     }
 
     /**

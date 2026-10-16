@@ -63,6 +63,14 @@ class CoursePolicy
     }
 
     /**
+     * Mengirim komponen nilai ke Academic: admin atau dosen pengampu, hanya untuk kelas hasil sinkron Academic.
+     */
+    public function pushGrades(User $user, Course $course): bool
+    {
+        return $course->isManagedByAcademic() && $this->update($user, $course);
+    }
+
+    /**
      * Daftar peserta lengkap: pengelola kelas dan kepala. mahasiswa hanya melihat dosen.
      */
     public function viewRoster(User $user, Course $course): bool

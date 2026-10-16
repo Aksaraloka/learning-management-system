@@ -2,6 +2,7 @@
 
 namespace App\Actions\Gradebook;
 
+use App\Enums\AcademicGradeComponent;
 use App\Models\Assignment;
 use App\Models\Course;
 use App\Models\GradeCategory;
@@ -17,7 +18,7 @@ class UpdateGradeCategories
      * Mengubah nama dan bobot kategori nilai. Jumlah bobot harus tepat 100%. Ditolak bila semester dikunci.
      * Id kategori lain kelas diabaikan.
      *
-     * @param  array<int|string, array{name: string, weight: int|string}>  $entries  dikunci id kategori
+     * @param  array<int|string, array{name: string, weight: int|string, component?: string|null}>  $entries  dikunci id kategori
      *
      * @throws AuthorizationException|ValidationException
      */
@@ -38,6 +39,12 @@ class UpdateGradeCategories
                 $errors["entries.{$id}.name"] = __('gradebook.errors.name');
             }
 
+            $component = $entry['component'] ?? null;
+
+            if ($component !== null && $component !== '' && AcademicGradeComponent::tryFrom((string) $component) === null) {
+                $errors["entries.{$id}.component"] = __('gradebook.errors.component');
+            }
+
             if (! is_numeric($weight) || (int) $weight < 0 || (int) $weight > 100 || (string) (int) $weight !== (string) $weight) {
                 $errors["entries.{$id}.weight"] = __('gradebook.errors.weight');
 
@@ -56,21 +63,34 @@ class UpdateGradeCategories
         }
 
         $before = $categories->mapWithKeys(fn ($c) => [$c->name => $c->weight])->all();
+        $beforeComponents = $categories->mapWithKeys(fn ($c) => [$c->name => $c->academic_component->value ?? '-'])->all();
 
         DB::transaction(function () use ($categories, $entries) {
             foreach ($categories as $id => $category) {
                 $entry = $entries[$id] ?? null;
 
                 if ($entry) {
-                    $category->update(['name' => trim((string) $entry['name']), 'weight' => (int) $entry['weight']]);
+                    $category->update([
+                        'name' => trim((string) $entry['name']),
+                        'weight' => (int) $entry['weight'],
+                        'academic_component' => array_key_exists('component', $entry)
+                            ? AcademicGradeComponent::tryFrom((string) $entry['component'])
+                            : $category->academic_component,
+                    ]);
                 }
             }
         });
 
-        $after = $course->gradeCategories()->get()->mapWithKeys(fn ($c) => [$c->name => $c->weight])->all();
+        $updated = $course->gradeCategories()->get();
+        $after = $updated->mapWithKeys(fn ($c) => [$c->name => $c->weight])->all();
+        $afterComponents = $updated->mapWithKeys(fn ($c) => [$c->name => $c->academic_component->value ?? '-'])->all();
 
         if ($before !== $after) {
             Audit::record('gradebook.weights_updated', $course, ['from' => $before, 'to' => $after], $course->id);
+        }
+
+        if ($beforeComponents !== $afterComponents) {
+            Audit::record('gradebook.components_updated', $course, ['from' => $beforeComponents, 'to' => $afterComponents], $course->id);
         }
     }
 
