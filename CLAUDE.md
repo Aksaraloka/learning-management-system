@@ -27,7 +27,9 @@ Laravel 13 (PHP 8.3+), Livewire 4 + Alpine, Tailwind CSS v4 (Vite), Pest, Pint, 
 - Blade: jangan campur `@php(...)` inline dengan blok `@php ... @endphp` dalam satu file (regex Blade menelan `@foreach` di antaranya); pakai blok di keduanya.
 - Test Livewire: `array + array` mempertahankan nilai KIRI; di helper pakai `$overrides + $defaults`, bukan sebaliknya.
 - Test Livewire: setelah `assertForbidden()`/`assertNotFound()` komponen tidak bisa dipakai lagi; buat komponen baru untuk panggilan berikutnya.
-- Verifikasi UI nyata: bisa memakai Chrome headless lewat DevTools Protocol (skrip contoh ada di riwayat sesi; jalankan server dengan `php artisan serve` dan sembunyikan `public/hot` agar memakai aset hasil build).
+- Verifikasi UI nyata: bisa memakai Chrome headless lewat DevTools Protocol (skrip contoh ada di riwayat sesi; jalankan server (Herd: pakai situs `.test`; tanpa Herd: `php artisan serve`) dan sembunyikan `public/hot` agar memakai aset hasil build).
+- Integrasi Academic (SIAKAD; keputusan #92-#100): aktif hanya bila `config('academic.enabled')` (`config/academic.php`, env `ACADEMIC_*`); bila nonaktif Learn berjalan mandiri. Klien API `App\Support\Academic\AcademicClient` (token klien server di-cache), SSO manual `AcademicSso` + action `SignInFromAcademic` (peran disinkronkan tiap login; form kata sandi hanya admin), sinkron `App\Actions\Academic\{SyncTerm,SyncClass,SyncAcademicData}` (`php artisan academic:sync`, harian), webhook `POST /webhooks/academic` (HMAC, `webhook_receipts` idempoten, `HandleAcademicEvent` di antrean). Kelas hasil sinkron (`courses.academic_class_id`) dimiliki Academic: nama/SKS/semester/peserta terkunci, presensi lokal dimatikan (rekap lewat `AttendanceSummary`, satu sumber), nilai dikirim per komponen lewat `Gradebook::componentScores` + `PushGradesToAcademic`. Cek `$course->isManagedByAcademic()` sebelum membuat fitur yang menulis data milik Academic. Test: `enableAcademic()`, `fakeAcademicSync()`, `Http::fake` (jangan memanggil Academic sungguhan); `Http::fake` bersifat menambah, panggil `Http::swap(new Factory)` untuk mengulang.
+- Lokal dengan Herd: situs dilayani `http://learning-management-system.test` (jangan `php artisan serve`; `composer dev:herd` menjalankan queue + scheduler + Vite). Untuk integrasi lokal isi `.env`: `APP_URL=http://learning-management-system.test`, `ACADEMIC_URL=http://academic.test`, kredensial dari `php artisan integration:install-lms` di Academic; redirect SSO `{APP_URL}/auth/academic/callback`, webhook `{APP_URL}/webhooks/academic`.
 - Setiap fitur wajib punya Pest feature test (termasuk hak akses & isolasi tenant).
 - Di Windows/PowerShell 5.1 jangan tulis file PHP dengan `Set-Content -Encoding utf8` (menambah BOM).
 
@@ -35,7 +37,7 @@ Laravel 13 (PHP 8.3+), Livewire 4 + Alpine, Tailwind CSS v4 (Vite), Pest, Pint, 
 - `composer dev` (server+queue+vite) · `npm run build` · `php artisan test` · `./vendor/bin/pint` · `./vendor/bin/phpstan analyse --memory-limit=1G`
 
 ## Status fase
-Fase 0 (fondasi), Fase 1 (auth, peran, pengguna, tahun ajaran), Fase 2 (kelas & materi), Fase 3 (tugas), Fase 4 (kuis), Fase 5 (nilai, presensi, pengumuman, notifikasi), dan Fase 6 (dashboard, PWA, audit, polish) selesai; multi-tenant dihapus. Semua fase PRD selesai; perubahan berikutnya atas permintaan pemilik. Rencana lengkap di prompt awal proyek.
+Fase 0 (fondasi), Fase 1 (auth, peran, pengguna, tahun ajaran), Fase 2 (kelas & materi), Fase 3 (tugas), Fase 4 (kuis), Fase 5 (nilai, presensi, pengumuman, notifikasi), dan Fase 6 (dashboard, PWA, audit, polish) selesai; multi-tenant dihapus. Semua fase PRD selesai; integrasi Academic tahap 1-6 (SSO, sinkron kelas/peserta, webhook, presensi resmi, kirim nilai) selesai dan opsional; perubahan berikutnya atas permintaan pemilik. Rencana lengkap di prompt awal proyek.
 
 <laravel-boost-guidelines>
 === foundation rules ===
