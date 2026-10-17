@@ -16,6 +16,9 @@ class AcademicSso
 {
     public const SESSION_KEY = 'academic_sso';
 
+    /** Sesi tempat daftar aplikasi dari `/apps` disimpan setelah login (untuk pengalih aplikasi). */
+    public const APPS_KEY = 'academic_apps';
+
     public function authorizationUrl(): string
     {
         $state = Str::random(40);
@@ -56,7 +59,44 @@ class AcademicSso
             throw new AcademicException(__('academic.sso.invalid_state'));
         }
 
-        return $this->fetchProfile($this->exchangeCode($code, (string) $saved['verifier']));
+        $token = $this->exchangeCode($code, (string) $saved['verifier']);
+        $profile = $this->fetchProfile($token);
+
+        $this->rememberApps($token);
+
+        return $profile;
+    }
+
+    /**
+     * Simpan daftar aplikasi Aksaraloka milik pengguna ini di sesi. Kegagalan apa pun diabaikan: login tetap
+     * berhasil dan pengalih cukup menampilkan tautan ke Academic.
+     */
+    private function rememberApps(string $token): void
+    {
+        session()->forget(self::APPS_KEY);
+
+        try {
+            $response = $this->http()->withToken($token)->get(config('academic.url').'/api/integration/v1/apps');
+        } catch (ConnectionException) {
+            return;
+        }
+
+        $rows = $response->json('data');
+
+        if (! $response->successful() || ! is_array($rows)) {
+            return;
+        }
+
+        $apps = [];
+
+        foreach ($rows as $row) {
+            if (is_array($row) && is_string($row['key'] ?? null) && is_string($row['label'] ?? null)
+                && is_string($row['url'] ?? null) && preg_match('#^https?://#i', $row['url']) === 1) {
+                $apps[] = ['key' => $row['key'], 'label' => $row['label'], 'url' => rtrim($row['url'], '/')];
+            }
+        }
+
+        session()->put(self::APPS_KEY, $apps);
     }
 
     private function exchangeCode(string $code, string $verifier): string

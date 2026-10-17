@@ -25,6 +25,8 @@ class AcademicAuthController extends Controller
         try {
             $signIn->handle($sso->profileFromCallback($request));
         } catch (AcademicException|AcademicSignInRejected $e) {
+            $request->session()->forget(AcademicSso::APPS_KEY);
+
             return redirect()->route('login')->with('sso_error', $e->getMessage());
         }
 

@@ -16,10 +16,17 @@ beforeEach(fn () => enableAcademic());
 /**
  * @param  array<string, mixed>  $profile
  */
-function fakeAcademicMe(array $profile = [], int $meStatus = 200): void
+function fakeAcademicMe(array $profile = [], int $meStatus = 200, ?array $apps = null, int $appsStatus = 200): void
 {
+    $apps ??= [
+        ['key' => 'academic', 'label' => 'Academic', 'url' => 'https://academic.test'],
+        ['key' => 'lms', 'label' => 'Learn', 'url' => 'https://learn.test'],
+        ['key' => 'admission', 'label' => 'Admission', 'url' => 'https://admission.test'],
+    ];
+
     Http::swap(new Factory);
     Http::fake([
+        'academic.test/api/integration/v1/apps' => Http::response($appsStatus === 200 ? ['data' => $apps] : ['message' => 'Error'], $appsStatus),
         'academic.test/oauth/token' => Http::response(['access_token' => 'user-token', 'expires_in' => 3600]),
         'academic.test/api/integration/v1/me' => $meStatus === 200
             ? Http::response(['data' => $profile + [
@@ -233,4 +240,62 @@ it('keeps password login for everyone when the integration is off', function () 
     Livewire::test(Login::class)->set('identifier', 'mhs@kampus.test')->set('password', 'rahasia123')->call('login')->assertHasNoErrors();
 
     $this->assertAuthenticated();
+});
+
+it('stores the app list from /apps in the session at login', function () {
+    fakeAcademicMe();
+
+    ssoCallback()->assertRedirect(route('home'));
+
+    Http::assertSent(fn (Request $r) => str_ends_with($r->url(), '/api/integration/v1/apps') && $r->hasHeader('Authorization', 'Bearer user-token'));
+    expect(collect(session(AcademicSso::APPS_KEY))->pluck('key')->all())->toBe(['academic', 'lms', 'admission']);
+});
+
+it('still signs in when /apps fails and falls back to the Academic link', function () {
+    fakeAcademicMe(appsStatus: 500);
+
+    ssoCallback()->assertRedirect(route('home'));
+
+    $this->assertAuthenticated();
+    expect(session(AcademicSso::APPS_KEY))->toBeNull();
+
+    $this->get(route('home'))->assertOk()->assertSee('href="https://academic.test"', false)->assertDontSee('admission.test');
+});
+
+it('ignores app rows with an unsafe url', function () {
+    fakeAcademicMe(apps: [
+        ['key' => 'academic', 'label' => 'Academic', 'url' => 'javascript:alert(1)'],
+        ['key' => 'admission', 'label' => 'Admission', 'url' => 'https://admission.test/'],
+    ]);
+
+    ssoCallback();
+
+    expect(session(AcademicSso::APPS_KEY))->toBe([['key' => 'admission', 'label' => 'Admission', 'url' => 'https://admission.test']]);
+});
+
+it('shows the app switcher with SSO links and marks Learn as current', function () {
+    fakeAcademicMe();
+    ssoCallback();
+
+    $this->get(route('home'))->assertOk()
+        ->assertSee(__('ui.apps.title'))
+        ->assertSee('href="https://academic.test"', false)
+        ->assertSee('href="https://admission.test/auth/academic"', false)
+        ->assertDontSee('learn.test/auth/academic', false);
+});
+
+it('hides the app switcher when the integration is off', function () {
+    config(['academic.enabled' => false]);
+
+    $this->actingAs(makeUser(Role::Admin))->get(route('home'))->assertOk()->assertDontSee(__('ui.apps.title'));
+});
+
+it('shows only the Academic link to an admin who signed in with a password', function () {
+    makeUser(Role::Admin, ['email' => 'admin@kampus.test', 'password' => 'rahasia123']);
+    Livewire::test(Login::class)->set('identifier', 'admin@kampus.test')->set('password', 'rahasia123')->call('login');
+
+    $this->get(route('home'))->assertOk()
+        ->assertSee(__('ui.apps.title'))
+        ->assertSee('href="https://academic.test"', false)
+        ->assertDontSee('admission.test');
 });

@@ -3,6 +3,12 @@
 return [
     'app' => ['name' => 'Aksaraloka', 'tagline' => 'Belajar mengajar, lebih ringan.'],
 
+    'apps' => [
+        'title' => 'Aplikasi Aksaraloka',
+        'current' => 'sedang dibuka',
+        'opened' => 'Dibuka',
+    ],
+
     'nav' => [
         'home' => 'Beranda',
         'classes' => 'Mata Kuliah',
